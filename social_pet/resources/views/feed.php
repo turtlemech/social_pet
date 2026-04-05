@@ -12,7 +12,7 @@ body {
     background-color: #F5F2ED;
 }
 
-/* NAVBAR GLASS */
+/* NAVBAR */
 .bottom-nav {
     position: fixed;
     bottom: 10px;
@@ -30,11 +30,27 @@ body {
 /* BURBUJA */
 .nav-glow {
     position: absolute;
-    width: 120px;
-    height: 120px;
-    background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+
+    width: 100px;
+    height: 65px;
+
+    background: rgba(199, 234, 228, 0.27);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+
+    border-radius: 999px;
+
     pointer-events: none;
+
     transform: translate(-50%, -50%);
+    transition: all 0.25s ease, opacity 0.2s ease;
+
+    opacity: 0;
+}
+
+/* BOTÓN PLUS */
+#plus-btn {
+    transition: transform 0.2s ease;
 }
 
 /* REACCIONES */
@@ -58,12 +74,11 @@ body {
 <!-- NAVBAR -->
 <div class="bottom-nav flex justify-around py-3 text-xl items-center" id="nav">
 
-    <!-- BURBUJA -->
     <div class="nav-glow" id="glow"></div>
 
     <button>🐾</button>
     <button>🔍</button>
-    <button class="bg-orange-500 text-white px-4 py-2 rounded-full">➕</button>
+    <button id="plus-btn" class="bg-orange-500 text-white px-4 py-2 rounded-full">➕</button>
     <button>💘</button>
     <button>👤</button>
 
@@ -74,7 +89,7 @@ body {
 // DATA
 const posts = [
 {
-    name: "Max",
+    name: "Max",    
     breed: "Golden Retriever",
     location: "Parque Central",
     text: "Buscando amigos para jugar 🐾",
@@ -93,9 +108,8 @@ const posts = [
 
 const feed = document.getElementById("feed");
 
-// RENDER POSTS
+// RENDER
 posts.forEach((post, index) => {
-
 feed.innerHTML += `
 <div class="bg-white rounded-2xl shadow mb-6 overflow-hidden">
 
@@ -112,7 +126,6 @@ feed.innerHTML += `
 
         <div class="relative mt-4 reaction-container">
 
-            <!-- BOTÓN PRINCIPAL -->
             <button 
                 id="main-btn-${index}"
                 onmousedown="startPress(event, ${index})"
@@ -123,7 +136,6 @@ feed.innerHTML += `
                 🐾
             </button>
 
-            <!-- MENÚ REACCIONES -->
             <div id="reactions-${index}" 
                  class="hidden absolute bottom-14 left-0 bg-white shadow-xl rounded-full px-4 py-3 flex gap-3 items-center z-50">
 
@@ -131,20 +143,17 @@ feed.innerHTML += `
                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded hidden">
                 </div>
 
-                <!-- LIKE -->
                 <div class="reaction-item"
                      onmouseenter="showTooltip(${index}, 'Le gusta 🦴')" 
                      onmouseleave="hideTooltip(${index})"
                      onclick="react(${index}, 'like')">
-                    <span class="text-2xl">🦴</span>
+                    🦴
                 </div>
 
-                <!-- LOVE -->
                 <div class="reaction-item"
                      onmouseenter="showTooltip(${index}, 'Le encanta 😍')" 
                      onmouseleave="hideTooltip(${index})"
                      onclick="react(${index}, 'love')">
-
                     <img src="../imagen/lovedog.png" width="40" height="40" style="pointer-events:none;">
                 </div>
 
@@ -167,12 +176,9 @@ feed.innerHTML += `
 });
 
 // FUNCIONES
-
 function react(index, type){
     document.getElementById(`reactions-${index}`).classList.add("hidden");
-
     const btn = document.getElementById(`main-btn-${index}`);
-
     btn.innerText = type === "love" ? "❤️" : "🦴";
 }
 
@@ -185,7 +191,6 @@ let pressTimer;
 
 function startPress(e, index) {
     e.preventDefault();
-
     pressTimer = setTimeout(() => {
         document.getElementById(`reactions-${index}`).classList.remove("hidden");
     }, 300);
@@ -215,19 +220,77 @@ function hideTooltip(index) {
     document.getElementById(`tooltip-${index}`).classList.add("hidden");
 }
 
-// EFECTO BURBUJA
+// ===== BURBUJA =====
 const nav = document.getElementById("nav");
 const glow = document.getElementById("glow");
 
+let mouseX = 0, mouseY = 0;
+let currentX = 0, currentY = 0;
+
+// mostrar / ocultar
+nav.addEventListener("mouseenter", () => {
+    glow.style.opacity = "1";
+});
+
+nav.addEventListener("mouseleave", () => {
+    glow.style.opacity = "0";
+});
+
+// movimiento
 nav.addEventListener("mousemove", (e) => {
     const rect = nav.getBoundingClientRect();
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    glow.style.left = x + "px";
-    glow.style.top = y + "px";
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
 });
+
+// animación fluida
+function animate() {
+    currentX += (mouseX - currentX) * 0.2;
+    currentY += (mouseY - currentY) * 0.08;
+
+    glow.style.left = currentX + "px";
+    glow.style.top = currentY + "px";
+
+    requestAnimationFrame(animate);
+}
+animate();
+
+// magnetismo SUAVE (sin exagerar tamaño)
+const buttons = nav.querySelectorAll("button");
+
+buttons.forEach(btn => {
+    btn.addEventListener("mouseenter", () => {
+        const rect = btn.getBoundingClientRect();
+        const navRect = nav.getBoundingClientRect();
+
+        mouseX = rect.left - navRect.left + rect.width / 2;
+        mouseY = rect.top - navRect.top + rect.height / 2;
+
+        glow.style.width = "110px";
+        glow.style.height = "70px";
+    });
+
+    btn.addEventListener("mouseleave", () => {
+        glow.style.width = "100px";
+        glow.style.height = "65px";
+    });
+});
+
+// botón +
+const plusBtn = document.getElementById("plus-btn");
+
+plusBtn.addEventListener("mouseenter", () => {
+    plusBtn.style.transform = "scale(1.3)";
+});
+
+plusBtn.addEventListener("mouseleave", () => {
+    plusBtn.style.transform = "scale(1)";
+});
+
+// posición inicial
+const rect = nav.getBoundingClientRect();
+currentX = rect.width / 2;
+currentY = rect.height / 2;
 
 </script>
 

@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('nombre', 100);
             $table->enum('especie', ['perro', 'gato', 'ave', 'roedor', 'reptil', 'otros']);
             $table->string('raza', 100)->nullable();
-            $table->integer('edad')->nullable();
             $table->date('fecha_nacimiento')->nullable();
             $table->enum('sexo', ['macho', 'hembra']);
             $table->decimal('peso', 5, 2)->nullable();

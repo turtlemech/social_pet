@@ -13,29 +13,17 @@ return new class extends Migration
     {
          Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('apellidos', 150)->nullable();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('telefono', 20)->nullable();
-            $table->date('fecha_nacimiento')->nullable();
-            $table->text('direccion')->nullable();
-            $table->string('ciudad', 100)->nullable();
-            $table->string('pais', 100)->nullable();
-            $table->string('foto_perfil', 255)->nullable();
-            $table->text('biografia')->nullable();
-            $table->enum('tipo_usuario', ['particular', 'veterinario', 'tienda', 'protectora'])->default('particular');
-            $table->timestamp('ultimo_acceso')->nullable();
-            $table->enum('estado', ['activo', 'bloqueado', 'eliminado'])->default('activo');
-            $table->rememberToken();
-            $table->foreignId('current_team_id')->nullable();
-            $table->string('profile_photo_path', 2048)->nullable();
+            $table->string('cod_us', 8)->unique();
+            $table->string('nom_us', 100);
+            $table->string('ema_us', 150)->unique();
+            $table->string('pas_us', 255);
+            $table->string('tel_us', 20)->nullable();
+            $table->string('ciu_us', 100)->nullable();
+            $table->text('ava_us')->nullable();
             $table->timestamps();
             
-            $table->index(['email', 'tipo_usuario'], 'users_email_tipo_idx');
-            $table->index('ciudad', 'users_ciudad_idx');
-            $table->index('estado', 'users_estado_idx');
+            $table->index('nom_us', 'usuarios_nombre_idx');
+            $table->index('ciu_us', 'usuarios_ciudad_idx');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

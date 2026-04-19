@@ -45,9 +45,11 @@ return [
     |
     */
 
-    'username' => 'email',
+    //  CAMBIAR 'email' a 'ema_us'
+    'username' => 'ema_us',
 
-    'email' => 'email',
+    //  CAMBIAR 'email' a 'ema_us'
+    'email' => 'ema_us',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,16 +146,13 @@ return [
     */
 
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
-        // Features::emailVerification(),
-        Features::updateProfileInformation(),
-        Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0,
-        ]),
+        // Features::registration(),
+    // Features::resetPasswords(),
+    // Features::emailVerification(),
+    // Features::updateProfileInformation(),
+    // Features::updatePasswords(),
+    // Features::twoFactorAuthentication(),
+        
     ],
 
 ];

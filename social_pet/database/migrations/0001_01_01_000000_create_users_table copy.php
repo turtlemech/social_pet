@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('usuarios', function (Blueprint $table) {
+        Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
             $table->string('cod_us', 8)->unique();
             $table->string('nom_us', 100);
@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('tel_us', 20)->nullable();
             $table->string('ciu_us', 100)->nullable();
             $table->text('ava_us')->nullable();
+            $table->rememberToken();  // ← AGREGADO: necesario para sesiones
+            $table->boolean('is_admin')->default(false);  // ← AGREGADO: para identificar admin
             $table->timestamps();
             
             $table->index('nom_us', 'usuarios_nombre_idx');
@@ -47,7 +49,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('usuarios');  // ← CORREGIDO: antes decía 'users'
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

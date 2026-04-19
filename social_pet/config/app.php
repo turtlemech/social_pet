@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'SocialPet'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Lima', // Cambiado a tu zona horaria
 
     /*
     |--------------------------------------------------------------------------
@@ -78,11 +78,9 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
-
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
-
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'locale' => env('APP_LOCALE', 'es'), // Cambiado a español
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'es'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'es_ES'), // Cambiado a español
 
     /*
     |--------------------------------------------------------------------------
@@ -96,9 +94,7 @@ return [
     */
 
     'cipher' => 'AES-256-CBC',
-
     'key' => env('APP_KEY'),
-
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
@@ -123,4 +119,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Component Aliases (SocialPet)
+    |--------------------------------------------------------------------------
+    |
+    | These aliases allow you to use components without the full namespace
+    | Example: <x-ui.button /> instead of <x-components.ui.button />
+    |
+    */
+
+    
+    
 ];

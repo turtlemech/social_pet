@@ -58,11 +58,11 @@ return [
     */
 
     'features' => [
-        // Features::termsAndPrivacyPolicy(),
-        // Features::profilePhotos(),
+        Features::profilePhotos(),              // ✅ HABILITADO - Para foto de perfil
+        Features::accountDeletion(),            // ✅ HABILITADO - Para eliminar cuenta
         // Features::api(),
         // Features::teams(['invitations' => true]),
-        //Features::accountDeletion(),
+        // Features::termsAndPrivacyPolicy(),
     ],
 
     /*

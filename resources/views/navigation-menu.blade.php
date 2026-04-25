@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             
-            <!-- Logo -->
+            <!-- imagen logo -->
             <a href="{{ url('/') }}" class="flex items-center space-x-2">
                 <div class="bg-gradient-to-r from-teal-500 to-teal-700 rounded-lg p-1.5">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,7 +14,7 @@
                 </span>
             </a>
 
-            <!-- Search Bar - Solo visible en dashboard/feed -->
+            <!-- barra de busqueda inicio sesion -->
             @auth
             @if(Route::currentRouteName() == 'dashboard' || Route::currentRouteName() == 'feed')
             <div class="hidden md:flex flex-1 max-w-md mx-8">
@@ -77,8 +77,11 @@
                                 <p class="text-sm font-semibold text-gray-900">{{ Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario' }}</p>
                                 <p class="text-xs text-gray-500">{{ Auth::user()->ema_us ?? Auth::user()->email ?? '' }}</p>
                             </div>
+
                             
-                            <a href="{{ url('/profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+                            <!-- ruta perfil -->
+                            
+                            <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>

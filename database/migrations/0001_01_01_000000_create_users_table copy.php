@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('pas_us', 255);
             $table->string('tel_us', 20)->nullable();
             $table->string('ciu_us', 100)->nullable();
+            $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->text('ava_us')->nullable();
             $table->rememberToken();  // ← AGREGADO: necesario para sesiones
             $table->boolean('is_admin')->default(false);  // ← AGREGADO: para identificar admin

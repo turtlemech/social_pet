@@ -3,8 +3,8 @@
         <div class="flex justify-between items-center h-16">
 
             <!-- imagen logo -->
-            <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                <img src="{{ asset('storage/imgages/social_petpng.png') }}"
+            <a href="<?php echo e(route('home')); ?>" class="flex items-center space-x-2">
+                <img src="<?php echo e(asset('storage/imgages/social_petpng.png')); ?>"
                     alt="Social Pet"
                     class="h-10 w-auto rounded-lg">
                 <span class="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
@@ -13,8 +13,8 @@
             </a>
 
             <!-- barra de busqueda -->
-            @auth
-            @if(Route::currentRouteName() == 'dashboard' || Route::currentRouteName() == 'feed')
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Route::currentRouteName() == 'dashboard' || Route::currentRouteName() == 'feed'): ?>
             <div class="hidden md:flex flex-1 max-w-md mx-8">
                 <div class="relative w-full">
                     <input type="text"
@@ -25,20 +25,20 @@
                     </svg>
                 </div>
             </div>
-            @endif
-            @endauth
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <!-- Botones de navegación -->
             <div class="flex items-center space-x-3">
-                @auth
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
                 <!-- Usuario autenticado -->
-                <a href="{{ route('dashboard') }}" class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
+                <a href="<?php echo e(route('dashboard')); ?>" class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
 
-                <a href="{{ route('feed') }}" class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
+                <a href="<?php echo e(route('feed')); ?>" class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
@@ -55,7 +55,7 @@
                 <!-- Perfil con Dropdown -->
                 <div class="relative ml-2" x-data="{ open: false }">
                     <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none group">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario') }}&background=0d9488&color=fff&bold=true&length=2&size=32"
+                        <img src="https://ui-avatars.com/api/?name=<?php echo e(urlencode(Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario')); ?>&background=0d9488&color=fff&bold=true&length=2&size=32"
                             alt="Avatar"
                             class="w-8 h-8 rounded-full ring-2 ring-teal-500 ring-offset-2 transition-all duration-200 group-hover:scale-105">
                         <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,12 +72,12 @@
                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 z-50">
 
                         <div class="px-4 py-3 border-b border-gray-100">
-                            <p class="text-sm font-semibold text-gray-900">{{ Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario' }}</p>
-                            <p class="text-xs text-gray-500">{{ Auth::user()->ema_us ?? Auth::user()->email ?? '' }}</p>
+                            <p class="text-sm font-semibold text-gray-900"><?php echo e(Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario'); ?></p>
+                            <p class="text-xs text-gray-500"><?php echo e(Auth::user()->ema_us ?? Auth::user()->email ?? ''); ?></p>
                         </div>
 
                         <!-- ruta perfil -->
-                        <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+                        <a href="<?php echo e(route('profile')); ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -86,7 +86,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('my-pets') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+                        <a href="<?php echo e(route('my-pets')); ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -107,7 +107,7 @@
                         </a>
 
 
-                        <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+                        <a href="<?php echo e(route('settings')); ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -119,8 +119,8 @@
 
                         <hr class="my-1">
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
+                        <form method="POST" action="<?php echo e(route('logout')); ?>">
+                            <?php echo csrf_field(); ?>
                             <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,18 +132,18 @@
                         </form>
                     </div>
                 </div>
-                @else
+                <?php else: ?>
                 <!-- Usuario no autenticado - Login y Registro -->
-                <a href="{{ route('login') }}" class="text-gray-600 hover:text-teal-600 transition font-medium">
+                <a href="<?php echo e(route('login')); ?>" class="text-gray-600 hover:text-teal-600 transition font-medium">
                     Iniciar Sesión
                 </a>
-                <a href="{{ route('register') }}" class="bg-gradient-to-r from-teal-500 to-teal-700 text-white px-5 py-2 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-800 transition shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                <a href="<?php echo e(route('register')); ?>" class="bg-gradient-to-r from-teal-500 to-teal-700 text-white px-5 py-2 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-800 transition shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                     <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
                     Registrarse
                 </a>
-                @endauth
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
@@ -158,4 +158,4 @@
             }
         }))
     })
-</script>
+</script><?php /**PATH C:\laragon\www\social_pet\resources\views/navigation-menu.blade.php ENDPATH**/ ?>

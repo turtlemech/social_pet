@@ -21,6 +21,7 @@ class User extends Authenticatable
         'tel_us',
         'ciu_us',
         'ava_us',
+        'estado',      // ← Agregado: campo para activo/inactivo
         'is_admin',
     ];
 
@@ -53,5 +54,43 @@ class User extends Authenticatable
     public static function findByEmail($email)
     {
         return self::where('ema_us', $email)->first();
+    }
+    
+    // Desactivar usuario (cambia estado a inactivo)
+    public function deactivate()
+    {
+        $this->estado = 'inactivo';
+        return $this->save();
+    }
+    
+    // Reactivar usuario (cambia estado a activo)
+    public function activate()
+    {
+        $this->estado = 'activo';
+        return $this->save();
+    }
+    
+    // Verificar si el usuario está activo
+    public function isActive()
+    {
+        return $this->estado === 'activo';
+    }
+    
+    // Verificar si el usuario está inactivo
+    public function isInactive()
+    {
+        return $this->estado === 'inactivo';
+    }
+    
+    // Scope para usuarios activos
+    public function scopeActive($query)
+    {
+        return $query->where('estado', 'activo');
+    }
+    
+    // Scope para usuarios inactivos
+    public function scopeInactive($query)
+    {
+        return $query->where('estado', 'inactivo');
     }
 }

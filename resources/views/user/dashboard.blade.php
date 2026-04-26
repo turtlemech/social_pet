@@ -1,16 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
+
+@php 
+    use Carbon\Carbon; 
+@endphp
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
     <!-- Welcome Banner -->
     <div class="bg-gradient-to-r from-teal-600 to-teal-700 rounded-2xl shadow-lg p-6 mb-8 text-white">
         <div class="flex items-center justify-between flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold mb-2">¡Bienvenido de vuelta, {{ Auth::user()->name }}!</h1>
-                <p class="text-teal-100">Comparte momentos especiales con tu mascota</p>
+                <h1 class="text-2xl font-bold mb-2">
+                    ¡Bienvenido de vuelta, {{ Auth::user()->name }}!
+                </h1>
+                <p class="text-teal-100">
+                    Comparte momentos especiales con tu mascota
+                </p>
             </div>
-            <img src="https://cdn-icons-png.flaticon.com/512/1998/1998629.png" alt="Pets" class="w-20 h-20 opacity-90">
+            <img src="https://cdn-icons-png.flaticon.com/512/1998/1998629.png" 
+                 alt="Pets" 
+                 class="w-20 h-20 opacity-90">
         </div>
     </div>
     
@@ -25,11 +36,15 @@
         
         <!-- Main Feed -->
         <div class="lg:w-2/4">
-            <x-posts.create-post />
-            <x-dashboard.feed-tabs />
             
+            <!-- Crear post -->
+            <x-posts.create-post />
+
+            <!-- Tabs -->
+            <x-dashboard.feed-tabs />
+
             @php
-                $posts = [
+                $fakePosts = [
                     (object)[
                         'pet_name' => 'Max',
                         'breed' => 'Golden Retriever',
@@ -52,10 +67,30 @@
                     ]
                 ];
             @endphp
-            
+
+            <!-- POSTS REALES -->
             @foreach($posts as $post)
+                <x-posts.post-card 
+                    :post="(object)[
+                        'pet_name' => 'Mascota',
+                        'breed' => '',
+                        'author' => $post->user->name ?? 'Usuario',
+                        'time_ago' => $post->created_at 
+                            ? Carbon::parse($post->created_at)->diffForHumans()
+                            : 'Ahora',
+                        'content' => $post->con_pub,
+                        'image' => null,
+                        'likes' => 0,
+                        'comments' => 0
+                    ]" 
+                />
+            @endforeach
+
+            <!-- POSTS DE EJEMPLO -->
+            @foreach($fakePosts as $post)
                 <x-posts.post-card :post="$post" />
             @endforeach
+
         </div>
         
         <!-- Sidebar Right -->

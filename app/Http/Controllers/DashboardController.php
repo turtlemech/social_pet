@@ -9,9 +9,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Obtener posts con su usuario, ordenados por más recientes
-        $posts = Post::with('user')
-            ->latest('id') // más limpio que orderBy
+        // 🔥 incluir likes también
+        $posts = Post::with(['user', 'likes'])
+            ->latest('id')
             ->get();
 
         return view('user.dashboard', [

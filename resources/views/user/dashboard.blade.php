@@ -72,6 +72,7 @@
             @foreach($posts as $post)
                 <x-posts.post-card 
                     :post="(object)[
+                        'id' => $post->id,
                         'pet_name' => 'Mascota',
                         'breed' => '',
                         'author' => $post->user->name ?? 'Usuario',
@@ -80,7 +81,8 @@
                             : 'Ahora',
                         'content' => $post->con_pub,
                         'image' => null,
-                        'likes' => 0,
+                        'likes' => $post->likes->count(),
+                        'liked' => $post->likes->contains('id_usuario', auth()->id()),
                         'comments' => 0
                     ]" 
                 />

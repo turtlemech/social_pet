@@ -26,17 +26,29 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:usuarios,ema_us,' . Auth::id() . ',id',
-            'phone' => 'nullable|string|max:20',
-            'city' => 'nullable|string|max:100',
+            'nom_us' => 'required|string|min:2|max:100',
+            'ape_us' => 'required|string|min:2|max:100',
+            'ema_us' => 'required|email|unique:usuarios,ema_us,' . Auth::id() . ',id',
+            'tel_us' => 'nullable|string|regex:/^[0-9]{8,15}$/|max:20',
+            'ciu_us' => 'nullable|string|min:2|max:100',
+        ], [
+            'nom_us.required' => 'El nombre es obligatorio',
+            'nom_us.min' => 'El nombre debe tener al menos 2 caracteres',
+            'ape_us.required' => 'El apellido es obligatorio',
+            'ape_us.min' => 'El apellido debe tener al menos 2 caracteres',
+            'ema_us.required' => 'El correo es obligatorio',
+            'ema_us.email' => 'Ingrese un correo válido',
+            'ema_us.unique' => 'Este correo ya está registrado',
+            'tel_us.regex' => 'El teléfono debe contener solo números (8-15 dígitos)',
+            'ciu_us.min' => 'La ciudad debe tener al menos 2 caracteres',
         ]);
 
         $user = User::findOrFail(Auth::id());
-        $user->nom_us = $request->name;
-        $user->ema_us = $request->email;
-        $user->tel_us = $request->phone;
-        $user->ciu_us = $request->city;
+        $user->nom_us = $request->nom_us;
+        $user->ape_us = $request->ape_us;
+        $user->ema_us = $request->ema_us;
+        $user->tel_us = $request->tel_us;
+        $user->ciu_us = $request->ciu_us;
         $user->save();
 
         return back()->with('success', 'Perfil actualizado correctamente');
@@ -50,6 +62,13 @@ class ProfileController extends Controller
         $request->validate([
             'current_password' => 'required|string',
             'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'confirmed', 'min:8', 'regex:/[0-9]/', 'regex:/[a-zA-Z]/'],
+        ], [
+            'current_password.required' => 'La contraseña actual es obligatoria',
+            'password.required' => 'La nueva contraseña es obligatoria',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
+            'password.confirmed' => 'Las contraseñas no coinciden',
+            'password.regex' => 'La contraseña debe contener al menos una letra y un número',
         ]);
 
         $user = User::findOrFail(Auth::id());
@@ -73,6 +92,11 @@ class ProfileController extends Controller
     {
         $request->validate([
             'avatar' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+        ], [
+            'avatar.required' => 'Debes seleccionar una imagen',
+            'avatar.image' => 'El archivo debe ser una imagen',
+            'avatar.mimes' => 'Formatos permitidos: JPG, JPEG, PNG, GIF',
+            'avatar.max' => 'La imagen no debe superar los 2MB',
         ]);
 
         $user = User::findOrFail(Auth::id());
@@ -98,6 +122,8 @@ class ProfileController extends Controller
         try {
             $validated = $request->validate([
                 'password' => 'required|string'
+            ], [
+                'password.required' => 'Debes ingresar tu contraseña para desactivar la cuenta',
             ]);
 
             DB::beginTransaction();

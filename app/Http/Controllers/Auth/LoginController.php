@@ -24,38 +24,38 @@ class LoginController extends Controller
     {
         // Validar los datos de entrada
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'ema_us' => 'required|email',  // Cambiado de 'email' a 'ema_us'
+            'pas_us' => 'required|string', // Cambiado de 'password' a 'pas_us'
         ]);
 
-        $email = $request->email;
-        $password = $request->password;
+        $email = $request->ema_us;      // Cambiado de 'email' a 'ema_us'
+        $password = $request->pas_us;   // Cambiado de 'password' a 'pas_us'
 
         // Buscar usuario por email
         $user = User::where('ema_us', $email)->first();
 
         // Verificar si el usuario existe
         if (!$user) {
-            return back()->withErrors(['email' => 'Usuario no encontrado'])->onlyInput('email');
+            return back()->withErrors(['ema_us' => 'Usuario no encontrado'])->onlyInput('ema_us');
         }
 
-        // Verificar si el usuario está inactivo
+        // Verificar si el usuario está inactivo usando el método del modelo
         if (!$user->isActive()) {
             return back()->withErrors([
-                'email' => 'Esta cuenta ha sido desactivada. Contacta al administrador para reactivarla.'
-            ])->onlyInput('email');
+                'ema_us' => 'Esta cuenta ha sido desactivada. Contacta al administrador para reactivarla.'
+            ])->onlyInput('ema_us');
         }
 
         // Verificar la contraseña
         if (!password_verify($password, $user->pas_us)) {
-            return back()->withErrors(['email' => 'Contraseña incorrecta'])->onlyInput('email');
+            return back()->withErrors(['ema_us' => 'Contraseña incorrecta'])->onlyInput('ema_us');
         }
 
         // Verificar si es administrador
         if ($user->is_admin) {
             return back()->withErrors([
-                'email' => 'Usa el login de administrador'
-            ])->onlyInput('email');
+                'ema_us' => 'Usa el login de administrador'
+            ])->onlyInput('ema_us');
         }
 
         // Iniciar sesión
@@ -65,7 +65,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         // Redirigir al dashboard
-        return redirect()->intended('/dashboard');
+        return redirect()->intended(route('dashboard'));
     }
 
     /**

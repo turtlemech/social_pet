@@ -15,18 +15,23 @@ return new class extends Migration
             $table->id();
             $table->string('cod_us', 8)->unique();
             $table->string('nom_us', 100);
+            $table->string('ape_us', 100);  
             $table->string('ema_us', 150)->unique();
             $table->string('pas_us', 255);
             $table->string('tel_us', 20)->nullable();
             $table->string('ciu_us', 100)->nullable();
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->text('ava_us')->nullable();
-            $table->rememberToken();  // ← AGREGADO: necesario para sesiones
-            $table->boolean('is_admin')->default(false);  // ← AGREGADO: para identificar admin
+            $table->rememberToken();
+            $table->boolean('is_admin')->default(false);
             $table->timestamps();
             
+            // Índices
             $table->index('nom_us', 'usuarios_nombre_idx');
+            $table->index('ape_us', 'usuarios_apellido_idx');  // ← AGREGADO: índice para apellido
             $table->index('ciu_us', 'usuarios_ciudad_idx');
+            $table->index('estado', 'usuarios_estado_idx');     // ← AGREGADO: útil para filtrar activos/inactivos
+            $table->index('is_admin', 'usuarios_admin_idx');    // ← AGREGADO: útil para filtrar admins
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -50,7 +55,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuarios');  // ← CORREGIDO: antes decía 'users'
+        Schema::dropIfExists('usuarios');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

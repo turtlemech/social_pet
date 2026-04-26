@@ -252,24 +252,26 @@
             <h2>🐾 Social Pet</h2>
             <div class="subtitle">Tu red social de mascotas</div>
             
-            @if($errors->any())
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
                 <div class="error">
-                    {{ $errors->first() }}
+                    <?php echo e($errors->first()); ?>
+
                 </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             
-            @if(session('success'))
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
                 <div class="success">
-                    {{ session('success') }}
+                    <?php echo e(session('success')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             
             <!-- Formulario de Login -->
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
+            <form method="POST" action="<?php echo e(route('login')); ?>">
+                <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label>📧 Correo Electrónico</label>
-                    <input type="email" name="ema_us" placeholder="tu@email.com" value="{{ old('ema_us') }}" required autofocus>
+                    <input type="email" name="ema_us" placeholder="tu@email.com" value="<?php echo e(old('ema_us')); ?>" required autofocus>
                 </div>
                 
                 <div class="form-group">
@@ -282,7 +284,7 @@
             
             <!-- Enlace a registro -->
             <div class="register-link">
-                <a href="{{ route('register') }}">
+                <a href="<?php echo e(route('register')); ?>">
                     ¿No tienes cuenta? 📝 Regístrate aquí
                 </a>
             </div>
@@ -295,7 +297,7 @@
             <span>💬</span>
         </div>
         <div class="support-menu" id="supportMenu">
-            <a href="{{ url('/admin/login') }}">
+            <a href="<?php echo e(url('/admin/login')); ?>">
                 <span>👑</span> Administrador
             </a>
             <a href="#" onclick="showSupportAlert()">
@@ -361,4 +363,4 @@
         });
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\social_pet\resources\views/auth/login.blade.php ENDPATH**/ ?>

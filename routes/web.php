@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\LikeController; // 👈 IMPORTANTE
 use Illuminate\Support\Facades\Route;
 
 // ========== PÁGINA PRINCIPAL ==========
@@ -30,8 +31,11 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // 🔥 RUTA PARA GUARDAR POSTS (LA QUE TE FALTABA)
+    // Posts
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+
+    // ❤️ LIKE (ARREGLADO)
+    Route::post('/like/{post}', [LikeController::class, 'toggle'])->name('like.toggle');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');

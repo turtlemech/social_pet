@@ -20,4 +20,10 @@ class Post extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'us_id');
     }
+
+    // 🔥 RELACIÓN CON LIKES
+    public function likes()
+    {
+        return $this->hasMany(\App\Models\Like::class, 'id_publicacion');
+    }
 }

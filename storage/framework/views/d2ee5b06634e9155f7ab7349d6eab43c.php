@@ -166,6 +166,7 @@
                 <?php if (isset($component)) { $__componentOriginalee79e636c220d7ebbd52bd5d3dfc300e = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalee79e636c220d7ebbd52bd5d3dfc300e = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.posts.post-card','data' => ['post' => (object)[
+                        'id' => $post->id,
                         'pet_name' => 'Mascota',
                         'breed' => '',
                         'author' => $post->user->name ?? 'Usuario',
@@ -174,7 +175,8 @@
                             : 'Ahora',
                         'content' => $post->con_pub,
                         'image' => null,
-                        'likes' => 0,
+                        'likes' => $post->likes->count(),
+                        'liked' => $post->likes->contains('id_usuario', auth()->id()),
                         'comments' => 0
                     ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('posts.post-card'); ?>
@@ -184,6 +186,7 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['post' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute((object)[
+                        'id' => $post->id,
                         'pet_name' => 'Mascota',
                         'breed' => '',
                         'author' => $post->user->name ?? 'Usuario',
@@ -192,7 +195,8 @@
                             : 'Ahora',
                         'content' => $post->con_pub,
                         'image' => null,
-                        'likes' => 0,
+                        'likes' => $post->likes->count(),
+                        'liked' => $post->likes->contains('id_usuario', auth()->id()),
                         'comments' => 0
                     ])]); ?>
 <?php echo $__env->renderComponent(); ?>

@@ -1,0 +1,101 @@
+<?php $attributes ??= new \Illuminate\View\ComponentAttributeBag;
+
+$__newAttributes = [];
+$__propNames = \Illuminate\View\ComponentAttributeBag::extractPropNames((['stories' => []]));
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (in_array($__key, $__propNames)) {
+        $$__key = $$__key ?? $__value;
+    } else {
+        $__newAttributes[$__key] = $__value;
+    }
+}
+
+$attributes = new \Illuminate\View\ComponentAttributeBag($__newAttributes);
+
+unset($__propNames);
+unset($__newAttributes);
+
+foreach (array_filter((['stories' => []]), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
+    $$__key = $$__key ?? $__value;
+}
+
+$__defined_vars = get_defined_vars();
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (array_key_exists($__key, $__defined_vars)) unset($$__key);
+}
+
+unset($__defined_vars, $__key, $__value); ?>
+
+<?php if (isset($component)) { $__componentOriginaldae4cd48acb67888a4631e1ba48f2f93 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginaldae4cd48acb67888a4631e1ba48f2f93 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ui.card','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('ui.card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-gray-900">Stories</h3>
+        <button class="text-xs text-social-teal font-medium hover:text-social-teal-dark">Ver todas</button>
+    </div>
+    
+    <div class="overflow-x-auto pb-2 -mx-2 px-2 stories-scroll">
+        <div class="flex space-x-4">
+            <?php if (isset($component)) { $__componentOriginal1ba3567a8797f8a6ac44585900867fda = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal1ba3567a8797f8a6ac44585900867fda = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.posts.story-circle','data' => ['isAdd' => 'true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('posts.story-circle'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['isAdd' => 'true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal1ba3567a8797f8a6ac44585900867fda)): ?>
+<?php $attributes = $__attributesOriginal1ba3567a8797f8a6ac44585900867fda; ?>
+<?php unset($__attributesOriginal1ba3567a8797f8a6ac44585900867fda); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal1ba3567a8797f8a6ac44585900867fda)): ?>
+<?php $component = $__componentOriginal1ba3567a8797f8a6ac44585900867fda; ?>
+<?php unset($__componentOriginal1ba3567a8797f8a6ac44585900867fda); ?>
+<?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $stories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $story): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if (isset($component)) { $__componentOriginal1ba3567a8797f8a6ac44585900867fda = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal1ba3567a8797f8a6ac44585900867fda = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.posts.story-circle','data' => ['name' => ''.e($story).'','avatar' => 'https://ui-avatars.com/api/?name='.e($story).'&background=0d9488&color=fff&bold=true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('posts.story-circle'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => ''.e($story).'','avatar' => 'https://ui-avatars.com/api/?name='.e($story).'&background=0d9488&color=fff&bold=true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal1ba3567a8797f8a6ac44585900867fda)): ?>
+<?php $attributes = $__attributesOriginal1ba3567a8797f8a6ac44585900867fda; ?>
+<?php unset($__attributesOriginal1ba3567a8797f8a6ac44585900867fda); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal1ba3567a8797f8a6ac44585900867fda)): ?>
+<?php $component = $__componentOriginal1ba3567a8797f8a6ac44585900867fda; ?>
+<?php unset($__componentOriginal1ba3567a8797f8a6ac44585900867fda); ?>
+<?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+    </div>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginaldae4cd48acb67888a4631e1ba48f2f93)): ?>
+<?php $attributes = $__attributesOriginaldae4cd48acb67888a4631e1ba48f2f93; ?>
+<?php unset($__attributesOriginaldae4cd48acb67888a4631e1ba48f2f93); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginaldae4cd48acb67888a4631e1ba48f2f93)): ?>
+<?php $component = $__componentOriginaldae4cd48acb67888a4631e1ba48f2f93; ?>
+<?php unset($__componentOriginaldae4cd48acb67888a4631e1ba48f2f93); ?>
+<?php endif; ?><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/social_pet/resources/views/components/dashboard/stories-section.blade.php ENDPATH**/ ?>

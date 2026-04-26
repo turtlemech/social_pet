@@ -56,7 +56,7 @@
 
         <!-- Form -->
         <form method="POST" action="/posts">
-            @csrf
+            <?php echo csrf_field(); ?>
 
             <div class="p-4">
 
@@ -72,7 +72,8 @@
 
         <p class="font-semibold text-gray-900">
 
-            {{ auth()->user()->name ?? 'Me' }}
+            <?php echo e(auth()->user()->name ?? 'Me'); ?>
+
 
         </p>
 
@@ -99,4 +100,4 @@
         </form>
 
     </div>
-</div>
+</div><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/social_pet/resources/views/components/posts/create-post.blade.php ENDPATH**/ ?>

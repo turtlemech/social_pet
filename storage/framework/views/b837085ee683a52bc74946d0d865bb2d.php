@@ -158,4 +158,4 @@
             }
         }))
     })
-</script><?php /**PATH C:\laragon\www\social_pet\resources\views/navigation-menu.blade.php ENDPATH**/ ?>
+</script><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/social_pet/resources/views/navigation-menu.blade.php ENDPATH**/ ?>

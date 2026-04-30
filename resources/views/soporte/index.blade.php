@@ -44,7 +44,7 @@
                                 </div>
                             </a>
 
-                            <a href="{{ route('soporte.estado.form') }}"
+                            <a href="javascript:void(0)" onclick="consultarEstado()"
                                 class="block p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
                                 <div class="flex items-center space-x-3">
                                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,16 +158,15 @@
                                 <textarea name="men_sop"
                                     rows="6"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-                                    placeholder="Describe detalladamente tu problema...&#10;&#10;¿Qué estabas haciendo?&#10;¿Qué mensaje de error viste?&#10;¿Qué has intentado para solucionarlo?"
+                                    placeholder="Describe detalladamente tu problema..."
                                     required>{{ old('men_sop') }}</textarea>
                                 @error('men_sop') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                <p class="text-xs text-gray-500 mt-1">Mínimo 10 caracteres. Sé específico para ayudarte mejor.</p>
                             </div>
 
                             <button type="submit"
                                 class="w-full bg-gradient-to-r from-teal-500 to-teal-700 text-white px-4 py-3 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-800 transition transform hover:scale-[1.02]">
                                 <span id="btnText">📩 Enviar Ticket</span>
-                                <span id="btnSpinner" class="hidden">Enviando...</span>
+                                <span id="btnSpinner" class="hidden">⏳ Enviando...</span>
                             </button>
                         </form>
                     </div>
@@ -176,96 +175,13 @@
         </div>
     </div>
 </div>
+
+<div id="flash-data" 
+     data-success="{{ session('success') ? e(session('success')) : '' }}"
+     data-error="{{ session('error') ? e(session('error')) : '' }}"
+     data-errors="{{ $errors->any() ? e(json_encode($errors->all())) : '' }}"
+     style="display: none;">
+</div>
+
 @endsection
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mostrar mensajes de éxito o error con SweetAlert
-        @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: '¡Ticket Creado!',
-                html: `{{ session('success') }}`,
-                confirmButtonColor: '#0d9488',
-                confirmButtonText: '👍 Entendido',
-                background: '#fff',
-                backdrop: true,
-                timer: 5000,
-                timerProgressBar: true
-            });
-        @endif
-
-        @if(session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: '{{ session('error') }}',
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Intentar de nuevo'
-            });
-        @endif
-
-        @if($errors->any())
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonColor: '#0d9488',
-                confirmButtonText: 'Corregir'
-            });
-        @endif
-
-        // Confirmación antes de enviar
-        const form = document.getElementById('ticketForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const btnSpinner = document.getElementById('btnSpinner');
-                const btnText = document.getElementById('btnText');
-                
-                btnSpinner.classList.remove('hidden');
-                btnText.classList.add('hidden');
-                
-                setTimeout(() => {
-                    btnSpinner.classList.add('hidden');
-                    btnText.classList.remove('hidden');
-                }, 5000);
-            });
-        }
-    });
-
-    // Función para consultar estado de ticket (desde el panel)
-    function consultarEstado(codigo) {
-        Swal.fire({
-            title: 'Buscar Ticket',
-            input: 'text',
-            inputLabel: 'Ingresa el código de tu ticket',
-            inputPlaceholder: 'Ej: SOP202401010001',
-            inputAttributes: {
-                'aria-label': 'Código del ticket'
-            },
-            showCancelButton: true,
-            confirmButtonColor: '#0d9488',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Buscar',
-            cancelButtonText: 'Cancelar',
-            preConfirm: (codigo) => {
-                if (!codigo) {
-                    Swal.showValidationMessage('Por favor ingresa el código del ticket');
-                    return false;
-                }
-                if (!codigo.match(/^SOP\d{12}$/)) {
-                    Swal.showValidationMessage('Formato inválido. El código debe ser como: SOP202401010001');
-                    return false;
-                }
-                return codigo;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/soporte/ticket/${result.value}`;
-            }
-        });
-    }
-</script>
-@endpush

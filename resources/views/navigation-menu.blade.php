@@ -2,15 +2,17 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
 
-            <!-- imagen logo -->
-            <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                <img src="{{ asset('storage/imgages/social_petpng.png') }}"
+            <!-- imagen logo-->
+            <a href="/" class="flex items-center space-x-2">
+                <img src="{{ asset('img/logo/social_pet.webp') }}"
                     alt="Social Pet"
-                    class="h-10 w-auto rounded-lg">
+                    class="h-10 w-auto rounded-lg"
+                    onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=SP&background=0d9488&color=fff&bold=true&size=40';">
                 <span class="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
                     SocialPet
                 </span>
             </a>
+
 
             <!-- barra de busqueda -->
             @auth

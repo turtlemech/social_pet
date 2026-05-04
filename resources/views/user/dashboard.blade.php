@@ -56,7 +56,7 @@
                         'comments' => 18
                     ],
                     (object)[
-                        'pet_name' => 'Luna',
+                        'pet_name' => 'Lun',
                         'breed' => 'Husky',
                         'author' => 'Mike Rodríguez',
                         'time_ago' => '5 horas',

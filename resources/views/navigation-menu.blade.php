@@ -97,7 +97,7 @@
                             </div>
                         </a>
 
-                        <!-- Enlace de Mensajes - COMENTADO TEMPORALMENTE -->
+                        <!--  Mensajes  -->
 
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                             <div class="flex items-center space-x-2">
@@ -135,7 +135,7 @@
                     </div>
                 </div>
                 @else
-                <!-- Usuario no autenticado - Login y Registro -->
+                <!-- Usuario no autenticado -->
                 <a href="{{ route('login') }}" class="text-gray-600 hover:text-teal-600 transition font-medium">
                     Iniciar Sesión
                 </a>

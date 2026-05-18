@@ -192,5 +192,9 @@ class User extends Authenticatable
         return $query->where('is_admin', false);
     }
     
-    
+    // Relación con mascotas
+public function mascotas()
+{
+    return $this->hasMany(Mascota::class, 'us_id');
+}
 }

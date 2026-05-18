@@ -3,11 +3,12 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\AdminLoginController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\ComentarioController; // ✅ NUEVO
+use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\SoporteController;
 
 use Illuminate\Support\Facades\Route;
@@ -55,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/like/{post}', [LikeController::class, 'toggle'])
         ->name('like.toggle');
 
-    // 💬 COMENTARIOS ✅ NUEVO
+    // 💬 COMENTARIOS
     Route::post('/comentarios/{post}', [ComentarioController::class, 'store'])
         ->name('comentarios.store');
 
@@ -141,46 +142,83 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'logout'])
             ->name('logout');
 
-        Route::view('/dashboard', 'admin.dashboard')
+        // Dashboard Admin
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])
             ->name('dashboard');
 
-        // USERS
-        Route::prefix('users')->name('users.')->group(function () {
+        // ========== USUARIOS ==========
+        Route::prefix('usuarios')->name('usuarios.')->group(function () {
+            
+            // Lista de usuarios
+            Route::get('/', [AdminController::class, 'usuarios'])
+                ->name('index');
+            
+            // Editar usuario (JSON)
+            Route::get('/{id}/edit', [AdminController::class, 'editUser'])
+                ->name('edit');
+            
+            // Actualizar usuario
+            Route::put('/{id}', [AdminController::class, 'updateUser'])
+                ->name('update');
+            
+            // Eliminar usuario
+            Route::delete('/{id}', [AdminController::class, 'deleteUser'])
+                ->name('destroy');
+            
+            // Bloquear/Activar usuario
+            Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])
+                ->name('toggle-block');
+        });
 
-            Route::view('/', 'admin.users.index')->name('index');
-
-            Route::view('/{id}', 'admin.users.show')->name('show');
-
-            Route::put('/{id}/block', fn() =>
-                back()->with('success', 'Usuario bloqueado'))
-                ->name('block');
-
-            Route::delete('/{id}', fn() =>
-                back()->with('success', 'Usuario eliminado'))
+        // ========== MASCOTAS ==========
+        Route::prefix('mascotas')->name('mascotas.')->group(function () {
+            
+            // Lista de mascotas
+            Route::get('/', [AdminController::class, 'mascotas'])
+                ->name('index');
+            
+            // Ver detalles de mascota (JSON)
+            Route::get('/{id}', [AdminController::class, 'showMascota'])
+                ->name('show');
+            
+            // Editar mascota (JSON)
+            Route::get('/{id}/edit', [AdminController::class, 'editMascota'])
+                ->name('edit');
+            
+            // Actualizar mascota
+            Route::put('/{id}', [AdminController::class, 'updateMascota'])
+                ->name('update');
+            
+            // Eliminar mascota
+            Route::delete('/{id}', [AdminController::class, 'deleteMascota'])
                 ->name('destroy');
         });
 
-        // POSTS
-        Route::prefix('posts')->name('posts.')->group(function () {
-
-            Route::view('/', 'admin.posts.index')->name('index');
-
-            Route::delete('/{id}', fn() =>
-                back()->with('success', 'Publicación eliminada'))
+        // ========== PUBLICACIONES ==========
+        Route::prefix('publicaciones')->name('publicaciones.')->group(function () {
+            
+            // Lista de publicaciones
+            Route::get('/', [AdminController::class, 'publicaciones'])
+                ->name('index');
+            
+            // Activar/Desactivar publicación
+            Route::post('/{id}/toggle', [AdminController::class, 'togglePublicacion'])
+                ->name('toggle');
+            
+            // Eliminar publicación
+            Route::delete('/{id}', [AdminController::class, 'deletePublicacion'])
                 ->name('destroy');
         });
 
-        // REPORTES
+        // ========== REPORTES ==========
         Route::prefix('reports')->name('reports.')->group(function () {
 
             Route::view('/', 'admin.reports.index')->name('index');
-
             Route::view('/users', 'admin.reports.users')->name('users');
-
             Route::view('/posts', 'admin.reports.posts')->name('posts');
         });
 
-        // SOPORTE ADMIN
+        // ========== SOPORTE ADMIN ==========
         Route::prefix('soporte')->name('soporte.')->group(function () {
 
             Route::get('/dashboard', [SoporteController::class, 'adminDashboard'])

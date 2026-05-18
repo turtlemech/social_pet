@@ -2,20 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Like;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 🔥 incluir likes también
-        $posts = Post::with(['user', 'likes'])
-            ->latest('id')
+        $posts = Post::with([
+                'user',
+                'comentarios.usuario'
+            ])
+            ->orderBy('id', 'desc')
             ->get();
 
-        return view('user.dashboard', [
-            'posts' => $posts
-        ]);
+        foreach ($posts as $post) {
+
+            // total likes
+            $post->likes_count = Like::where('id_publicacion', $post->id)
+                ->where('tipo', 'like')
+                ->count();
+
+            // usuario ya dio like?
+            $post->liked = Like::where('id_publicacion', $post->id)
+                ->where('id_usuario', auth()->id())
+                ->where('tipo', 'like')
+                ->exists();
+        }
+
+        return view('user.dashboard', compact('posts'));
     }
 }

@@ -8,22 +8,31 @@ class Post extends Model
 {
     protected $table = 'publicaciones';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
+        'us_id',
         'con_pub',
-        'us_id'
+        'img_pub'
     ];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
-    // 🔥 RELACIÓN CON USUARIO
+    // usuario
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class, 'us_id');
+        return $this->belongsTo(User::class, 'us_id', 'id');
     }
 
-    // 🔥 RELACIÓN CON LIKES
+    // comentarios
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class, 'id_publicacion', 'id');
+    }
+
+    // likes
     public function likes()
     {
-        return $this->hasMany(\App\Models\Like::class, 'id_publicacion');
+        return $this->hasMany(Like::class, 'id_publicacion', 'id');
     }
 }

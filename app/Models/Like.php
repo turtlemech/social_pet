@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
-    protected $table = 'reacciones'; // 👈 tu tabla real
+    protected $table = 'reacciones';
 
     protected $fillable = [
         'id_usuario',

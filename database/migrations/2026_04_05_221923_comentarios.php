@@ -9,19 +9,33 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comentarios', function (Blueprint $table) {
-            $table->id();
+
+            $table->id('id_comentario');
+
             $table->foreignId('id_publicacion')
                 ->constrained('publicaciones')
                 ->onDelete('cascade');
+
             $table->foreignId('id_usuario')
-                ->constrained('usuarios')  // Cambiado de 'users' a 'usuarios'
+                ->constrained('usuarios')
                 ->onDelete('cascade');
+
             $table->text('comentario');
-            $table->enum('estado', ['activo', 'eliminado'])->default('activo');
+
+            $table->enum('estado', ['activo', 'eliminado'])
+                ->default('activo');
+
             $table->timestamps();
-            
-            $table->index(['id_publicacion', 'created_at'], 'comentarios_pub_date_idx');
-            $table->index('id_usuario', 'comentarios_user_idx');
+
+            $table->index(
+                ['id_publicacion', 'created_at'],
+                'comentarios_pub_date_idx'
+            );
+
+            $table->index(
+                'id_usuario',
+                'comentarios_user_idx'
+            );
         });
     }
 

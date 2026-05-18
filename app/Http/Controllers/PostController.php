@@ -23,4 +23,23 @@ class PostController extends Controller
         // Redirigir
         return back()->with('success', 'Post creado correctamente');
     }
+    public function destroy($id)
+
+{
+
+    $post = Post::findOrFail($id);
+
+    // verificar dueño
+
+    if ($post->us_id != auth()->id()) {
+
+        abort(403);
+
+    }
+
+    $post->delete();
+
+    return back()->with('success', 'Publicación eliminada');
+
+}
 }

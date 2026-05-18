@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Like;
+use Illuminate\Http\Request;
 
 class LikeController extends Controller
 {
@@ -11,23 +11,43 @@ class LikeController extends Controller
     {
         $userId = auth()->id();
 
-        // Buscar si ya existe el like
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autenticado'
+            ], 401);
+        }
+
         $like = Like::where('id_usuario', $userId)
-                    ->where('id_publicacion', $postId)
-                    ->first();
+            ->where('id_publicacion', $postId)
+            ->where('tipo', 'like')
+            ->first();
 
         if ($like) {
-            // Si existe → quitar like
+
             $like->delete();
+            $liked = false;
+
         } else {
-            // Si no existe → crear like
+
             Like::create([
                 'id_usuario' => $userId,
                 'id_publicacion' => $postId,
                 'tipo' => 'like'
             ]);
+
+            $liked = true;
         }
 
-        return back();
+        $count = Like::where('id_publicacion', $postId)
+            ->where('tipo', 'like')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'liked' => $liked,
+            'count' => $count,
+            'post_id' => $postId
+        ]);
     }
 }

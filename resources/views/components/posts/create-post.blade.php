@@ -39,7 +39,7 @@
 </div>
 
 <!-- Post Modal -->
-<<div id="post-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="post-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     
     <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         
@@ -48,6 +48,7 @@
             <h3 class="text-lg font-semibold w-full text-center">
                 Crear publicación
             </h3>
+
             <button onclick="document.getElementById('post-modal').classList.add('hidden')" 
                 class="text-gray-400 hover:text-gray-600">
                 ✕
@@ -55,7 +56,10 @@
         </div>
 
         <!-- Form -->
-        <form method="POST" action="/posts">
+        <form method="POST" 
+              action="/posts"
+              enctype="multipart/form-data">
+
             @csrf
 
             <div class="p-4">
@@ -63,39 +67,54 @@
                 <!-- Usuario -->
                 <div class="flex items-center space-x-3 mb-4">
                     
-                    <!-- Avatar -->
                     <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
                         JD
                     </div>
 
                     <div>
+                        <p class="font-semibold text-gray-900">
+                            {{ auth()->user()->name ?? 'Me' }}
+                        </p>
+                    </div>
 
-        <p class="font-semibold text-gray-900">
-
-            {{ auth()->user()->name ?? 'Me' }}
-
-        </p>
-
-    </div>
                 </div>
 
                 <!-- Texto -->
                 <textarea 
                     name="content"
-                    placeholder="¿Qué estás pensando?"
+                    placeholder="¿Qué está haciendo tu mascota?"
                     class="w-full text-xl border-none focus:ring-0 resize-none placeholder-gray-400"
-                    rows="4"
-                    required></textarea>
+                    rows="4"></textarea>
+
+                <!-- Imagen -->
+                <div class="mt-4">
+
+                    <label class="block mb-2 font-medium text-gray-700">
+                        Subir imagen
+                    </label>
+
+                    <input 
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        class="w-full border rounded-lg p-2">
+
+                </div>
 
                 <!-- Botón -->
                 <div class="mt-4">
+
                     <button type="submit"
                         class="w-full bg-teal-500 text-white py-2 rounded-lg font-semibold hover:bg-teal-600 transition">
+
                         Publicar
+
                     </button>
+
                 </div>
 
             </div>
+
         </form>
 
     </div>

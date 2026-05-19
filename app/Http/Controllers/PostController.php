@@ -11,35 +11,42 @@ class PostController extends Controller
     {
         // Validación
         $request->validate([
-            'content' => 'required|string|max:255'
+            'content' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
         ]);
 
-        // Guardar en la base de datos
+        $imagePath = null;
+
+        // Guardar imagen
+        if ($request->hasFile('image')) {
+
+            $imagePath = $request->file('image')
+                ->store('posts', 'public');
+        }
+
+        // Guardar publicación
         Post::create([
             'con_pub' => $request->content,
+            'img_pub' => $imagePath,
             'us_id' => auth()->id()
         ]);
 
         // Redirigir
         return back()->with('success', 'Post creado correctamente');
     }
+
     public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
 
-{
+        // verificar dueño
+        if ($post->us_id != auth()->id()) {
 
-    $post = Post::findOrFail($id);
+            abort(403);
+        }
 
-    // verificar dueño
+        $post->delete();
 
-    if ($post->us_id != auth()->id()) {
-
-        abort(403);
-
+        return back()->with('success', 'Publicación eliminada');
     }
-
-    $post->delete();
-
-    return back()->with('success', 'Publicación eliminada');
-
-}
 }

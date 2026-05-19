@@ -92,14 +92,14 @@
     </div>
 
     <!-- IMAGE -->
-    @if(!empty($post->img_pub))
+@if(!empty($post->img_pub))
 
-        <img
-            src="{{ $post->img_pub }}"
-            class="w-full object-cover max-h-96"
-        >
+    <img
+        src="{{ asset('storage/' . $post->img_pub) }}"
+        class="w-full object-cover max-h-96"
+    >
 
-    @endif
+@endif
 
     <!-- STATS -->
     <div class="px-4 py-2 flex justify-between text-sm text-gray-500 border-t border-gray-100">

@@ -17,7 +17,8 @@ class AdminUserSeeder extends Seeder
             User::create([
                 'cod_us' => 'ADMIN001',
                 'nom_us' => 'Administrador',
-                'ape_us' => 'Principal',           
+                'app_us' => 'Principal',
+                'apm_us' => 'empleado',           
                 'ema_us' => 'admin@admin.com',
                 'pas_us' => Hash::make('12345678'),
                 'tel_us' => '123456789',
@@ -25,6 +26,7 @@ class AdminUserSeeder extends Seeder
                 'estado' => 'activo',               
                 'is_admin' => true,
             ]);
+            
             
             $this->command->info('✓ Usuario administrador creado exitosamente');
             $this->command->info('  Email: admin@admin.com');

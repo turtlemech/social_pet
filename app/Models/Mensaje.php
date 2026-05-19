@@ -2,33 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Mascota extends Model
+class Mensaje extends Model
 {
     use HasFactory;
-    
-    protected $table = 'mascotas';
+
+    protected $table = 'mensajes';
     protected $primaryKey = 'id';
     
     protected $fillable = [
-        'cod_mas',
-        'nom_mas',
-        'esp_mas',
-        'raz_mas',
-        'ed_mas',
-        'pes_mas',
-        'fot_mas',
-        'us_id',
-        'descripcion',
+        'cod_mens',
+        'con_men',
+        'url_men',
+        'tip_men',
+        'lei_mens',
+        'fch_lei_mens',
+        'con_id',
+        'us_rem',
     ];
-    
-    /**
-     * Relación con el usuario (dueño)
-     */
-    public function user()
+
+    protected $casts = [
+        'lei_mens' => 'boolean',
+        'fch_lei_mens' => 'datetime',
+    ];
+
+    // Relaciones
+    public function conversacion()
     {
-        return $this->belongsTo(User::class, 'us_id');
+        return $this->belongsTo(Conversacion::class, 'con_id');
+    }
+
+    public function remitente()
+    {
+        return $this->belongsTo(User::class, 'us_rem');
+    }
+
+    // Métodos
+    public function marcarComoLeido()
+    {
+        $this->lei_mens = true;
+        $this->fch_lei_mens = now();
+        return $this->save();
     }
 }

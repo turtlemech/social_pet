@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Quedada extends Model
+class Evento extends Model
 {
     //
 }

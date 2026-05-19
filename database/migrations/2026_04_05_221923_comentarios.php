@@ -10,33 +10,18 @@ return new class extends Migration
     {
         Schema::create('comentarios', function (Blueprint $table) {
 
-            $table->id('id_comentario');
+            $table->id();
             $table->text('con_com')->nullable();
 
-            $table->foreignId('id_publicacion')
-                ->constrained('publicaciones')
-                ->onDelete('cascade');
+            $table->foreignId('id_publicacion')->constrained('publicaciones');
 
-            $table->foreignId('id_usuario')
-                ->constrained('usuarios')
-                ->onDelete('cascade');
-
-            $table->text('comentario');
-
-            $table->enum('estado', ['activo', 'eliminado'])
-                ->default('activo');
+            $table->foreignId('id_usuario')->constrained('usuarios');
+            $table->enum('estado', ['activo', 'eliminado']);
 
             $table->timestamps();
+            $table->index(['id_publicacion', 'created_at'],'comentarios_pub_date_idx');
 
-            $table->index(
-                ['id_publicacion', 'created_at'],
-                'comentarios_pub_date_idx'
-            );
-
-            $table->index(
-                'id_usuario',
-                'comentarios_user_idx'
-            );
+            $table->index( 'id_usuario', 'comentarios_user_idx' );
         });
     }
 

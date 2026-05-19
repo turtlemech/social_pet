@@ -14,17 +14,13 @@ return new class extends Migration
             $table->enum('tip_rea', ['like', 'love', 'wow', 'triste', 'enojado']);
             
             
-            $table->foreignId('id_publicacion')
-                ->constrained('publicaciones')
-                ->onDelete('cascade');
-            $table->foreignId('id_usuario')
-                ->constrained('usuarios')  // Cambiado de 'users' a 'usuarios'
-                ->onDelete('cascade');
+            $table->foreignId('id_publicacion')->constrained('publicaciones');
+            $table->foreignId('id_usuario')->constrained('usuarios');
             
             $table->timestamps();
             
             $table->unique(['id_publicacion', 'id_usuario'], 'reacciones_unique');
-            $table->index('tipo', 'reacciones_tipo_idx');
+            $table->index('tip_rea', 'reacciones_tipo_idx');
         });
     }
 

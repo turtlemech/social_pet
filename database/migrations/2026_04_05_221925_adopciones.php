@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('mas_id');
             $table->unsignedBigInteger('us_act');
             $table->unsignedBigInteger('us_sol')->nullable();
-            $table->timestamp('fch_sol_ado')->nullable();
+            
             $table->timestamps();
             
             // Llaves foráneas

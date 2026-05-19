@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('comentarios', function (Blueprint $table) {
 
             $table->id('id_comentario');
+            $table->text('con_com')->nullable();
 
             $table->foreignId('id_publicacion')
                 ->constrained('publicaciones')

@@ -8,28 +8,40 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // 1. TABLA DE ESPECIES GENERALES
+        Schema::create('especies', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom_esp', 50)->unique(); // Ej: "Perro", "Gato", "Ave", "Reptil", "Roedor"
+            $table->string('raz_mas', 100)->nullable();
+            $table->string('tam_mas', 100)->nullable();
+            
+
+            $table->timestamps();
+        });
+
+        // 2. TABLA DE MASCOTAS
         Schema::create('mascotas', function (Blueprint $table) {
             $table->id();
-            $table->string('cod_mas', 8)->unique();
             $table->string('nom_mas', 100);
-            $table->string('esp_mas', 50);
-            $table->string('raz_mas', 100)->nullable();
-            $table->integer('ed_mas')->nullable();
-            $table->decimal('pes_mas', 5, 2)->nullable();
-            $table->text('fot_mas')->nullable();
-            $table->foreignId('us_id')->constrained('usuarios')->onDelete('cascade');
+            $table->enum('sex_mas', ['macho', 'hembra'])->nullable();
+            $table->text('des_mas')->nullable();
+            $table->string('fot_mas')->nullable();
+            $table->enum('est_mas', ['activo', 'inactivo'])->default('activo');
+
+            // Relación obligatoria con la especie general
+            $table->foreignId('especie_id')->constrained('especies')->onDelete('restrict');
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios')->onDelete('cascade');
+
             $table->timestamps();
-            
-            $table->index(['us_id', 'esp_mas'], 'mascotas_user_especie_idx');
-            $table->index('nom_mas', 'mascotas_nombre_idx');
         });
     }
 
-/**
- * Reverse the effect of the up method.
- */
+    /**
+     * Reverse the effect of the up method.
+     */
     public function down(): void
     {
         Schema::dropIfExists('mascotas');
+        Schema::dropIfExists('especies');
     }
 };

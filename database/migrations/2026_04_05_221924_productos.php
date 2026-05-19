@@ -14,15 +14,15 @@ return new class extends Migration
             $table->string('nom_pro', 150);
             $table->text('des_pro')->nullable();
             $table->decimal('pre_pro', 10, 2);
-            $table->string('cat_pro', 100)->nullable();
-            $table->integer('sto_pro')->default(1);
+            $table->enum('cat_pro', ['alimento', 'juguete', 'accesorio', 'ropa', 'salud', 'otro'])->nullable();
+            $table->enum('est_pro', ['activo', 'inactivo',])->default('activo');
             $table->text('img_pro')->nullable();
-            $table->foreignId('us_ven')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('us_ven')->constrained('usuarios');
             $table->timestamps();
             
-            $table->index('cat_pro', 'productos_categoria_idx');
-            $table->index('pre_pro', 'productos_precio_idx');
-            $table->index('nom_pro', 'productos_nombre_idx');
+            $table->index('cat_pro', 'prod_cat_idx');
+            $table->index('pre_pro', 'prod_pre_idx');
+            $table->index('nom_pro', 'prod_nom_idx');
         });
     }
 

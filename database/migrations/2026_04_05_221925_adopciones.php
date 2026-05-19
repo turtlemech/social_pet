@@ -10,9 +10,11 @@ return new class extends Migration
     {
         Schema::create('adopciones', function (Blueprint $table) {
             $table->id();
-            $table->string('cod_ado', 8)->unique();
-            $table->enum('est_ado', ['disponible', 'en_proceso', 'adoptada', 'cancelada'])->default('disponible');
-            $table->text('men_ado')->nullable();
+            $table->text('des_ado')->nullable();
+            $table->timestamp('fch_pub_ado')->useCurrent();
+            $table->timestamp('fch_sol_ado')->useCurrent();
+            $table->timestamp('fch_res_ado')->nullable();
+            $table->enum('est_ado', ['pendiente', 'aprobada', 'rechazada'])->nullable();
             $table->unsignedBigInteger('mas_id');
             $table->unsignedBigInteger('us_act');
             $table->unsignedBigInteger('us_sol')->nullable();
@@ -20,9 +22,9 @@ return new class extends Migration
             $table->timestamps();
             
             // Llaves foráneas
-            $table->foreign('mas_id')->references('id')->on('mascotas')->onDelete('cascade');
-            $table->foreign('us_act')->references('id')->on('usuarios')->onDelete('cascade');
-            $table->foreign('us_sol')->references('id')->on('usuarios')->onDelete('set null');
+            $table->foreign('mas_id')->references('id')->on('mascotas');
+            $table->foreign('us_act')->references('id')->on('usuarios');
+            $table->foreign('us_sol')->references('id')->on('usuarios');
             
             // Índices
             $table->index('est_ado');

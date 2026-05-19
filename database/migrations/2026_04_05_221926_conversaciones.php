@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('cod_con', 8)->unique();
             $table->enum('tip_con', ['individual', 'grupal'])->default('individual');
             $table->string('nom_con', 100)->nullable();
-            $table->foreignId('us_crea')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('us_crea')->constrained('usuarios');
             $table->datetime('fch_act_con')->nullable();
             $table->boolean('act_con')->default(true);
             $table->timestamps();

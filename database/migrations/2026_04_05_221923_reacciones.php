@@ -10,13 +10,17 @@ return new class extends Migration
     {
         Schema::create('reacciones', function (Blueprint $table) {
             $table->id();
+            $table->string('cod_rea')->nullable();
+            $table->enum('tip_rea', ['like', 'love', 'wow', 'triste', 'enojado']);
+            
+            
             $table->foreignId('id_publicacion')
                 ->constrained('publicaciones')
                 ->onDelete('cascade');
             $table->foreignId('id_usuario')
                 ->constrained('usuarios')  // Cambiado de 'users' a 'usuarios'
                 ->onDelete('cascade');
-            $table->enum('tipo', ['like', 'amor', 'cuidado', 'divertido'])->default('like');
+            
             $table->timestamps();
             
             $table->unique(['id_publicacion', 'id_usuario'], 'reacciones_unique');

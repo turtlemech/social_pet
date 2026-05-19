@@ -15,23 +15,28 @@ return new class extends Migration
             $table->id();
             $table->string('cod_us', 8)->unique();
             $table->string('nom_us', 100);
-            $table->string('ape_us', 100);  
+            $table->string('app_us', 100); // Apellido Paterno
+            $table->string('apm_us', 100); // Apellido Materno
             $table->string('ema_us', 150)->unique();
             $table->string('pas_us', 255);
             $table->string('tel_us', 20)->nullable();
-            $table->string('ciu_us', 100)->nullable();
-            $table->enum('estado', ['activo', 'inactivo'])->default('activo');
+            
+            $table->string('ubi_us', 100)->nullable();
+            $table->enum('tip_us', ['admin', 'soporte','usuario' ])->default('usuario');
+            $table->enum('est_us', ['activo', 'inactivo', 'baneado'])->default('activo');
+            
             $table->text('ava_us')->nullable();
             $table->rememberToken();
             $table->boolean('is_admin')->default(false);
             $table->timestamps();
             
-            // Índices
+            // Índices corregidos
             $table->index('nom_us', 'usuarios_nombre_idx');
-            $table->index('ape_us', 'usuarios_apellido_idx');  // ← AGREGADO: índice para apellido
-            $table->index('ciu_us', 'usuarios_ciudad_idx');
-            $table->index('estado', 'usuarios_estado_idx');     // ← AGREGADO: útil para filtrar activos/inactivos
-            $table->index('is_admin', 'usuarios_admin_idx');    // ← AGREGADO: útil para filtrar admins
+            $table->index('app_us', 'usuarios_app_idx');
+            $table->index('apm_us', 'usuarios_apm_idx'); 
+            
+            $table->index('est_us', 'usuarios_estado_idx');          
+            $table->index('is_admin', 'usuarios_admin_idx');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -42,7 +47,8 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            // Cambiado a un campo común o puedes usar foreignId('usuario_id') si prefieres enlazarlo formalmente
+            $table->unsignedBigInteger('user_id')->nullable()->index(); 
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -55,8 +61,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuarios');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('usuarios');
     }
 };

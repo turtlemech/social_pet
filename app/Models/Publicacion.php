@@ -8,16 +8,11 @@ class Publicacion extends Model
 {
     protected $table = 'publicaciones';
 
-    protected $primaryKey = 'id_publicacion';
-
-    public $incrementing = true;
-
-    protected $keyType = 'int';
-
     protected $fillable = [
-        'id_usuario',
-        'contenido',
-        'imagen'
+        'cod_pub',
+        'con_pub',
+        'img_pub',
+        'us_id'
     ];
 
     public function reacciones()
@@ -27,10 +22,11 @@ class Publicacion extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'id_usuario');
+        return $this->belongsTo(User::class, 'us_id');
     }
+
     public function comentarios()
-{
-    return $this->hasMany(Comentario::class, 'id_publicacion');
-}
+    {
+        return $this->hasMany(Comentario::class, 'id_publicacion');
+    }
 }

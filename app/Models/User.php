@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'usuarios';
     protected $primaryKey = 'id';
@@ -16,13 +17,15 @@ class User extends Authenticatable
     protected $fillable = [
         'cod_us',
         'nom_us',
-        'ape_us',
+        'app_us',
+        'apm_us',
         'ema_us',
         'pas_us',
         'tel_us',
-        'ciu_us',
+        'ubi_us',
         'ava_us',
-        'estado',
+        'tip_us',
+        'est_us',
         'is_admin',
     ];
 
@@ -33,168 +36,101 @@ class User extends Authenticatable
 
     protected $casts = [
         'is_admin' => 'boolean',
-        'estado' => 'string',
     ];
 
-    /**
-     * Obtener el identificador para autenticación
-     */
-    public function getAuthIdentifierName()
+    // Relaciones con todos los modelos
+    public function mascotas()
     {
-        return 'id';
+        return $this->hasMany(Mascota::class, 'usuario_id');
     }
 
-    /**
-     * Obtener la contraseña para autenticación
-     */
-    public function getAuthPassword()
+    public function publicaciones()
     {
-        return $this->pas_us;
+        return $this->hasMany(Publicacion::class, 'us_id');
     }
 
-    /**
-     * Obtener el email para reseteo de contraseña
-     */
-    public function getEmailForPasswordReset()
+    public function comentarios()
     {
-        return $this->ema_us;
+        return $this->hasMany(Comentario::class, 'id_usuario');
     }
-    
-    /**
-     * Accessor: Obtener nombre completo
-     */
-    public function getFullNameAttribute()
+
+    public function likes()
     {
-        return trim($this->nom_us . ' ' . $this->ape_us);
+        return $this->hasMany(Like::class, 'id_usuario');
     }
-    
-    /**
-     * Accessor: Obtener iniciales para avatar
-     */
-    public function getInitialsAttribute()
+
+    public function amistadesEnviadas()
     {
-        $first = strtoupper(substr($this->nom_us, 0, 1));
-        $last = strtoupper(substr($this->ape_us, 0, 1));
-        return $first . $last;
+        return $this->hasMany(Amistad::class, 'us_sol');
     }
-    
-    /**
-     * Mutator: Guardar teléfono limpio (solo números)
-     */
-    public function setTelUsAttribute($value)
+
+    public function amistadesRecibidas()
     {
-        $this->attributes['tel_us'] = $value ? preg_replace('/[^0-9]/', '', $value) : null;
+        return $this->hasMany(Amistad::class, 'us_rec');
     }
-    
-    /**
-     * Mutator: Guardar ciudad con primera letra mayúscula
-     */
-    public function setCiuUsAttribute($value)
+
+    public function conversaciones()
     {
-        $this->attributes['ciu_us'] = $value ? ucfirst(strtolower(trim($value))) : null;
+        return $this->belongsToMany(Conversacion::class, 'participantes', 'us_id', 'con_id')
+                    ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
+                    ->withTimestamps();
     }
-    
-    // ========== MÉTODOS DE BÚSQUEDA ==========
-    
-    /**
-     * Encontrar usuario por email
-     */
-    public static function findByEmail($email)
+
+    public function mensajes()
     {
-        return self::where('ema_us', $email)->first();
+        return $this->hasMany(Mensaje::class, 'us_rem');
     }
-    
-    /**
-     * Buscar usuarios por nombre o apellido
-     */
-    public static function searchByName($search)
+
+    public function notificaciones()
     {
-        return self::where('nom_us', 'LIKE', "%{$search}%")
-                    ->orWhere('ape_us', 'LIKE', "%{$search}%")
-                    ->get();
+        return $this->hasMany(Notificacion::class, 'usuario_id');
     }
-    
-    // ========== MÉTODOS DE ESTADO ==========
-    
-    /**
-     * Desactivar usuario
-     */
-    public function deactivate()
+
+    public function productos()
     {
-        $this->estado = 'inactivo';
-        return $this->save();
+        return $this->hasMany(Producto::class, 'us_ven');
     }
-    
-    /**
-     * Reactivar usuario
-     */
-    public function activate()
+
+    public function adopcionesActivas()
     {
-        $this->estado = 'activo';
-        return $this->save();
+        return $this->hasMany(Adopcion::class, 'us_act');
     }
-    
-    /**
-     * Verificar si el usuario está activo
-     */
-    public function isActive()
+
+    public function adopcionesSolicitadas()
     {
-        return $this->estado === 'activo';
+        return $this->hasMany(Adopcion::class, 'us_sol');
     }
-    
-    /**
-     * Verificar si el usuario está inactivo
-     */
-    public function isInactive()
+
+    public function eventos()
     {
-        return $this->estado === 'inactivo';
+        return $this->belongsToMany(Evento::class, 'participacion_evento', 'usuario_id', 'evento_id')
+                    ->withPivot('est_par')
+                    ->withTimestamps();
     }
-    
-    /**
-     * Verificar si es administrador
-     */
+
+    public function ticketsSoporte()
+    {
+        return $this->hasMany(Soporte::class, 'cod_us', 'cod_us');
+    }
+
+    public function reportesHechos()
+    {
+        return $this->hasMany(soporte::class, 'usu_reporta_id');
+    }
+
+    public function reportesRecibidos()
+    {
+        return $this->hasMany(soporte::class, 'usu_reportado_id');
+    }
+
+    // Métodos útiles
     public function isAdmin()
     {
-        return $this->is_admin === true;
+        return $this->is_admin === true || $this->tip_us === 'admin';
     }
-    
-    // ========== SCOPES ==========
-    
-    /**
-     * Scope para usuarios activos
-     */
-    public function scopeActive($query)
+
+    public function isActive()
     {
-        return $query->where('estado', 'activo');
+        return $this->est_us === 'activo';
     }
-    
-    /**
-     * Scope para usuarios inactivos
-     */
-    public function scopeInactive($query)
-    {
-        return $query->where('estado', 'inactivo');
-    }
-    
-    /**
-     * Scope para administradores
-     */
-    public function scopeAdmins($query)
-    {
-        return $query->where('is_admin', true);
-    }
-    
-    /**
-     * Scope para usuarios normales (no administradores)
-     */
-    public function scopeRegular($query)
-    {
-        return $query->where('is_admin', false);
-    }
-    
-    // Relación con mascotas
-public function mascotas()
-{
-    return $this->hasMany(Mascota::class, 'us_id');
-}
 }

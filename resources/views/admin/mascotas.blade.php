@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Gestión de Mascotas')
+@section('title', 'administracion de Mascotas')
 
 @section('content')
 <div class="space-y-6">
@@ -21,7 +21,7 @@
 
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800"> administracion de Mascotas</h1>
+        <h1 class="text-3xl font-bold text-gray-800">Administración de Mascotas</h1>
         <p class="text-gray-600 mt-2">Administra todas las mascotas registradas en la plataforma</p>
     </div>
 
@@ -31,7 +31,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Total Mascotas</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $totalPets ?? \App\Models\Mascota::count() }}</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $totalPets ?? 0 }}</p>
                 </div>
                 <div class="bg-orange-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,13 +41,39 @@
             </div>
         </div>
 
-        
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Perros</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ $dogsCount ?? 0 }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.586a1 1 0 00-.707.293l-2.828 2.828A1 1 0 006.586 7H5a2 2 0 00-2 2v3a2 2 0 002 2h4m6 0h.586a1 1 0 01.707.293l2.828 2.828A1 1 0 0118.414 21H17"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Gatos</p>
+                    <p class="text-3xl font-bold text-green-600">{{ $catsCount ?? 0 }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.586a1 1 0 00-.707.293l-2.828 2.828A1 1 0 006.586 7H5a2 2 0 00-2 2v3a2 2 0 002 2h4m6 0h.586a1 1 0 01.707.293l2.828 2.828A1 1 0 0118.414 21H17"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
 
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Dueños Registrados</p>
-                    <p class="text-3xl font-bold text-purple-600">{{ $usersWithPets ?? \App\Models\Mascota::distinct('us_id')->count('us_id') }}</p>
+                    <p class="text-3xl font-bold text-purple-600">{{ $usersWithPets ?? 0 }}</p>
                 </div>
                 <div class="bg-purple-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,16 +98,16 @@
             <select id="typeFilter" 
                     class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 <option value="">Todas las especies</option>
-                <option value="perro">🐕 Perros</option>
-                <option value="gato">🐱 Gatos</option>
-                <option value="otro">🐾 Otros</option>
+                @foreach($especies ?? [] as $especie)
+                    <option value="{{ $especie->nom_esp }}">{{ $especie->nom_esp }}</option>
+                @endforeach
             </select>
             
             <select id="ownerFilter" 
                     class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 <option value="">Todos los dueños</option>
                 @foreach($owners ?? [] as $owner)
-                    <option value="{{ $owner->id }}">{{ $owner->nom_us }} {{ $owner->ape_us ?? '' }}</option>
+                    <option value="{{ $owner->id }}">{{ $owner->nom_us }} {{ $owner->app_us ?? '' }}</option>
                 @endforeach
             </select>
         </div>
@@ -91,8 +117,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="petsGrid">
         @forelse($mascotas as $mascota)
         <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300 pet-card" 
-             data-especie="{{ $mascota->esp_mas }}" 
-             data-owner="{{ $mascota->us_id }}" 
+             data-especie="{{ $mascota->especie->nom_esp ?? 'otro' }}" 
+             data-owner="{{ $mascota->usuario_id }}" 
              data-nombre="{{ strtolower($mascota->nom_mas) }}">
             
             <!-- Imagen -->
@@ -109,12 +135,15 @@
                 
                 <!-- Badge de especie -->
                 <div class="absolute top-2 right-2">
-                    @if($mascota->esp_mas == 'perro')
+                    @php
+                        $especieNombre = strtolower($mascota->especie->nom_esp ?? 'otro');
+                    @endphp
+                    @if($especieNombre == 'perro')
                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500 text-white">🐕 Perro</span>
-                    @elseif($mascota->esp_mas == 'gato')
+                    @elseif($especieNombre == 'gato')
                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">🐱 Gato</span>
                     @else
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-500 text-white">🐾 {{ ucfirst($mascota->esp_mas) }}</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-500 text-white">🐾 {{ $mascota->especie->nom_esp ?? 'Mascota' }}</span>
                     @endif
                 </div>
             </div>
@@ -124,26 +153,26 @@
                 <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $mascota->nom_mas }}</h3>
                 
                 <div class="space-y-1 text-sm text-gray-600">
-                    <p><span class="font-medium">Dueño:</span> {{ $mascota->user->nom_us ?? 'No especificado' }} {{ $mascota->user->ape_us ?? '' }}</p>
-                    <p><span class="font-medium">Raza:</span> {{ $mascota->raz_mas ?? 'No especificada' }}</p>
-                    <p><span class="font-medium">Edad:</span> {{ $mascota->ed_mas ?? '?' }} años</p>
-                    @if($mascota->pes_mas)
-                        <p><span class="font-medium">Peso:</span> {{ $mascota->pes_mas }} kg</p>
+                    <p><span class="font-medium">Dueño:</span> {{ $mascota->usuario->nom_us ?? 'No especificado' }} {{ $mascota->usuario->app_us ?? '' }}</p>
+                    <p><span class="font-medium">Especie:</span> {{ $mascota->especie->nom_esp ?? 'No especificada' }}</p>
+                    <p><span class="font-medium">Sexo:</span> {{ $mascota->sex_mas == 'macho' ? '🐕 Macho' : ($mascota->sex_mas == 'hembra' ? '🐩 Hembra' : 'No especificado') }}</p>
+                    @if($mascota->des_mas)
+                        <p><span class="font-medium">Descripción:</span> {{ Str::limit($mascota->des_mas, 50) }}</p>
                     @endif
                 </div>
             </div>
             
             <!-- Acciones -->
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex space-x-2">
-                <button onclick="" 
+                <button onclick="viewPet('{{{ $mascota->id }}')" 
                         class="flex-1 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
                     👁️ Ver
                 </button>
-                <button onclick="" 
+                <button onclick="editPet('{{ $mascota->id }}')" 
                         class="flex-1 px-3 py-1.5 text-sm text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition">
                     ✏️ Editar
                 </button>
-                <button onclick="" 
+                <button onclick="deletePet('{{ $mascota->id }}')" 
                         class="flex-1 px-3 py-1.5 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
                     🗑️ Eliminar
                 </button>
@@ -183,7 +212,10 @@
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
         <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Editar Mascota</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Editar Mascota</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
             <form id="editPetForm">
                 @csrf
                 @method('PUT')
@@ -197,34 +229,28 @@
                 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Especie</label>
-                    <select id="editEspecie" required 
+                    <select id="editEspecieId" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                        <option value="perro">🐕 Perro</option>
-                        <option value="gato">🐱 Gato</option>
-                        <option value="conejo">🐰 Conejo</option>
-                        <option value="hamster">🐹 Hámster</option>
-                        <option value="ave">🐦 Ave</option>
-                        <option value="pez">🐟 Pez</option>
-                        <option value="otro">🐾 Otro</option>
+                        @foreach($especies ?? [] as $especie)
+                            <option value="{{ $especie->id }}">{{ $especie->nom_esp }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Raza</label>
-                    <input type="text" id="editRaza" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sexo</label>
+                    <select id="editSexo" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                        <option value="">Seleccionar sexo</option>
+                        <option value="macho">🐕 Macho</option>
+                        <option value="hembra">🐩 Hembra</option>
+                    </select>
                 </div>
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Edad (años)</label>
-                    <input type="number" id="editEdad" step="1" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Peso (kg)</label>
-                    <input type="number" id="editPeso" step="0.1" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                    <textarea id="editDescripcion" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"></textarea>
                 </div>
                 
                 <div class="flex justify-end space-x-3">
@@ -243,20 +269,22 @@
 </div>
 
 <script>
+    const csrfToken = '{{ csrf_token() }}';
+
     function filterPets() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const typeFilter = document.getElementById('typeFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
         const ownerFilter = document.getElementById('ownerFilter').value;
         const cards = document.querySelectorAll('#petsGrid .pet-card');
         
         cards.forEach(card => {
             const nombre = card.getAttribute('data-nombre') || '';
-            const especie = card.getAttribute('data-especie');
+            const especie = card.getAttribute('data-especie')?.toLowerCase() || '';
             const owner = card.getAttribute('data-owner');
             
             let show = true;
             if(searchTerm && !nombre.includes(searchTerm)) show = false;
-            if(typeFilter && especie !== typeFilter && !(typeFilter === 'otro' && !['perro', 'gato'].includes(especie))) show = false;
+            if(typeFilter && especie !== typeFilter && typeFilter !== '') show = false;
             if(ownerFilter && owner !== ownerFilter) show = false;
             
             card.style.display = show ? 'block' : 'none';
@@ -288,35 +316,29 @@
                         `}
                         <div class="border-t pt-4">
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
+                                <div class="col-span-2">
                                     <p class="text-sm text-gray-500">Nombre</p>
                                     <p class="font-medium text-gray-900">${data.nombre}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Especie</p>
-                                    <p class="font-medium text-gray-900 capitalize">${data.especie}</p>
+                                    <p class="font-medium text-gray-900">${data.especie}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Raza</p>
-                                    <p class="font-medium text-gray-900">${data.raza || 'No especificada'}</p>
+                                    <p class="text-sm text-gray-500">Sexo</p>
+                                    <p class="font-medium text-gray-900 capitalize">${data.sexo || 'No especificado'}</p>
                                 </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Edad</p>
-                                    <p class="font-medium text-gray-900">${data.edad || '?'} años</p>
+                                <div class="col-span-2">
+                                    <p class="text-sm text-gray-500">Descripción</p>
+                                    <p class="text-gray-700">${data.descripcion || 'Sin descripción'}</p>
                                 </div>
-                                ${data.peso ? `
-                                <div>
-                                    <p class="text-sm text-gray-500">Peso</p>
-                                    <p class="font-medium text-gray-900">${data.peso} kg</p>
-                                </div>
-                                ` : ''}
                                 <div class="col-span-2">
                                     <p class="text-sm text-gray-500">Dueño</p>
-                                    <p class="font-medium text-gray-900">${data.user?.nom_us || 'No especificado'} ${data.user?.ape_us || ''}</p>
+                                    <p class="font-medium text-gray-900">${data.usuario?.nom_us || 'No especificado'} ${data.usuario?.app_us || ''}</p>
                                 </div>
                                 <div class="col-span-2">
                                     <p class="text-sm text-gray-500">Email Dueño</p>
-                                    <p class="font-medium text-gray-900">${data.user?.email || 'No especificado'}</p>
+                                    <p class="font-medium text-gray-900">${data.usuario?.email || 'No especificado'}</p>
                                 </div>
                                 <div class="col-span-2">
                                     <p class="text-sm text-gray-500">Registrado</p>
@@ -345,11 +367,10 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('editPetId').value = data.id;
-                document.getElementById('editNombre').value = data.nombre;
-                document.getElementById('editEspecie').value = data.especie;
-                document.getElementById('editRaza').value = data.raza || '';
-                document.getElementById('editEdad').value = data.edad || '';
-                document.getElementById('editPeso').value = data.peso || '';
+                document.getElementById('editNombre').value = data.nombre || '';
+                document.getElementById('editEspecieId').value = data.especie_id || '';
+                document.getElementById('editSexo').value = data.sexo || '';
+                document.getElementById('editDescripcion').value = data.descripcion || '';
                 document.getElementById('editModal').classList.remove('hidden');
                 document.getElementById('editModal').classList.add('flex');
             })
@@ -362,13 +383,12 @@
     function savePet() {
         const id = document.getElementById('editPetId').value;
         const formData = new FormData();
-        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('_token', csrfToken);
         formData.append('_method', 'PUT');
         formData.append('nom_mas', document.getElementById('editNombre').value);
-        formData.append('esp_mas', document.getElementById('editEspecie').value);
-        formData.append('raz_mas', document.getElementById('editRaza').value);
-        formData.append('ed_mas', document.getElementById('editEdad').value);
-        formData.append('pes_mas', document.getElementById('editPeso').value);
+        formData.append('especie_id', document.getElementById('editEspecieId').value);
+        formData.append('sex_mas', document.getElementById('editSexo').value);
+        formData.append('des_mas', document.getElementById('editDescripcion').value);
 
         fetch(`/admin/mascotas/${id}`, {
             method: 'POST',
@@ -393,7 +413,7 @@
             fetch(`/admin/mascotas/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 }
             })
@@ -417,7 +437,6 @@
         document.getElementById('editModal').classList.remove('flex');
     }
 
-    // Cerrar modales al hacer clic fuera
     window.onclick = function(event) {
         const viewModal = document.getElementById('viewModal');
         const editModal = document.getElementById('editModal');
@@ -431,3 +450,14 @@
     }
 </script>
 @endsection
+
+
+
+
+
+
+
+
+
+
+

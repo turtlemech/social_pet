@@ -57,7 +57,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm mb-1">Publicaciones</p>
-                <p class="text-3xl font-bold text-green-600"></p>
+                <p class="text-3xl font-bold text-green-600">{{ \App\Models\Publicacion::count() ?? 0 }}</p>
             </div>
             <div class="bg-green-100 rounded-full p-3">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,19 +84,19 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
             <span class="text-gray-600">Usuarios activos:</span>
-            <span class="font-bold text-green-600">{{ \App\Models\User::where('estado', 'activo')->count() }}</span>
+            <span class="font-bold text-green-600">{{ \App\Models\User::where('est_us', 'activo')->count() }}</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
             <span class="text-gray-600">Usuarios inactivos:</span>
-            <span class="font-bold text-red-600">{{ \App\Models\User::where('estado', 'inactivo')->count() }}</span>
+            <span class="font-bold text-red-600">{{ \App\Models\User::where('est_us', 'inactivo')->count() }}</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Perros registrados:</span>
-            <span class="font-bold text-blue-600"></span>
+            <span class="text-gray-600">Usuarios baneados:</span>
+            <span class="font-bold text-red-600">{{ \App\Models\User::where('est_us', 'baneado')->count() }}</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Gatos registrados:</span>
-            <span class="font-bold text-blue-600"></span>
+            <span class="text-gray-600">Nuevos usuarios (este mes):</span>
+            <span class="font-bold text-blue-600">{{ \App\Models\User::whereMonth('created_at', now()->month)->count() }}</span>
         </div>
     </div>
 </div>

@@ -25,7 +25,7 @@ class SoporteSeeder extends Seeder
                 'ubi_us' => 'La Paz',       
                 'tip_us' => 'soporte',      
                 'est_us' => 'activo',       
-                'is_admin' => true,
+                'is_admin' => false,
             ],
             [
                 'cod_us' => 'SOP002',

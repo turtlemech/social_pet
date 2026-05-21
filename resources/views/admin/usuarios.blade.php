@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'administracion de Usuarios')
+@section('title', 'Administración de Usuarios')
 
 @section('content')
 <div class="space-y-6">
@@ -39,7 +39,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Usuarios Activos</p>
-                    <p class="text-3xl font-bold text-green-600">{{ $activeUsers ?? \App\Models\User::where('estado', 'activo')->count() }}</p>
+                    <p class="text-3xl font-bold text-green-600">{{ $activeUsers ?? \App\Models\User::where('est_us', 'activo')->count() }}</p>
                 </div>
                 <div class="bg-green-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@
                                     </div>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $user->nom_us }} {{ $user->ape_us }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $user->nom_us }} {{ $user->app_us }}</div>
                                 </div>
                             </div>
                         </td>
@@ -132,26 +132,26 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->estado == 'activo')
+                            @if($user->est_us == 'activo')
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                             @else
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->mascotas_count ?? 0 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->mascotas_count ?? $user->mascotas->count() ?? 0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->created_at->format('d/m/Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                            <button onclick="" 
+                            <button onclick="editUser('{{ $user->id }}')" 
                                     class="text-blue-600 hover:text-blue-800 transition font-medium">
                                 ✏️ Editar
                             </button>
                             @if(!$user->is_admin)
-                                <button onclick="" 
+                                <button onclick="toggleBlockUser('{{ $user->id }}')" 
                                         class="text-yellow-600 hover:text-yellow-800 transition font-medium">
-                                    {{ $user->estado == 'activo' ? '🔒 Bloquear' : '🔓 Activar' }}
+                                    {{ $user->est_us == 'activo' ? '🔒 Bloquear' : '🔓 Activar' }}
                                 </button>
                             @endif
-                            <button onclick="" 
+                            <button onclick="deleteUser('{{ $user->id }}')" 
                                     class="text-red-600 hover:text-red-800 transition font-medium">
                                 🗑️ Eliminar
                             </button>
@@ -196,8 +196,14 @@
                 </div>
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido</label>
-                    <input type="text" id="editApellido" 
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno</label>
+                    <input type="text" id="editApp" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno</label>
+                    <input type="text" id="editApm" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
                 
@@ -238,12 +244,15 @@
 </div>
 
 <script>
+    // Variables para CSRF token
+    const csrfToken = '{{ csrf_token() }}';
+
     function searchUsers() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#usersTableBody tr');
         
         rows.forEach(row => {
-            if(row.cells) {
+            if(row.cells && row.cells.length > 0) {
                 const text = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(' ');
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             }
@@ -258,7 +267,8 @@
             .then(data => {
                 document.getElementById('editUserId').value = data.id;
                 document.getElementById('editNombre').value = data.nom_us || '';
-                document.getElementById('editApellido').value = data.ape_us || '';
+                document.getElementById('editApp').value = data.app_us || '';
+                document.getElementById('editApm').value = data.apm_us || '';
                 document.getElementById('editEmail').value = data.ema_us;
                 document.getElementById('editTelefono').value = data.tel_us || '';
                 document.getElementById('editRol').value = data.is_admin ? 1 : 0;
@@ -274,10 +284,11 @@
     function saveUser() {
         const id = document.getElementById('editUserId').value;
         const formData = new FormData();
-        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('_token', csrfToken);
         formData.append('_method', 'PUT');
         formData.append('nom_us', document.getElementById('editNombre').value);
-        formData.append('ape_us', document.getElementById('editApellido').value);
+        formData.append('app_us', document.getElementById('editApp').value);
+        formData.append('apm_us', document.getElementById('editApm').value);
         formData.append('ema_us', document.getElementById('editEmail').value);
         formData.append('tel_us', document.getElementById('editTelefono').value);
         formData.append('is_admin', document.getElementById('editRol').value);
@@ -305,7 +316,7 @@
             fetch(`/admin/usuarios/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 }
             })
@@ -330,7 +341,7 @@
             fetch(`/admin/usuarios/${id}/toggle-block`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 }
             })

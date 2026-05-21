@@ -10,6 +10,7 @@ class Especie extends Model
     use HasFactory;
 
     protected $table = 'especies';
+    protected $primaryKey = 'id';
     
     protected $fillable = [
         'nom_esp',
@@ -17,8 +18,19 @@ class Especie extends Model
         'tam_mas',
     ];
 
+    // Relación con mascotas
     public function mascotas()
     {
         return $this->hasMany(Mascota::class, 'especie_id');
     }
+
+    // Accessor para obtener el nombre de la especie
+    public function getNombreAttribute()
+    {
+        return $this->nom_esp;
+    }
 }
+
+
+
+

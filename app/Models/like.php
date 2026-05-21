@@ -4,24 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Reaccion extends Model
+class Like extends Model
 {
     protected $table = 'reacciones';
-    
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
-        'id_publicacion',
         'id_usuario',
-        'tipo'
+        'id_publicacion',
+        'tip_rea'
     ];
-    
-    // Relaciones
-    public function publicacion()
-    {
-        return $this->belongsTo(Publicacion::class, 'id_publicacion');
-    }
-    
+
+    public $timestamps = true;
+
     public function usuario()
     {
         return $this->belongsTo(User::class, 'id_usuario');
+    }
+
+    public function publicacion()
+    {
+        return $this->belongsTo(Publicacion::class, 'id_publicacion');
     }
 }

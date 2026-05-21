@@ -18,15 +18,15 @@ class DashboardController extends Controller
 
         foreach ($posts as $post) {
 
-            // total likes
+            // total likes - CAMBIA 'tipo' a 'tip_rea'
             $post->likes_count = Like::where('id_publicacion', $post->id)
-                ->where('tipo', 'like')
+                ->where('tip_rea', 'like')  // ← aquí
                 ->count();
 
-            // usuario ya dio like?
+            // usuario ya dio like? - CAMBIA 'tipo' a 'tip_rea'
             $post->liked = Like::where('id_publicacion', $post->id)
                 ->where('id_usuario', auth()->id())
-                ->where('tipo', 'like')
+                ->where('tip_rea', 'like')  // ← y aquí
                 ->exists();
         }
 

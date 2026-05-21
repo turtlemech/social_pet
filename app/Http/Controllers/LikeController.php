@@ -18,9 +18,10 @@ class LikeController extends Controller
             ], 401);
         }
 
+        // Buscar reacción existente
         $like = Like::where('id_usuario', $userId)
             ->where('id_publicacion', $postId)
-            ->where('tipo', 'like')
+            ->where('tip_rea', 'like')
             ->first();
 
         if ($like) {
@@ -33,14 +34,14 @@ class LikeController extends Controller
             Like::create([
                 'id_usuario' => $userId,
                 'id_publicacion' => $postId,
-                'tipo' => 'like'
+                'tip_rea' => 'like'
             ]);
 
             $liked = true;
         }
 
         $count = Like::where('id_publicacion', $postId)
-            ->where('tipo', 'like')
+            ->where('tip_rea', 'like')
             ->count();
 
         return response()->json([

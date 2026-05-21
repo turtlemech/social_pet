@@ -45,7 +45,7 @@
                                  alt="Avatar" 
                                  class="w-20 h-20 rounded-full ring-4 ring-teal-500 ring-offset-2 object-cover">
                         @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->nom_us . ' ' . ($user->ape_us ?? '')) }}&background=0d9488&color=fff&bold=true&length=2&size=80" 
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->nom_us . ' ' . $user->app_us . ' ' . $user->apm_us) }}&background=0d9488&color=fff&bold=true&length=2&size=80" 
                                  alt="Avatar" 
                                  class="w-20 h-20 rounded-full ring-4 ring-teal-500 ring-offset-2">
                         @endif
@@ -70,15 +70,28 @@
                             @enderror
                         </div>
 
-                        <!-- Apellido -->
+                        <!-- Apellido Paterno -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno</label>
                             <input type="text" 
-                                   name="ape_us" 
-                                   value="{{ old('ape_us', $user->ape_us ?? '') }}" 
-                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition @error('ape_us') border-red-500 @enderror"
+                                   name="app_us" 
+                                   value="{{ old('app_us', $user->app_us) }}" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition @error('app_us') border-red-500 @enderror"
                                    required>
-                            @error('ape_us')
+                            @error('app_us')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Apellido Materno -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno</label>
+                            <input type="text" 
+                                   name="apm_us" 
+                                   value="{{ old('apm_us', $user->apm_us) }}" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition @error('apm_us') border-red-500 @enderror"
+                                   required>
+                            @error('apm_us')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -218,7 +231,7 @@
                                  alt="Avatar" 
                                  class="w-24 h-24 rounded-full ring-4 ring-teal-500 ring-offset-2 object-cover">
                         @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->nom_us . ' ' . ($user->ape_us ?? '')) }}&background=0d9488&color=fff&bold=true&length=2&size=96" 
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->nom_us . ' ' . $user->app_us . ' ' . $user->apm_us) }}&background=0d9488&color=fff&bold=true&length=2&size=96" 
                                  alt="Avatar" 
                                  class="w-24 h-24 rounded-full ring-4 ring-teal-500 ring-offset-2">
                         @endif

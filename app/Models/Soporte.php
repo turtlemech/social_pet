@@ -25,6 +25,11 @@ class Soporte extends Model
         'fec_resuelto',
     ];
 
+    protected $casts = [
+        'fec_resuelto' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
     // Relaciones
     public function usuario()
     {

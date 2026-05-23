@@ -222,6 +222,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========== SOPORTE ADMIN ==========
         Route::prefix('soporte')->name('soporte.')->group(function () {
 
+            // ✅ Ruta AGREGADA para listado principal de tickets (admin)
+            Route::get('/', [SoporteController::class, 'index'])->name('index');
+
             Route::get('/dashboard', [SoporteController::class, 'adminDashboard'])
                 ->name('dashboard');
 
@@ -276,42 +279,40 @@ Route::middleware(['auth'])
             back()->with('success', 'Mascota eliminada'))
             ->name('destroy');
     });
+
 Route::middleware(['auth'])->group(function () {
 
     // ================= EVENTOS =================
 
     Route::get('/eventos', [EventoController::class, 'index'])
-
         ->name('eventos.index');
 
     Route::get('/eventos/{evento}', [EventoController::class, 'show'])
-
         ->name('eventos.show');
 
     Route::post('/eventos', [EventoController::class, 'store'])
-
         ->name('eventos.store');
 
     Route::post('/eventos/{evento}/join', [EventoController::class, 'join'])
-
         ->name('eventos.join');
 
     Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])
-
         ->name('eventos.destroy');
+        
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])
-    ->name('eventos.mis-eventos');
+        ->name('eventos.mis-eventos');
 
-Route::get('/eventos-participando', [EventoController::class, 'participando'])
-    ->name('eventos.participando');
+    Route::get('/eventos-participando', [EventoController::class, 'participando'])
+        ->name('eventos.participando');
+        
     Route::get('/eventos/{evento}/edit', [EventoController::class, 'edit'])
-    ->name('eventos.edit');
+        ->name('eventos.edit');
 
-Route::put('/eventos/{evento}', [EventoController::class, 'update'])
-    ->name('eventos.update');
+    Route::put('/eventos/{evento}', [EventoController::class, 'update'])
+        ->name('eventos.update');
+        
     Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])
-    ->name('eventos.reactivar');
-
+        ->name('eventos.reactivar');
 });
 
 // Fallback

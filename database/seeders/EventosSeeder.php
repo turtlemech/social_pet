@@ -9,25 +9,23 @@ class EventosSeeder extends Seeder
 {
     public function run(): void
     {
-        // Primero crear ubicaciones
+        // Primero crear ubicaciones (sin ciu_ubi ni pai_ubi)
         $ubicaciones = [
-            ['nom_ubi' => 'Parque Central', 'ciu_ubi' => 'Ciudad de México', 'pai_ubi' => 'México'],
-            ['nom_ubi' => 'Plaza Principal', 'ciu_ubi' => 'Guadalajara', 'pai_ubi' => 'México'],
-            ['nom_ubi' => 'Jardín Botánico', 'ciu_ubi' => 'Monterrey', 'pai_ubi' => 'México'],
-            ['nom_ubi' => 'Parque de la Amistad', 'ciu_ubi' => 'La Paz', 'pai_ubi' => 'Bolivia'],
-            ['nom_ubi' => 'Plaza Murillo', 'ciu_ubi' => 'La Paz', 'pai_ubi' => 'Bolivia'],
-            ['nom_ubi' => 'Parque Kennedy', 'ciu_ubi' => 'Lima', 'pai_ubi' => 'Perú'],
-            ['nom_ubi' => 'Parque de las Leyendas', 'ciu_ubi' => 'Lima', 'pai_ubi' => 'Perú'],
-            ['nom_ubi' => 'Centro de Convenciones', 'ciu_ubi' => 'Bogotá', 'pai_ubi' => 'Colombia'],
-            ['nom_ubi' => 'Parque Simón Bolívar', 'ciu_ubi' => 'Bogotá', 'pai_ubi' => 'Colombia'],
-            ['nom_ubi' => 'Plaza de Armas', 'ciu_ubi' => 'Cusco', 'pai_ubi' => 'Perú'],
+            ['nom_ubi' => 'Parque Central'],
+            ['nom_ubi' => 'Plaza Principal'],
+            ['nom_ubi' => 'Jardín Botánico'],
+            ['nom_ubi' => 'Parque de la Amistad'],
+            ['nom_ubi' => 'Plaza Murillo'],
+            ['nom_ubi' => 'Parque Kennedy'],
+            ['nom_ubi' => 'Parque de las Leyendas'],
+            ['nom_ubi' => 'Centro de Convenciones'],
+            ['nom_ubi' => 'Parque Simón Bolívar'],
+            ['nom_ubi' => 'Plaza de Armas'],
         ];
         
         foreach ($ubicaciones as $ubicacion) {
             DB::table('ubicacion')->insert([
                 'nom_ubi' => $ubicacion['nom_ubi'],
-                'ciu_ubi' => $ubicacion['ciu_ubi'],
-                'pai_ubi' => $ubicacion['pai_ubi'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -47,12 +45,28 @@ class EventosSeeder extends Seeder
             ['nom_eve' => 'Maratón de Adopciones', 'des_eve' => 'Encuentra un nuevo amigo'],
         ];
         
+        // Obtener los IDs de los usuarios existentes
+        $usuarios = DB::table('usuarios')->pluck('id')->toArray();
+        
+        // Si no hay usuarios, crear al menos uno de respaldo
+        if (empty($usuarios)) {
+            DB::table('usuarios')->insert([
+                'name' => 'Usuario Default',
+                'email' => 'default@example.com',
+                'password' => bcrypt('password'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $usuarios = DB::table('usuarios')->pluck('id')->toArray();
+        }
+        
         for ($i = 1; $i <= 50; $i++) {
             $evento = $eventos_data[array_rand($eventos_data)];
             DB::table('eventos')->insert([
                 'nom_eve' => $evento['nom_eve'] . ' ' . $i,
                 'des_eve' => $evento['des_eve'],
                 'fch_eve' => now()->addDays(rand(1, 365)),
+                'usuario_id' => $usuarios[array_rand($usuarios)], // Agregar usuario_id requerido
                 'id_ubicacion' => rand(1, 10),
                 'created_at' => now(),
                 'updated_at' => now(),

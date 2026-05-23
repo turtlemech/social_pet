@@ -164,7 +164,7 @@
             
             <!-- Acciones -->
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex space-x-2">
-                <button onclick="viewPet('{{{ $mascota->id }}')" 
+                <button onclick="viewPet('{{ $mascota->id }}')" 
                         class="flex-1 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
                     👁️ Ver
                 </button>

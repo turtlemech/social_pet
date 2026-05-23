@@ -32,7 +32,8 @@ setTimeout(() => {
 
 @endif
 
-@if(request()->eliminado)
+
+@if(request()->reactivado)
 
 <script>
 
@@ -42,9 +43,40 @@ setTimeout(() => {
 
         icon: 'success',
 
-        title: '🗑️ Evento eliminado',
+        title: '✅ Evento reactivado',
 
-        text: 'El evento fue eliminado correctamente.',
+        text: 'El evento volvió a estar disponible.',
+
+        confirmButtonColor: '#10b981',
+
+        confirmButtonText: 'Continuar'
+
+    }).then(() => {
+
+        window.history.replaceState({}, document.title, "/eventos");
+
+    });
+
+}, 300);
+
+</script>
+
+@endif
+
+
+@if(request()->cancelado)
+
+<script>
+
+setTimeout(() => {
+
+    Swal.fire({
+
+        icon: 'success',
+
+        title: '🗑️ Evento cancelado',
+
+        text: 'El evento fue cancelado correctamente.',
 
         confirmButtonColor: '#ef4444',
 

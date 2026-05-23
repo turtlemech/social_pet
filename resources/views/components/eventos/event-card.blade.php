@@ -176,17 +176,31 @@
 
     <form
 
-        action="{{ route('eventos.destroy', $evento) }}"
+    action="{{ $evento->est_eve == 'cancelado'
 
-        method="POST"
+        ? route('eventos.reactivar', $evento)
 
-        class="w-full"
+        : route('eventos.destroy', $evento)
 
-    >
+    }}"
 
-        @csrf
+    method="POST"
+
+    class="w-full"
+
+>
+
+    @csrf
+
+    @if($evento->est_eve == 'cancelado')
+
+        @method('PATCH')
+
+    @else
 
         @method('DELETE')
+
+    @endif
 
         <button
 

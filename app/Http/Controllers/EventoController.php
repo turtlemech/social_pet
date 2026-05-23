@@ -21,27 +21,40 @@ class EventoController extends Controller
             ->withCount('participantes');
 
         // BUSCADOR
-        if(request('buscar')) {
+        if (request('buscar')) {
 
-            $query->where('nom_eve', 'like', '%' . request('buscar') . '%');
+            $query->where(
+                'nom_eve',
+                'like',
+                '%' . request('buscar') . '%'
+            );
         }
 
         // FILTRO CATEGORÍA
-        if(request('categoria')) {
+        if (request('categoria')) {
 
-            $query->where('cat_eve', request('categoria'));
+            $query->where(
+                'cat_eve',
+                request('categoria')
+            );
         }
 
         // FILTRO FECHA
-        if(request('fecha')) {
+        if (request('fecha')) {
 
-            $query->whereDate('fch_eve', request('fecha'));
+            $query->whereDate(
+                'fch_eve',
+                request('fecha')
+            );
         }
 
         // FILTRO ESTADO
-        if(request('estado')) {
+        if (request('estado')) {
 
-            $query->where('est_eve', request('estado'));
+            $query->where(
+                'est_eve',
+                request('estado')
+            );
         }
 
         $eventos = $query->get();
@@ -53,7 +66,10 @@ class EventoController extends Controller
             // DURACIÓN SIMULADA DEL EVENTO
             $finEvento = $inicio->copy()->addMinutes(15);
 
-            $diasRestantes = now()->diffInDays($evento->fch_eve, false);
+            $diasRestantes = now()->diffInDays(
+                $evento->fch_eve,
+                false
+            );
 
             $puntajeFecha = 0;
 
@@ -136,7 +152,10 @@ class EventoController extends Controller
 
         })->values();
 
-        return view('eventos.index', compact('eventos'));
+        return view(
+            'eventos.index',
+            compact('eventos')
+        );
     }
 
     // MIS EVENTOS
@@ -147,11 +166,17 @@ class EventoController extends Controller
                 'ubicacion',
                 'participantes'
             ])
-            ->where('usuario_id', auth()->id())
+            ->where(
+                'usuario_id',
+                auth()->id()
+            )
             ->latest()
             ->get();
 
-        return view('eventos.mis-eventos', compact('eventos'));
+        return view(
+            'eventos.mis-eventos',
+            compact('eventos')
+        );
     }
 
     // EVENTOS DONDE PARTICIPO
@@ -166,7 +191,10 @@ class EventoController extends Controller
             ])
             ->get();
 
-        return view('eventos.participando', compact('eventos'));
+        return view(
+            'eventos.participando',
+            compact('eventos')
+        );
     }
 
     // CREAR EVENTO
@@ -215,9 +243,12 @@ class EventoController extends Controller
         ]);
 
         // EL CREADOR PARTICIPA AUTOMÁTICAMENTE
-        $evento->participantes()->attach(auth()->id(), [
-            'est_par' => 'aceptada'
-        ]);
+        $evento->participantes()->attach(
+            auth()->id(),
+            [
+                'est_par' => 'aceptada'
+            ]
+        );
 
         return redirect()->to('/eventos?creado=1');
     }
@@ -225,13 +256,54 @@ class EventoController extends Controller
     // UNIRSE A EVENTO
     public function join(Evento $evento)
     {
-        $evento->participantes()->syncWithoutDetaching([
-            auth()->id() => [
-                'est_par' => 'aceptada'
-            ]
-        ]);
+        // NO permitir eventos cancelados/finalizados
+        if (
+            $evento->est_eve == 'cancelado'
+            ||
+            $evento->est_eve == 'finalizado'
+        ) {
 
-        return back()->with('success', 'Te uniste al evento');
+            return back();
+        }
+
+        // EL CREADOR YA PARTICIPA
+        if ($evento->usuario_id == auth()->id()) {
+
+            return back();
+        }
+
+        // VALIDAR CUPOS
+        if (
+            $evento->capacidad_eve
+            &&
+            $evento->participantes->count()
+            >= $evento->capacidad_eve
+        ) {
+
+            return back()->with(
+                'error',
+                'El evento ya alcanzó su capacidad máxima'
+            );
+        }
+
+        // NO duplicar participación
+        if (
+            !$evento->participantes
+                ->contains(auth()->id())
+        ) {
+
+            $evento->participantes()->attach(
+                auth()->id(),
+                [
+                    'est_par' => 'aceptada'
+                ]
+            );
+        }
+
+        return back()->with(
+            'success',
+            'Te uniste al evento'
+        );
     }
 
     // VER DETALLES
@@ -243,7 +315,10 @@ class EventoController extends Controller
             'participantes'
         ]);
 
-        return view('eventos.show', compact('evento'));
+        return view(
+            'eventos.show',
+            compact('evento')
+        );
     }
 
     // EDITAR EVENTO
@@ -256,15 +331,26 @@ class EventoController extends Controller
 
         $evento->load('ubicacion');
 
-        return view('eventos.edit', compact('evento'));
+        return view(
+            'eventos.edit',
+            compact('evento')
+        );
     }
 
     // ACTUALIZAR EVENTO
-    public function update(Request $request, Evento $evento)
-    {
+    public function update(
+        Request $request,
+        Evento $evento
+    ) {
         if ($evento->usuario_id != auth()->id()) {
 
             abort(403);
+        }
+
+        // NO EDITAR SI YA FINALIZÓ
+        if ($evento->est_eve == 'finalizado') {
+
+            return back();
         }
 
         $request->validate([
@@ -289,7 +375,8 @@ class EventoController extends Controller
             // ELIMINAR ANTERIOR
             if ($evento->img_eve) {
 
-                Storage::disk('public')->delete($evento->img_eve);
+                Storage::disk('public')
+                    ->delete($evento->img_eve);
             }
 
             $evento->img_eve = $request
@@ -309,7 +396,10 @@ class EventoController extends Controller
         ]);
 
         return redirect('/mis-eventos')
-            ->with('success', 'Evento actualizado');
+            ->with(
+                'success',
+                'Evento actualizado'
+            );
     }
 
     // CANCELAR EVENTO
@@ -320,10 +410,47 @@ class EventoController extends Controller
             abort(403);
         }
 
-        $evento->update([
-            'est_eve' => 'cancelado'
-        ]);
+        // NO CANCELAR SI YA FINALIZÓ
+        if ($evento->est_eve != 'finalizado') {
+
+            $evento->update([
+                'est_eve' => 'cancelado'
+            ]);
+        }
 
         return redirect()->to('/eventos?cancelado=1');
+    }
+
+    // REACTIVAR EVENTO
+    public function reactivar(Evento $evento)
+    {
+        if ($evento->usuario_id != auth()->id()) {
+
+            abort(403);
+        }
+
+        // SOLO SI ESTÁ CANCELADO Y LA FECHA NO PASÓ
+        if (
+
+            $evento->est_eve == 'cancelado'
+
+            &&
+
+            Carbon::parse(
+                $evento->fch_eve
+            )->isFuture()
+
+        ) {
+
+            $evento->update([
+
+                'est_eve' => 'activo'
+
+            ]);
+        }
+
+        return redirect()->to(
+            '/eventos?reactivado=1'
+        );
     }
 }

@@ -309,6 +309,8 @@ Route::get('/eventos-participando', [EventoController::class, 'participando'])
 
 Route::put('/eventos/{evento}', [EventoController::class, 'update'])
     ->name('eventos.update');
+    Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])
+    ->name('eventos.reactivar');
 
 });
 

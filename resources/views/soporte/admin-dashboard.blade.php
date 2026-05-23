@@ -84,7 +84,7 @@
                             </td>
                             <td class="px-6 py-4 text-sm">{{ \Carbon\Carbon::parse($ticket->created_at)->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4">
-                                <button onclick="openTicketModal({{ json_encode($ticket) }})" 
+                                <button onclick="openTicketModal('{{ json_encode($ticket) }}')" 
                                         class="text-teal-600 hover:text-teal-900 font-medium">
                                     Ver / Responder
                                 </button>

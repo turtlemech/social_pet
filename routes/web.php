@@ -98,6 +98,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [SoporteController::class, 'dashboard'])
             ->name('dashboard');
 
+        
+
         Route::get('/mis-tickets', [SoporteController::class, 'myTickets'])
             ->name('mis-tickets');
 
@@ -222,7 +224,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========== SOPORTE ADMIN ==========
         Route::prefix('soporte')->name('soporte.')->group(function () {
 
-            // ✅ Ruta AGREGADA para listado principal de tickets (admin)
+            //  Ruta AGREGADA para listado principal de tickets (admin)
             Route::get('/', [SoporteController::class, 'index'])->name('index');
 
             Route::get('/dashboard', [SoporteController::class, 'adminDashboard'])

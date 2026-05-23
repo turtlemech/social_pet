@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Panel - Social Pet')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     @stack('styles')
 </head>
 <body class="bg-gray-100">
@@ -35,6 +36,16 @@
             <a href="{{ route('admin.publicaciones.index') }}" 
                class="flex items-center gap-3 px-5 py-3 mx-3 rounded-lg transition-all duration-300 hover:bg-orange-500 hover:translate-x-1 {{ request()->routeIs('admin.publicaciones.*') ? 'bg-orange-500' : '' }}">
                 <span>📝</span> Publicaciones
+            </a>
+            <a href="{{ route('admin.soporte.dashboard') }}" 
+               class="flex items-center gap-3 px-5 py-3 mx-3 rounded-lg transition-all duration-300 hover:bg-orange-500 hover:translate-x-1 {{ request()->routeIs('admin.soporte.*') ? 'bg-orange-500' : '' }}">
+                <span>🎫</span> Tickets de Soporte
+                @php
+                    $ticketsPendientes = \App\Models\Soporte::whereIn('est_sop', ['abierto', 'en_proceso'])->count();
+                @endphp
+                @if($ticketsPendientes > 0)
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $ticketsPendientes }}</span>
+                @endif
             </a>
         </nav>
         

@@ -14,9 +14,10 @@ class ComentarioController extends Controller
         ]);
 
         Comentario::create([
-            'comentario' => $request->comentario,
+            'con_com' => $request->comentario,
             'id_publicacion' => $id,
-            'id_usuario' => auth()->id()
+            'id_usuario' => auth()->id(),
+            'estado' => 'activo'
         ]);
 
         return back()->with('success', 'Comentario agregado');

@@ -22,7 +22,7 @@ class MascotasSeeder extends Seeder
         ];
         
         for ($i = 1; $i <= 50; $i++) {
-            $especie_id = rand(1, 50);
+            $especie_id = rand(1, 5);
             $usuario_id = rand(1, 50); // Usuarios del 1-50
             $sexo = rand(0, 1) ? 'macho' : 'hembra';
             

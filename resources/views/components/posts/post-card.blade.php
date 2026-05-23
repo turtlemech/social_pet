@@ -8,7 +8,7 @@
         <div class="flex items-center space-x-3">
 
             <img
-                src="{{ $post->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->user->nom_us ?? 'Usuario').'&background=0d9488&color=fff' }}"
+                src="{{ $post->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->usuario->nom_us ?? 'Usuario').'&background=0d9488&color=fff' }}"
                 alt="Usuario"
                 class="w-10 h-10 rounded-full object-cover"
             >
@@ -16,16 +16,12 @@
             <div>
 
                 <h4 class="font-semibold text-gray-900">
-                    {{ $post->user->nom_us ?? 'Usuario' }}
+                    {{ $post->usuario->nom_us ?? 'Usuario' }}
                 </h4>
 
                 <p class="text-xs text-gray-400">
 
-                    @if(!empty($post->fec_pub))
-
-                        {{ \Carbon\Carbon::parse($post->fec_pub)->diffForHumans() }}
-
-                    @elseif(!empty($post->created_at))
+                    @if(!empty($post->created_at))
 
                         {{ \Carbon\Carbon::parse($post->created_at)->diffForHumans() }}
 
@@ -45,7 +41,7 @@
         @if(isset($post->us_id) && auth()->id() == $post->us_id)
 
             <form
-                action="{{ route('posts.destroy', ['post' => $post->id ?? 0]) }}"
+                action="{{ route('posts.destroy', ['post' => $post->id]) }}"
                 method="POST"
             >
 
@@ -85,21 +81,22 @@
     <!-- CONTENT -->
     <div class="px-4 pb-3">
 
-        <p class="text-gray-800">
-            {{ $post->con_pub ?? 'Sin contenido' }}
+        <p class="text-gray-800 whitespace-pre-line">
+            {{ $post->com_pub ?? 'Sin contenido' }}
         </p>
 
     </div>
 
     <!-- IMAGE -->
-@if(!empty($post->img_pub))
+    @if(!empty($post->img_pub))
 
-    <img
-        src="{{ asset('storage/' . $post->img_pub) }}"
-        class="w-full object-cover max-h-96"
-    >
+        <img
+            src="{{ asset('storage/' . $post->img_pub) }}"
+            alt="Publicación"
+            class="w-full object-cover max-h-96"
+        >
 
-@endif
+    @endif
 
     <!-- STATS -->
     <div class="px-4 py-2 flex justify-between text-sm text-gray-500 border-t border-gray-100">
@@ -115,7 +112,7 @@
 
             </svg>
 
-            <span id="likes-{{ $post->id ?? 0 }}">
+            <span id="likes-{{ $post->id }}">
 
                 {{ $post->likes_count ?? 0 }} likes
 
@@ -125,7 +122,7 @@
 
         <div>
 
-            {{ isset($post->comentarios) ? $post->comentarios->count() : 0 }} comments
+            {{ $post->comentarios->count() ?? 0 }} comentarios
 
         </div>
 
@@ -136,7 +133,7 @@
 
         <!-- LIKE -->
         <button
-            data-id="{{ $post->id ?? 0 }}"
+            data-id="{{ $post->id }}"
             class="like-btn flex-1 py-2 flex items-center justify-center space-x-2 transition
             {{ !empty($post->liked) ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}"
         >
@@ -163,6 +160,7 @@
 
         <!-- COMMENT -->
         <button
+            onclick="openCommentsModal({{ $post->id }})"
             class="flex-1 py-2 flex items-center justify-center space-x-2 text-gray-500 hover:text-teal-500 transition"
         >
 
@@ -182,7 +180,7 @@
 
             </svg>
 
-            <span>Comment</span>
+            <span>Comentarios</span>
 
         </button>
 
@@ -217,75 +215,236 @@
     <div class="border-t border-gray-100 p-4">
 
         <!-- FORM -->
-        @if(!empty($post->id))
+        <form
+            action="{{ route('comentarios.store', ['post' => $post->id]) }}"
+            method="POST"
+            class="flex gap-2 mb-4"
+        >
 
-            <form
-                action="{{ route('comentarios.store', ['post' => $post->id]) }}"
-                method="POST"
-                class="flex gap-2 mb-4"
+            @csrf
+
+            <input
+                type="text"
+                name="comentario"
+                placeholder="Escribe un comentario..."
+                class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
             >
 
-                @csrf
+            <button
+                type="submit"
+                class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
+            >
 
-                <input
-                    type="text"
-                    name="comentario"
-                    placeholder="Escribe un comentario..."
-                    class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    required
-                >
+                Comentar
 
-                <button
-                    type="submit"
-                    class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
-                >
+            </button>
 
-                    Comentar
-
-                </button>
-
-            </form>
-
-        @endif
+        </form>
 
         <!-- COMMENTS LIST -->
         @if(isset($post->comentarios) && $post->comentarios->count() > 0)
 
-            @foreach($post->comentarios as $comentario)
+            @foreach($post->comentarios->take(3) as $comentario)
 
-                <div class="bg-gray-50 rounded-lg p-3 mb-2">
+                @if($comentario->estado == 'activo')
 
-                    <div class="flex items-center justify-between mb-1">
+                    <div class="bg-gray-50 rounded-lg p-3 mb-2">
 
-                        <div class="font-semibold text-sm text-gray-800">
+                        <div class="flex items-center justify-between mb-1">
 
-                            {{ $comentario->usuario->nom_us ?? 'Usuario' }}
+                            <div class="font-semibold text-sm text-gray-800">
+
+                                {{ $comentario->usuario->nom_us ?? 'Usuario' }}
+
+                            </div>
+
+                            <div class="text-xs text-gray-400">
+
+                                @if(!empty($comentario->created_at))
+
+                                    {{ $comentario->created_at->diffForHumans() }}
+
+                                @endif
+
+                            </div>
 
                         </div>
 
-                        <div class="text-xs text-gray-400">
+                        <div class="text-sm text-gray-700">
 
-                            @if(!empty($comentario->created_at))
-
-                                {{ \Carbon\Carbon::parse($comentario->created_at)->diffForHumans() }}
-
-                            @endif
+                            {{ $comentario->con_com }}
 
                         </div>
 
                     </div>
 
-                    <div class="text-sm text-gray-700">
+                @endif
 
-                        {{ $comentario->comentario }}
+            @endforeach
+
+        @endif
+
+    </div>
+
+</div>
+
+<!-- COMMENTS MODAL -->
+<div
+    id="comments-modal-{{ $post->id }}"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-6"
+>
+
+    <div
+        class="modal-animate bg-white/95 backdrop-blur-xl border border-white/20 w-full max-w-5xl h-[88vh] rounded-[32px] overflow-hidden flex relative shadow-2xl" >
+
+        <!-- CLOSE -->
+        <button
+            onclick="closeCommentsModal({{ $post->id }})"
+            class="absolute top-5 right-5 z-50 bg-white/80 backdrop-blur-md text-gray-700 w-11 h-11 rounded-full hover:scale-110 transition shadow-lg"
+        >
+            ✕
+        </button>
+@if(!empty($post->img_pub))
+
+    <!-- LEFT IMAGE -->
+
+    <div class="hidden md:flex w-1/2 bg-black items-center justify-center">
+
+        <img
+
+            src="{{ asset('storage/' . $post->img_pub) }}"
+
+            class="w-full h-full object-cover"
+
+        >
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="w-full md:w-1/2 flex flex-col bg-white">
+
+@else
+
+    <!-- SIN IMAGEN -->
+
+    <div class="w-full flex flex-col bg-white">
+
+@endif
+            <!-- USER -->
+            <div class="p-5 border-b border-gray-100 flex items-center space-x-3 bg-white/80 backdrop-blur-sm">
+
+                <img
+                    src="{{ $post->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->usuario->nom_us ?? 'Usuario').'&background=0d9488&color=fff' }}"
+                    class="w-11 h-11 rounded-full ring-2 ring-teal-400/30 object-cover"
+                >
+
+                <div>
+
+                    <div class="font-semibold">
+
+                        {{ $post->usuario->nom_us ?? 'Usuario' }}
+
+                    </div>
+
+                    <div class="text-xs text-gray-400">
+
+                        {{ $post->created_at->diffForHumans() }}
 
                     </div>
 
                 </div>
 
-            @endforeach
+            </div>
 
-        @endif
+            <!-- POST CONTENT -->
+            <div class="p-4 border-b">
+
+                <p class="text-gray-700 whitespace-pre-line leading-7 text-[15px]">
+
+                    {{ $post->com_pub }}
+
+                </p>
+
+            </div>
+
+            <!-- COMMENTS -->
+           <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll">
+
+                @foreach($post->comentarios as $comentario)
+
+                    @if($comentario->estado == 'activo')
+
+                        <div class="bg-gray-50 rounded-2xl p-4 hover:bg-gray-100 transition">
+
+                            <div class="flex justify-between items-start">
+
+                                <div>
+
+                                    <span class="font-semibold text-sm">
+
+                                        {{ $comentario->usuario->nom_us ?? 'Usuario' }}
+
+                                    </span>
+
+                                    <p class="text-sm text-gray-700 mt-1">
+
+                                        {{ $comentario->con_com }}
+
+                                    </p>
+
+                                </div>
+
+                                <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">
+
+                                    {{ $comentario->created_at->diffForHumans() }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                @endforeach
+
+            </div>
+
+            <!-- COMMENT FORM -->
+            <div class="border-t p-4">
+
+                <form
+                    action="{{ route('comentarios.store', ['post' => $post->id]) }}"
+                    method="POST"
+                    class="flex gap-2"
+                >
+
+                    @csrf
+
+                    <input
+                        type="text"
+                        name="comentario"
+                        placeholder="Agrega un comentario..."
+                        class="flex-1 bg-gray-100 border-0 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder:text-gray-400"
+                        required
+                    >
+
+                    <button
+                        type="submit"
+                        class="bg-gradient-to-r from-teal-400 to-emerald-500 text-white px-6 py-3 rounded-full hover:scale-105 transition font-medium shadow-lg"
+                    >
+
+                        Enviar
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
 
     </div>
 

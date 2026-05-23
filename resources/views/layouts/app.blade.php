@@ -144,6 +144,14 @@
                 }
             }
         </style>
+        <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -354,6 +362,64 @@
     }
 });
     </script>
+    <script>
+
+function openCommentsModal(id) {
+
+    const modal = document.getElementById('comments-modal-' + id);
+
+    if (modal) {
+
+        modal.classList.remove('hidden');
+
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeCommentsModal(id) {
+
+    const modal = document.getElementById('comments-modal-' + id);
+
+    if (modal) {
+
+        modal.classList.add('hidden');
+
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// cerrar con ESC
+document.addEventListener('keydown', function(e) {
+
+    if (e.key === 'Escape') {
+
+        document.querySelectorAll('[id^="comments-modal-"]')
+            .forEach(modal => {
+
+                modal.classList.add('hidden');
+            });
+
+        document.body.style.overflow = 'auto';
+    }
+});
+
+// cerrar clickeando fondo
+document.addEventListener('click', function(e) {
+
+    const modals = document.querySelectorAll('[id^="comments-modal-"]');
+
+    modals.forEach(modal => {
+
+        if (e.target === modal) {
+
+            modal.classList.add('hidden');
+
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
+
+</script>
         @stack('scripts')
     </body>
     </html>

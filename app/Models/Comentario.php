@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Publicacion;
+use App\Models\User;
 
 class Comentario extends Model
 {
@@ -11,9 +13,10 @@ class Comentario extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'comentario',
+        'con_com',
         'id_publicacion',
-        'id_usuario'
+        'id_usuario',
+        'estado'
     ];
 
     public $timestamps = true;
@@ -21,7 +24,7 @@ class Comentario extends Model
     // publicación
     public function publicacion()
     {
-        return $this->belongsTo(Post::class, 'id_publicacion', 'id');
+        return $this->belongsTo(Publicacion::class, 'id_publicacion', 'id');
     }
 
     // usuario

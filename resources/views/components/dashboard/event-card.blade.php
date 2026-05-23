@@ -1,29 +1,129 @@
-@props(['title' => 'Feria de Mascotas 2026', 'date' => 'Este sábado', 'location' => 'Parque Central', 'image' => '🎪'])
+@props([
+    'title' => 'Evento',
+    'date' => 'Próximamente',
+    'location' => 'Ubicación',
+    'image' => '🐾',
+    'status' => 'activo'
+])
 
-<div class="bg-gradient-to-br from-orange-50 to-pink-50 rounded-xl shadow-sm p-4 border border-orange-100 hover:shadow-md transition">
-    <div class="flex items-center space-x-2 mb-3">
-        <span class="text-2xl">{{ $image }}</span>
-        <h3 class="font-semibold text-gray-900">Próximo Evento</h3>
+<div class="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-pink-50 rounded-3xl shadow-lg border border-orange-100 p-5
+
+@if($status == 'cancelado')
+    opacity-60 grayscale
+@endif
+">
+
+    <!-- Glow -->
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-300/20 rounded-full blur-3xl"></div>
+
+    <!-- STATUS -->
+    <div class="absolute top-4 right-4 z-20">
+
+        @if($status == 'activo')
+
+            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
+                Próximo
+            </span>
+
+        @elseif($status == 'en_curso')
+
+            <span class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                En curso
+            </span>
+
+        @elseif($status == 'finalizado')
+
+            <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-bold">
+                Finalizado
+            </span>
+
+        @elseif($status == 'cancelado')
+
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+                Cancelado
+            </span>
+
+        @endif
+
     </div>
-    
-    <p class="text-sm font-medium text-gray-900">{{ $title }}</p>
-    
-    <div class="flex items-center space-x-2 mt-2">
-        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        <p class="text-xs text-gray-600">{{ $date }}</p>
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 relative z-10">
+
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-2xl shadow-lg">
+            {{ $image }}
+        </div>
+
+        <div>
+
+            <p class="text-xs uppercase tracking-widest text-orange-500 font-bold">
+
+                @if($status == 'en_curso')
+
+                    Evento en vivo 🔥
+
+                @else
+
+                    Próximo Evento
+
+                @endif
+
+            </p>
+
+            <h3 class="text-lg font-bold text-gray-900 leading-tight">
+                {{ $title }}
+            </h3>
+
+        </div>
+
     </div>
-    
-    <div class="flex items-center space-x-2 mt-1">
-        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <p class="text-xs text-gray-600">{{ $location }}</p>
+
+    <!-- Info -->
+    <div class="mt-5 space-y-3 relative z-10">
+
+        <div class="flex items-center gap-3 text-gray-600">
+
+            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                📅
+            </div>
+
+            <span class="text-sm font-medium">
+                {{ $date }}
+            </span>
+
+        </div>
+
+        <div class="flex items-center gap-3 text-gray-600">
+
+            <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
+                📍
+            </div>
+
+            <span class="text-sm font-medium">
+                {{ $location }}
+            </span>
+
+        </div>
+
     </div>
-    
-    <button class="mt-3 w-full bg-orange-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-orange-600 transition">
-        Me interesa
-    </button>
+
+    <!-- Buttons -->
+    <div class="mt-6 flex gap-2 relative z-10">
+
+        <a
+            href="{{ route('eventos.index') }}"
+            class="flex-1 text-center bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-2xl font-semibold hover:scale-[1.02] transition shadow-lg"
+        >
+            Ver eventos
+        </a>
+
+        <a
+            href="{{ route('eventos.index') }}"
+            class="px-4 bg-white border border-orange-200 rounded-2xl hover:bg-orange-50 transition flex items-center justify-center text-lg"
+        >
+            🎟️
+        </a>
+
+    </div>
+
 </div>

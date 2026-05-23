@@ -18,23 +18,25 @@ return new class extends Migration
         });
         
         Schema::create('eventos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nom_eve', 100);
-            $table->text('des_eve')->nullable();
-            $table->dateTime('fch_eve');
+    $table->id();
 
-            
-            $table->foreignId('id_ubicacion')
-                ->nullable()
-                ->constrained('ubicacion')
-                ->onDelete('set null'); 
+    $table->string('nom_eve', 100);
 
-            $table->timestamps();
+    $table->text('des_eve')->nullable();
 
-            
-            $table->index('fch_eve', 'eventos_fecha_idx');
-            $table->index('id_ubicacion', 'eventos_ubicacion_idx');
-        });
+    $table->dateTime('fch_eve');
+
+    $table->foreignId('usuario_id')
+        ->constrained('usuarios')
+        ->onDelete('cascade');
+
+    $table->foreignId('id_ubicacion')
+        ->nullable()
+        ->constrained('ubicacion')
+        ->onDelete('set null');
+
+    $table->timestamps();
+});
 
         // Tabla pivote para la relación de Muchos a Muchos (Usuarios <-> Eventos)
         Schema::create('participacion_evento', function (Blueprint $table) {

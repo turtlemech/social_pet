@@ -12,8 +12,9 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'usuarios';
+
     protected $primaryKey = 'id';
-    
+
     protected $fillable = [
         'cod_us',
         'nom_us',
@@ -38,11 +39,14 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
     ];
 
-    // Relaciones con todos los modelos
+    // ================= MASCOTAS =================
+
     public function mascotas()
     {
         return $this->hasMany(Mascota::class, 'usuario_id');
     }
+
+    // ================= PUBLICACIONES =================
 
     public function publicaciones()
     {
@@ -59,6 +63,8 @@ class User extends Authenticatable
         return $this->hasMany(Like::class, 'id_usuario');
     }
 
+    // ================= AMISTADES =================
+
     public function amistadesEnviadas()
     {
         return $this->hasMany(Amistad::class, 'us_sol');
@@ -69,11 +75,18 @@ class User extends Authenticatable
         return $this->hasMany(Amistad::class, 'us_rec');
     }
 
+    // ================= MENSAJES =================
+
     public function conversaciones()
     {
-        return $this->belongsToMany(Conversacion::class, 'participantes', 'us_id', 'con_id')
-                    ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            Conversacion::class,
+            'participantes',
+            'us_id',
+            'con_id'
+        )
+        ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
+        ->withTimestamps();
     }
 
     public function mensajes()
@@ -81,15 +94,21 @@ class User extends Authenticatable
         return $this->hasMany(Mensaje::class, 'us_rem');
     }
 
+    // ================= NOTIFICACIONES =================
+
     public function notificaciones()
     {
         return $this->hasMany(Notificacion::class, 'usuario_id');
     }
 
+    // ================= PRODUCTOS =================
+
     public function productos()
     {
         return $this->hasMany(Producto::class, 'us_ven');
     }
+
+    // ================= ADOPCIONES =================
 
     public function adopcionesActivas()
     {
@@ -101,12 +120,27 @@ class User extends Authenticatable
         return $this->hasMany(Adopcion::class, 'us_sol');
     }
 
-    public function eventos()
+    // ================= EVENTOS =================
+
+    // Eventos creados por el usuario
+    public function eventosCreados()
     {
-        return $this->belongsToMany(Evento::class, 'participacion_evento', 'usuario_id', 'evento_id')
-                    ->withPivot('est_par')
-                    ->withTimestamps();
+        return $this->hasMany(Evento::class, 'usuario_id');
     }
+
+    // Eventos en los que participa
+    public function eventosParticipando()
+    {
+        return $this->belongsToMany(
+            Evento::class,
+            'participacion_evento',
+            'usuario_id',
+            'evento_id'
+        )
+        ->withPivot('est_par');
+    }
+
+    // ================= SOPORTE =================
 
     public function ticketsSoporte()
     {
@@ -115,15 +149,16 @@ class User extends Authenticatable
 
     public function reportesHechos()
     {
-        return $this->hasMany(soporte::class, 'usu_reporta_id');
+        return $this->hasMany(Soporte::class, 'usu_reporta_id');
     }
 
     public function reportesRecibidos()
     {
-        return $this->hasMany(soporte::class, 'usu_reportado_id');
+        return $this->hasMany(Soporte::class, 'usu_reportado_id');
     }
 
-    // Métodos útiles
+    // ================= MÉTODOS ÚTILES =================
+
     public function isAdmin()
     {
         return $this->is_admin === true || $this->tip_us === 'admin';

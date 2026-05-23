@@ -1,5 +1,4 @@
 <?php
-// database/migrations/2024_01_01_000005_create_asistencias_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,10 +12,14 @@ return new class extends Migration
             $table->id();
             $table->string('cod_asi', 8)->unique();
             $table->enum('est_asi', ['confirmada', 'cancelada'])->default('confirmada');
-            $table->foreignId('que_id')->constrained('quedadas')->onDelete('cascade');
+
+            // CAMBIADO
+            $table->unsignedBigInteger('que_id')->nullable();
+
             $table->foreignId('us_id')->constrained('usuarios')->onDelete('cascade');
+
             $table->timestamps();
-            
+
             $table->index(['que_id', 'est_asi'], 'asistencias_quedada_estado_idx');
             $table->index(['us_id', 'est_asi'], 'asistencias_usuario_estado_idx');
             $table->unique(['que_id', 'us_id'], 'asistencias_unique_asistencia');

@@ -2,31 +2,52 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Evento extends Model
 {
-    use HasFactory;
-
     protected $table = 'eventos';
-    
+
     protected $fillable = [
         'nom_eve',
         'des_eve',
+        'img_eve',
+        'cat_eve',
+        'est_eve',
+        'destacado',
+        'capacidad_eve',
         'fch_eve',
+        'usuario_id',
         'id_ubicacion',
     ];
 
+    protected $casts = [
+        'fch_eve' => 'datetime',
+        'destacado' => 'boolean',
+    ];
+
+    // Usuario creador
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    // Ubicación
     public function ubicacion()
     {
         return $this->belongsTo(Ubicacion::class, 'id_ubicacion');
     }
 
-    public function asistentes()
+    // Participantes
+    public function participantes()
     {
-        return $this->belongsToMany(User::class, 'participacion_evento', 'evento_id', 'usuario_id')
-                    ->withPivot('est_par')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            User::class,
+            'participacion_evento',
+            'evento_id',
+            'usuario_id'
+        )
+        ->withPivot('est_par')
+        ->withTimestamps();
     }
 }

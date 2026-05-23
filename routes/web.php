@@ -10,6 +10,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\SoporteController;
+use App\Http\Controllers\EventoController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -275,6 +276,41 @@ Route::middleware(['auth'])
             back()->with('success', 'Mascota eliminada'))
             ->name('destroy');
     });
+Route::middleware(['auth'])->group(function () {
+
+    // ================= EVENTOS =================
+
+    Route::get('/eventos', [EventoController::class, 'index'])
+
+        ->name('eventos.index');
+
+    Route::get('/eventos/{evento}', [EventoController::class, 'show'])
+
+        ->name('eventos.show');
+
+    Route::post('/eventos', [EventoController::class, 'store'])
+
+        ->name('eventos.store');
+
+    Route::post('/eventos/{evento}/join', [EventoController::class, 'join'])
+
+        ->name('eventos.join');
+
+    Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])
+
+        ->name('eventos.destroy');
+    Route::get('/mis-eventos', [EventoController::class, 'misEventos'])
+    ->name('eventos.mis-eventos');
+
+Route::get('/eventos-participando', [EventoController::class, 'participando'])
+    ->name('eventos.participando');
+    Route::get('/eventos/{evento}/edit', [EventoController::class, 'edit'])
+    ->name('eventos.edit');
+
+Route::put('/eventos/{evento}', [EventoController::class, 'update'])
+    ->name('eventos.update');
+
+});
 
 // Fallback
 Route::fallback(fn() => view('errors.404'));

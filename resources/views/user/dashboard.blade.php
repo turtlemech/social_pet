@@ -85,7 +85,23 @@
 
             <x-dashboard.trending-topics />
 
-            <x-dashboard.event-card />
+            @if(isset($eventoProximo))
+
+    <x-dashboard.event-card
+
+    :title="$eventoProximo->nom_eve"
+
+    :date="\Carbon\Carbon::parse($eventoProximo->fch_eve)->diffForHumans()"
+
+    :location="$eventoProximo->ubicacion->nom_ubi"
+
+    :status="$eventoProximo->est_eve"
+
+    image="🐾"
+
+/>
+
+@endif
 
         </div>
 

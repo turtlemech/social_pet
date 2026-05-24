@@ -1,5 +1,5 @@
 {{-- resources/views/soporte/admin-dashboard.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="py-6">

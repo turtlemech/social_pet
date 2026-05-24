@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
-
     public function dashboard()
     {
         $totalUsers = User::count();
@@ -32,10 +31,9 @@ class AdminController extends Controller
         ));
     }
 
-
     public function usuarios(Request $request)
     {
-        $query = User::query();
+        $query = User::withCount('mascotas'); // Añadir withCount para contar mascotas
 
         if ($request->has('search') && $request->search) {
             $query->where(function ($q) use ($request) {
@@ -63,7 +61,6 @@ class AdminController extends Controller
         ));
     }
 
-
     public function editUser($id)
     {
         $user = User::findOrFail($id);
@@ -78,7 +75,6 @@ class AdminController extends Controller
             'est_us' => $user->est_us,
         ]);
     }
-
 
     public function updateUser(Request $request, $id)
     {
@@ -98,29 +94,27 @@ class AdminController extends Controller
             'apm_us' => $request->apm_us,
             'ema_us' => $request->ema_us,
             'tel_us' => $request->tel_us,
+            'est_us' => $request->est_us,
             'is_admin' => $request->is_admin ?? false,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Usuario actualizado correctamente']);
     }
 
-
     public function deleteUser($id)
-    {
-        $user = User::findOrFail($id);
-        
-        if ($user->id === auth()->id()) {
-            return response()->json(['success' => false, 'message' => 'No puedes eliminar tu propia cuenta']);
-        }
-        
-        if ($user->mascotas()->exists()) {
-            $user->mascotas()->delete();
-        }
-        
-        $user->delete();
-        return response()->json(['success' => true, 'message' => 'Usuario eliminado correctamente']);
+{
+    $user = User::findOrFail($id);
+    
+    // Convertir ambos a string para comparación segura
+    if ((string)$user->id === (string)auth()->id()) {
+        return response()->json(['success' => false, 'message' => 'No puedes desactivar tu propia cuenta']);
     }
-
+    
+    $user->est_us = 'inactivo';
+    $user->save();
+    
+    return response()->json(['success' => true, 'message' => 'Usuario desactivado correctamente']);
+}
 
     public function toggleBlockUser($id)
     {
@@ -138,17 +132,14 @@ class AdminController extends Controller
         return response()->json(['success' => true, 'message' => $message]);
     }
 
-
     public function mascotas(Request $request)
     {
         $query = Mascota::with('usuario', 'especie');
         
-        // Búsqueda por nombre
         if ($request->has('search') && $request->search) {
             $query->where('nom_mas', 'LIKE', "%{$request->search}%");
         }
         
-        // Filtro por especie
         if ($request->has('especie') && $request->especie && $request->especie != '') {
             $query->whereHas('especie', function($q) use ($request) {
                 $q->where('nom_esp', $request->especie);
@@ -159,7 +150,6 @@ class AdminController extends Controller
         
         $totalPets = Mascota::count();
         
-        // Contar perros y gatos usando la relación con especie
         $dogsCount = Mascota::whereHas('especie', function($q) {
             $q->where('nom_esp', 'Perro');
         })->count();
@@ -171,7 +161,6 @@ class AdminController extends Controller
         $usersWithPets = Mascota::distinct('usuario_id')->count('usuario_id');
         $owners = User::whereHas('mascotas')->get(['id', 'nom_us', 'app_us', 'apm_us']);
         
-        // Obtener todas las especies para el filtro
         $especies = Especie::all();
         
         return view('admin.mascotas', compact(
@@ -184,7 +173,6 @@ class AdminController extends Controller
             'especies'
         ));
     }
-
 
     public function showMascota($id)
     {
@@ -209,7 +197,6 @@ class AdminController extends Controller
         ]);
     }
 
-
     public function editMascota($id)
     {
         $mascota = Mascota::with('especie')->findOrFail($id);
@@ -222,7 +209,6 @@ class AdminController extends Controller
             'descripcion' => $mascota->des_mas,
         ]);
     }
-
 
     public function updateMascota(Request $request, $id)
     {
@@ -244,7 +230,6 @@ class AdminController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Mascota actualizada correctamente']);
     }
-
 
     public function deleteMascota($id)
     {

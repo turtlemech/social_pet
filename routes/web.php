@@ -31,7 +31,6 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('/register', [RegisterController::class, 'register']);
-
 });
 
 // Logout
@@ -98,7 +97,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [SoporteController::class, 'dashboard'])
             ->name('dashboard');
 
-        
+
 
         Route::get('/mis-tickets', [SoporteController::class, 'myTickets'])
             ->name('mis-tickets');
@@ -151,23 +150,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ========== USUARIOS ==========
         Route::prefix('usuarios')->name('usuarios.')->group(function () {
-            
+
             // Lista de usuarios
             Route::get('/', [AdminController::class, 'usuarios'])
                 ->name('index');
-            
+
             // Editar usuario (JSON)
             Route::get('/{id}/edit', [AdminController::class, 'editUser'])
                 ->name('edit');
-            
+
             // Actualizar usuario
             Route::put('/{id}', [AdminController::class, 'updateUser'])
                 ->name('update');
-            
+
             // Eliminar usuario
-            Route::delete('/{id}', [AdminController::class, 'deleteUser'])
-                ->name('destroy');
-            
+            // En routes/api.php o web.php
+            Route::delete('/user/{id}', [adminController::class, 'deleteUser'])->middleware('auth');
+
             // Bloquear/Activar usuario
             Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])
                 ->name('toggle-block');
@@ -175,23 +174,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ========== MASCOTAS ==========
         Route::prefix('mascotas')->name('mascotas.')->group(function () {
-            
+
             // Lista de mascotas
             Route::get('/', [AdminController::class, 'mascotas'])
                 ->name('index');
-            
+
             // Ver detalles de mascota (JSON)
             Route::get('/{id}', [AdminController::class, 'showMascota'])
                 ->name('show');
-            
+
             // Editar mascota (JSON)
             Route::get('/{id}/edit', [AdminController::class, 'editMascota'])
                 ->name('edit');
-            
+
             // Actualizar mascota
             Route::put('/{id}', [AdminController::class, 'updateMascota'])
                 ->name('update');
-            
+
             // Eliminar mascota
             Route::delete('/{id}', [AdminController::class, 'deleteMascota'])
                 ->name('destroy');
@@ -199,15 +198,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ========== PUBLICACIONES ==========
         Route::prefix('publicaciones')->name('publicaciones.')->group(function () {
-            
+
             // Lista de publicaciones
             Route::get('/', [AdminController::class, 'publicaciones'])
                 ->name('index');
-            
+
             // Activar/Desactivar publicación
             Route::post('/{id}/toggle', [AdminController::class, 'togglePublicacion'])
                 ->name('toggle');
-            
+
             // Eliminar publicación
             Route::delete('/{id}', [AdminController::class, 'deletePublicacion'])
                 ->name('destroy');
@@ -266,7 +265,7 @@ Route::middleware(['auth'])
         Route::view('/create', 'pets.create')->name('create');
 
         Route::post('/', fn() =>
-            back()->with('success', 'Mascota creada'))
+        back()->with('success', 'Mascota creada'))
             ->name('store');
 
         Route::view('/{id}', 'pets.show')->name('show');
@@ -274,11 +273,11 @@ Route::middleware(['auth'])
         Route::view('/{id}/edit', 'pets.edit')->name('edit');
 
         Route::put('/{id}', fn() =>
-            back()->with('success', 'Mascota actualizada'))
+        back()->with('success', 'Mascota actualizada'))
             ->name('update');
 
         Route::delete('/{id}', fn() =>
-            back()->with('success', 'Mascota eliminada'))
+        back()->with('success', 'Mascota eliminada'))
             ->name('destroy');
     });
 
@@ -300,19 +299,19 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])
         ->name('eventos.destroy');
-        
+
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])
         ->name('eventos.mis-eventos');
 
     Route::get('/eventos-participando', [EventoController::class, 'participando'])
         ->name('eventos.participando');
-        
+
     Route::get('/eventos/{evento}/edit', [EventoController::class, 'edit'])
         ->name('eventos.edit');
 
     Route::put('/eventos/{evento}', [EventoController::class, 'update'])
         ->name('eventos.update');
-        
+
     Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])
         ->name('eventos.reactivar');
 });

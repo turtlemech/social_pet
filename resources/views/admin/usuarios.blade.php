@@ -6,17 +6,17 @@
 <div class="space-y-6">
     <!-- Alertas -->
     @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
-            <span>{{ session('success') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-700 font-bold">&times;</button>
-        </div>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
+        <span>{{ session('success') }}</span>
+        <button onclick="this.parentElement.remove()" class="text-green-700 font-bold">&times;</button>
+    </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
-            <span>{{ session('error') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-red-700 font-bold">&times;</button>
-        </div>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
+        <span>{{ session('error') }}</span>
+        <button onclick="this.parentElement.remove()" class="text-red-700 font-bold">&times;</button>
+    </div>
     @endif
 
     <!-- Tarjetas de Estadísticas -->
@@ -25,7 +25,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Total Usuarios</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $totalUsers ?? \App\Models\User::count() }}</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $totalUsers ?? 0 }}</p>
                 </div>
                 <div class="bg-orange-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Usuarios Activos</p>
-                    <p class="text-3xl font-bold text-green-600">{{ $activeUsers ?? \App\Models\User::where('est_us', 'activo')->count() }}</p>
+                    <p class="text-3xl font-bold text-green-600">{{ $activeUsers ?? 0 }}</p>
                 </div>
                 <div class="bg-green-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Administradores</p>
-                    <p class="text-3xl font-bold text-purple-600">{{ $adminCount ?? \App\Models\User::where('is_admin', true)->count() }}</p>
+                    <p class="text-3xl font-bold text-purple-600">{{ $adminCount ?? 0 }}</p>
                 </div>
                 <div class="bg-purple-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm">Nuevos (Este Mes)</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ $newUsersThisMonth ?? \App\Models\User::whereMonth('created_at', now()->month)->count() }}</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ $newUsersThisMonth ?? 0 }}</p>
                 </div>
                 <div class="bg-blue-100 rounded-full p-3">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,8 +84,8 @@
             <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-            <input type="text" id="searchInput" placeholder="Buscar usuarios por nombre, email o teléfono..." 
-                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+            <input type="text" id="searchInput" placeholder="Buscar usuarios por nombre, email o teléfono..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
         </div>
     </div>
 
@@ -126,35 +126,37 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->tel_us ?? '—' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($user->is_admin)
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Administrador</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Administrador</span>
                             @else
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Usuario</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Usuario</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($user->est_us == 'activo')
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                             @else
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->mascotas_count ?? $user->mascotas->count() ?? 0 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->mascotas_count ?? 0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->created_at->format('d/m/Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                            <button onclick="editUser('{{ $user->id }}')" 
-                                    class="text-blue-600 hover:text-blue-800 transition font-medium">
+                            <button onclick="editUser('{{ $user->id }}')"
+                                class="text-blue-600 hover:text-blue-800 transition font-medium">
                                 ✏️ Editar
                             </button>
-                            @if(!$user->is_admin)
-                                <button onclick="toggleBlockUser('{{ $user->id }}')" 
-                                        class="text-yellow-600 hover:text-yellow-800 transition font-medium">
-                                    {{ $user->est_us == 'activo' ? '🔒 Bloquear' : '🔓 Activar' }}
-                                </button>
+                            @if(!$user->is_admin || auth()->id() != $user->id)
+                            <button onclick="toggleBlockUser('{{ $user->id }}')"
+                                class="text-yellow-600 hover:text-yellow-800 transition font-medium">
+                                {{ $user->est_us == 'activo' ? '🔒 Bloquear' : '🔓 Activar' }}
+                            </button>
                             @endif
-                            <button onclick="deleteUser('{{ $user->id }}')" 
-                                    class="text-red-600 hover:text-red-800 transition font-medium">
+                            @if(!$user->is_admin)
+                            <button onclick="deleteUser('{{ $user->id }}')"
+                                class="text-red-600 hover:text-red-800 transition font-medium">
                                 🗑️ Eliminar
                             </button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -167,11 +169,11 @@
                 </tbody>
             </table>
         </div>
-        
+
         @if(isset($users) && method_exists($users, 'links'))
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $users->links() }}
-            </div>
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $users->links() }}
+        </div>
         @endif
     </div>
 </div>
@@ -186,55 +188,63 @@
             </div>
             <form id="editUserForm">
                 @csrf
-                @method('PUT')
                 <input type="hidden" id="editUserId">
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
-                    <input type="text" id="editNombre" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <input type="text" id="editNombre" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno</label>
-                    <input type="text" id="editApp" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <input type="text" id="editApp"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno</label>
-                    <input type="text" id="editApm" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <input type="text" id="editApm"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="editEmail" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <input type="email" id="editEmail" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                    <input type="text" id="editTelefono" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <input type="text" id="editTelefono"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Rol</label>
-                    <select id="editRol" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                    <select id="editRol"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                         <option value="0">Usuario</option>
                         <option value="1">Administrador</option>
                     </select>
                 </div>
-                
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select id="editEstado"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+
                 <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()" 
-                            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                    <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                         Cancelar
                     </button>
-                    <button type="button" onclick="saveUser()" 
-                            class="px-4 py-2 text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition">
+                    <button type="button" onclick="saveUser()"
+                        class="px-4 py-2 text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition">
                         Guardar
                     </button>
                 </div>
@@ -244,15 +254,14 @@
 </div>
 
 <script>
-    // Variables para CSRF token
     const csrfToken = '{{ csrf_token() }}';
 
     function searchUsers() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#usersTableBody tr');
-        
+
         rows.forEach(row => {
-            if(row.cells && row.cells.length > 0) {
+            if (row.cells && row.cells.length > 0) {
                 const text = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(' ');
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             }
@@ -272,6 +281,7 @@
                 document.getElementById('editEmail').value = data.ema_us;
                 document.getElementById('editTelefono').value = data.tel_us || '';
                 document.getElementById('editRol').value = data.is_admin ? 1 : 0;
+                document.getElementById('editEstado').value = data.est_us || 'activo';
                 document.getElementById('editModal').classList.remove('hidden');
                 document.getElementById('editModal').classList.add('flex');
             })
@@ -292,71 +302,72 @@
         formData.append('ema_us', document.getElementById('editEmail').value);
         formData.append('tel_us', document.getElementById('editTelefono').value);
         formData.append('is_admin', document.getElementById('editRol').value);
+        formData.append('est_us', document.getElementById('editEstado').value);
 
         fetch(`/admin/usuarios/${id}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                location.reload();
-            } else {
-                alert(data.message || 'Error al guardar los cambios');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al guardar los cambios');
-        });
-    }
-
-    function deleteUser(id) {
-        if(confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
-            fetch(`/admin/usuarios/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
-                }
+                method: 'POST',
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
-                if(data.success) {
+                if (data.success) {
                     location.reload();
                 } else {
-                    alert(data.message || 'Error al eliminar el usuario');
+                    alert(data.message || 'Error al guardar los cambios');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al eliminar el usuario');
+                alert('Error al guardar los cambios');
             });
+    }
+
+    function deleteUser(id) {
+        if (confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+            fetch(`/admin/usuarios/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error al eliminar el usuario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el usuario');
+                });
         }
     }
 
     function toggleBlockUser(id) {
         const action = confirm('¿Deseas cambiar el estado de este usuario?');
-        if(action) {
+        if (action) {
             fetch(`/admin/usuarios/${id}/toggle-block`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    location.reload();
-                } else {
-                    alert(data.message || 'Error al cambiar el estado');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cambiar el estado');
-            });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error al cambiar el estado');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cambiar el estado');
+                });
         }
     }
 
@@ -365,7 +376,6 @@
         document.getElementById('editModal').classList.remove('flex');
     }
 
-    // Cerrar modal al hacer clic fuera
     window.onclick = function(event) {
         const modal = document.getElementById('editModal');
         if (event.target === modal) {
@@ -374,3 +384,6 @@
     }
 </script>
 @endsection
+
+
+

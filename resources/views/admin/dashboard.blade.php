@@ -3,416 +3,366 @@
 @section('title', 'Dashboard - Social Pet')
 
 @section('content')
-<!-- Header -->
-<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+<!-- Header con Saludo y Fecha -->
+<div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 mb-6 text-white">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-orange-600 mb-2">Panel de Administración</h1>
-            <p class="text-gray-600">Bienvenido, <strong class="text-gray-800">{{ auth()->user()->nom_us }}</strong></p>
+            <h1 class="text-3xl font-bold mb-2">Panel de Administración</h1>
+            <p class="text-orange-100">
+                Bienvenido, <strong>{{ auth()->user()->nom_us }} {{ auth()->user()->app_us }}</strong>
+            </p>
+            <p class="text-orange-100 text-sm mt-1">
+                <i class="far fa-calendar-alt mr-1"></i>{{ now()->format('l, d \de F \de Y') }}
+            </p>
         </div>
-        <div>
+        <div class="flex gap-3">
+            @if(Route::has('admin.soporte.index'))
             <a href="{{ route('admin.soporte.index') }}" 
-               class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636L18.364 5.636m0 0a9 9 0 010 12.728M12 7.757v.01M12 12h.01M12 16.243v.01M12 4.757a9 9 0 00-9 9 9 9 0 009 9 9 9 0 009-9 9 9 0 00-9-9z"></path>
-                </svg>
+               class="px-5 py-2.5 bg-white text-orange-600 rounded-lg hover:bg-orange-50 transition flex items-center gap-2 font-semibold shadow-md">
+                <i class="fas fa-headset"></i>
                 Ir a Soporte
             </a>
+            @endif
+            <button onclick="window.location.reload()" 
+                    class="px-4 py-2.5 bg-orange-700 text-white rounded-lg hover:bg-orange-800 transition">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Tarjetas de Estadísticas -->
+<!-- Stats Cards Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+    <!-- Usuarios Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500 hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm mb-1">Total Usuarios</p>
-                <p class="text-3xl font-bold text-gray-800">{{ \App\Models\User::count() }}</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $totalUsers ?? 0 }}</p>
+                <p class="text-green-600 text-sm mt-2">
+                    <i class="fas fa-arrow-up"></i> +{{ $newUsersThisMonth ?? 0 }} este mes
+                </p>
             </div>
             <div class="bg-orange-100 rounded-full p-3">
-                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
+                <i class="fas fa-users text-orange-600 text-2xl"></i>
+            </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex justify-between text-xs">
+                <span class="text-green-600">Activos: {{ $activeUsers ?? 0 }}</span>
+                <span class="text-red-600">Inactivos: {{ $inactiveUsers ?? 0 }}</span>
+                <span class="text-gray-600">Baneados: {{ $bannedUsers ?? 0 }}</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm mb-1">Administradores</p>
-                <p class="text-3xl font-bold text-purple-600">{{ \App\Models\User::where('is_admin', true)->count() }}</p>
-            </div>
-            <div class="bg-purple-100 rounded-full p-3">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+    <!-- Mascotas Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500 hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm mb-1">Total Mascotas</p>
-                <p class="text-3xl font-bold text-blue-600">{{ \App\Models\Mascota::count() }}</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $totalPets ?? 0 }}</p>
+                <p class="text-blue-600 text-sm mt-2">
+                    <i class="fas fa-paw"></i> {{ $usersWithPets ?? 0 }} dueños
+                </p>
             </div>
             <div class="bg-blue-100 rounded-full p-3">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.586a1 1 0 00-.707.293l-2.828 2.828A1 1 0 006.586 7H5a2 2 0 00-2 2v3a2 2 0 002 2h4m6 0h.586a1 1 0 01.707.293l2.828 2.828A1 1 0 0118.414 21H17"></path>
-                </svg>
+                <i class="fas fa-dog text-blue-600 text-2xl"></i>
+            </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex justify-between text-xs">
+                <span class="text-blue-600">🐕 Perros: {{ $dogsCount ?? 0 }}</span>
+                <span class="text-green-600">🐈 Gatos: {{ $catsCount ?? 0 }}</span>
+                <span class="text-gray-600">Otros: {{ $otherPetsCount ?? 0 }}</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
+    <!-- Publicaciones Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500 hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm mb-1">Publicaciones</p>
-                <p class="text-3xl font-bold text-green-600">{{ \App\Models\Publicacion::count() ?? 0 }}</p>
+                <p class="text-gray-500 text-sm mb-1">Total Publicaciones</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $totalPublications ?? 0 }}</p>
+                <p class="text-green-600 text-sm mt-2">
+                    <i class="fas fa-clock"></i> {{ $publicationsToday ?? 0 }} hoy
+                </p>
             </div>
             <div class="bg-green-100 rounded-full p-3">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                </svg>
+                <i class="fas fa-image text-green-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Tickets Activos</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $pendingTickets ?? 0 }}</p>
+            </div>
+            <div class="bg-red-100 rounded-full p-3">
+                <i class="fas fa-ticket-alt text-red-600 text-2xl"></i>
+            </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex justify-between text-xs">
+                <span class="text-yellow-600">Abiertos: {{ $openTickets ?? 0 }}</span>
+                <span class="text-blue-600">Proceso: {{ $inProgressTickets ?? 0 }}</span>
+                <span class="text-green-600">Resueltos: {{ $resolvedTickets ?? 0 }}</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Panel de Soporte - Tickets Pendientes -->
-@php
-    use App\Models\Soporte;
-    $ticketsPendientes = Soporte::whereIn('est_sop', ['abierto', 'en_proceso'])->count();
-    $ticketsUrgentes = Soporte::where('pri_sop', 'urgente')->whereIn('est_sop', ['abierto', 'en_proceso'])->count();
-    $ticketsRecientes = Soporte::with(['usuario'])->orderBy('created_at', 'desc')->limit(5)->get();
-@endphp
-
-<div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg p-6 mb-6 text-white">
-    <div class="flex justify-between items-center">
-        <div>
-            <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
-                <span>🎫</span> Tickets de Soporte
-            </h2>
-            <p class="text-orange-100">Gestiona los tickets de soporte de los usuarios</p>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Tickets por Estado -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">
+                <i class="fas fa-chart-pie text-orange-500 mr-2"></i>
+                Tickets por Estado
+            </h3>
         </div>
-        <div class="text-right">
-            <div class="text-4xl font-bold">{{ $ticketsPendientes }}</div>
-            <div class="text-sm text-orange-100">Tickets pendientes</div>
-            @if($ticketsUrgentes > 0)
-                <div class="mt-1 text-xs bg-red-600 rounded-full px-2 py-0.5 inline-block">
-                    🔴 {{ $ticketsUrgentes }} urgentes
-                </div>
-            @endif
-        </div>
+        <canvas id="ticketsEstadoChart" height="200"></canvas>
     </div>
-    <div class="mt-4">
-        <a href="{{ route('admin.soporte.index') }}" 
-           class="inline-block px-6 py-2 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition">
-            Ver todos los tickets →
-        </a>
+
+    <!-- Tickets por Prioridad -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">
+                <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
+                Tickets por Prioridad
+            </h3>
+        </div>
+        <canvas id="ticketsPrioridadChart" height="200"></canvas>
     </div>
 </div>
 
-<!-- Últimos Tickets -->
-@if($ticketsRecientes->count() > 0)
-<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <span>📋</span> Últimos Tickets de Soporte
-        </h2>
-        <a href="{{ route('admin.soporte.index') }}" class="text-orange-600 hover:text-orange-700 text-sm">
-            Ver todos →
+<!-- Tickets Recientes Section -->
+<div class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800">
+                <i class="fas fa-clock text-orange-500 mr-2"></i>
+                Tickets Recientes
+            </h3>
+        </div>
+        @if(Route::has('admin.soporte.index'))
+        <a href="{{ route('admin.soporte.index') }}" 
+           class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition flex items-center gap-2">
+            <i class="fas fa-ticket-alt"></i>
+            Gestionar Tickets
         </a>
+        @endif
     </div>
     
-    <div class="space-y-3">
-        @foreach($ticketsRecientes as $ticket)
-        <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition">
-            <div class="flex justify-between items-start">
-                <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="font-mono text-xs text-gray-500">{{ $ticket->cod_sop }}</span>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asunto</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @forelse($recentTickets ?? [] as $ticket)
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ $ticket->cod_sop ?? $ticket->id ?? 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ $ticket->usuario->nom_us ?? $ticket->nom_cliente ?? 'N/A' }}</div>
+                        <div class="text-xs text-gray-500">{{ $ticket->usuario->ema_us ?? $ticket->email_cliente ?? '' }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ Str::limit($ticket->asu_sop ?? $ticket->asunto ?? '', 40) }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
                         @php
-                            $prioridadColors = [
-                                'baja' => 'bg-blue-100 text-blue-800',
+                            $priorityColors = [
+                                'baja' => 'bg-green-100 text-green-800',
                                 'media' => 'bg-yellow-100 text-yellow-800',
                                 'alta' => 'bg-orange-100 text-orange-800',
                                 'urgente' => 'bg-red-100 text-red-800',
                             ];
-                            $prioridadIconos = [
-                                'baja' => '🟢',
-                                'media' => '🟡',
-                                'alta' => '🟠',
-                                'urgente' => '🔴',
-                            ];
-                            $estadoColors = [
+                        @endphp
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $priorityColors[$ticket->pri_sop ?? 'baja'] ?? 'bg-gray-100' }}">
+                            {{ ucfirst($ticket->pri_sop ?? 'N/A') }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @php
+                            $statusColors = [
                                 'abierto' => 'bg-yellow-100 text-yellow-800',
                                 'en_proceso' => 'bg-blue-100 text-blue-800',
                                 'resuelto' => 'bg-green-100 text-green-800',
                                 'cerrado' => 'bg-gray-100 text-gray-800',
                             ];
                         @endphp
-                        <span class="px-2 py-0.5 text-xs rounded-full {{ $prioridadColors[$ticket->pri_sop] ?? 'bg-gray-100' }}">
-                            {{ $prioridadIconos[$ticket->pri_sop] ?? '' }} {{ ucfirst($ticket->pri_sop) }}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColors[$ticket->est_sop ?? 'abierto'] ?? 'bg-gray-100' }}">
+                            {{ ucfirst(str_replace('_', ' ', $ticket->est_sop ?? 'N/A')) }}
                         </span>
-                        <span class="px-2 py-0.5 text-xs rounded-full {{ $estadoColors[$ticket->est_sop] ?? 'bg-gray-100' }}">
-                            {{ ucfirst(str_replace('_', ' ', $ticket->est_sop)) }}
-                        </span>
-                    </div>
-                    <h3 class="font-semibold text-gray-800">{{ $ticket->asu_sop }}</h3>
-                    <p class="text-sm text-gray-600 mt-1">{{ Str::limit($ticket->men_sop, 100) }}</p>
-                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                        <span>👤 {{ $ticket->usuario->nom_us ?? 'N/A' }} {{ $ticket->usuario->app_us ?? '' }}</span>
-                        <span>📅 {{ $ticket->created_at->format('d/m/Y H:i') }}</span>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <a href="{{ route('admin.soporte.index') }}" 
-                       onclick="verTicket('{{ $ticket->id }}'); return false;"
-                       class="px-3 py-1 text-sm bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition">
-                        Responder
-                    </a>
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endif
-
-<!-- Estadísticas Rápidas -->
-<div class="bg-white rounded-xl shadow-sm p-6">
-    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span>📈</span> Estadísticas Rápidas
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Usuarios activos:</span>
-            <span class="font-bold text-green-600">{{ \App\Models\User::where('est_us', 'activo')->count() }}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Usuarios inactivos:</span>
-            <span class="font-bold text-red-600">{{ \App\Models\User::where('est_us', 'inactivo')->count() }}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Usuarios baneados:</span>
-            <span class="font-bold text-red-600">{{ \App\Models\User::where('est_us', 'baneado')->count() }}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Nuevos usuarios (este mes):</span>
-            <span class="font-bold text-blue-600">{{ \App\Models\User::whereMonth('created_at', now()->month)->count() }}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Tickets abiertos:</span>
-            <span class="font-bold text-yellow-600">{{ Soporte::where('est_sop', 'abierto')->count() }}</span>
-        </div>
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <span class="text-gray-600">Tickets resueltos:</span>
-            <span class="font-bold text-green-600">{{ Soporte::where('est_sop', 'resuelto')->count() }}</span>
-        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ isset($ticket->created_at) ? $ticket->created_at->format('d/m/Y H:i') : 'N/A' }}
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-2 block"></i>
+                        No hay tickets registrados
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
-<script>
-const csrfToken = '{{ csrf_token() }}';
-
-function verTicket(id) {
-    fetch(`/admin/soporte/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                mostrarModalTicket(data.ticket, data.tickets_relacionados);
-            } else {
-                alert('Error al cargar el ticket');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cargar el ticket');
-        });
-}
-
-function mostrarModalTicket(ticket, ticketsRelacionados) {
-    // Verificar si el modal ya existe, si no, crearlo
-    let modal = document.getElementById('verTicketModal');
-    if(!modal) {
-        modal = document.createElement('div');
-        modal.id = 'verTicketModal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-gray-800">Detalles del Ticket</h3>
-                    <button onclick="cerrarModalTicket()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                </div>
-                <div id="modalTicketBody" class="p-6"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    const modalBody = document.getElementById('modalTicketBody');
-    
-    const prioridadClases = {
-        'baja': 'bg-blue-100 text-blue-800',
-        'media': 'bg-yellow-100 text-yellow-800',
-        'alta': 'bg-orange-100 text-orange-800',
-        'urgente': 'bg-red-100 text-red-800'
-    };
-    
-    const estadoClases = {
-        'abierto': 'bg-yellow-100 text-yellow-800',
-        'en_proceso': 'bg-blue-100 text-blue-800',
-        'resuelto': 'bg-green-100 text-green-800',
-        'cerrado': 'bg-gray-100 text-gray-800'
-    };
-    
-    modalBody.innerHTML = `
-        <div class="space-y-6">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                        <p class="text-xs text-gray-500">Código</p>
-                        <p class="font-mono font-medium text-gray-900">${ticket.cod_sop}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Categoría</p>
-                        <p class="capitalize">${ticket.cat_sop}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Prioridad</p>
-                        <p class="capitalize font-semibold ${ticket.pri_sop === 'urgente' ? 'text-red-600' : ''}">${ticket.pri_sop}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Fecha</p>
-                        <p>${new Date(ticket.created_at).toLocaleString()}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="border rounded-lg p-4">
-                <h4 class="font-semibold text-gray-800 mb-3">Información del Usuario</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-xs text-gray-500">Nombre</p>
-                        <p class="font-medium">${ticket.usuario?.nom_us || 'N/A'} ${ticket.usuario?.app_us || ''}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Código</p>
-                        <p class="font-mono">${ticket.usuario?.cod_us || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Email</p>
-                        <p>${ticket.usuario?.email || 'N/A'}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="border rounded-lg p-4">
-                <h4 class="font-semibold text-gray-800 mb-3">Asunto</h4>
-                <p class="text-gray-900 mb-4">${escapeHtml(ticket.asu_sop)}</p>
-                
-                <h4 class="font-semibold text-gray-800 mb-3">Mensaje</h4>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700 whitespace-pre-wrap">${escapeHtml(ticket.men_sop)}</p>
-                </div>
-            </div>
-            
-            ${ticket.res_sop ? `
-            <div class="border rounded-lg p-4 bg-green-50">
-                <h4 class="font-semibold text-gray-800 mb-3">Respuesta del Administrador</h4>
-                <div class="bg-white rounded-lg p-4">
-                    <p class="text-gray-700 whitespace-pre-wrap">${escapeHtml(ticket.res_sop)}</p>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">
-                    Respondido por: ${ticket.administrador?.nom_us || 'Admin'} ${ticket.administrador?.app_us || ''}
-                    ${ticket.fec_resuelto ? ` - ${new Date(ticket.fec_resuelto).toLocaleString()}` : ''}
-                </div>
-            </div>
-            ` : ''}
-            
-            <div class="border rounded-lg p-4">
-                <h4 class="font-semibold text-gray-800 mb-3">Responder Ticket</h4>
-                <form id="formRespuesta" onsubmit="return false;">
-                    <textarea id="respuestaTexto" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none" 
-                              placeholder="Escribe tu respuesta aquí..."></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cambiar Estado</label>
-                            <select id="estadoTicket" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                                <option value="abierto" ${ticket.est_sop === 'abierto' ? 'selected' : ''}>🟡 Abierto</option>
-                                <option value="en_proceso" ${ticket.est_sop === 'en_proceso' ? 'selected' : ''}>🔵 En Proceso</option>
-                                <option value="resuelto" ${ticket.est_sop === 'resuelto' ? 'selected' : ''}>🟢 Resuelto</option>
-                                <option value="cerrado" ${ticket.est_sop === 'cerrado' ? 'selected' : ''}>⚪ Cerrado</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <button type="button" onclick="enviarRespuesta(${ticket.id})" 
-                                    class="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
-                                Enviar Respuesta
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition">
+        <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-headset text-3xl"></i>
+            <i class="fas fa-chevron-right text-orange-200"></i>
         </div>
-    `;
+        <h3 class="text-xl font-bold mb-2">Soporte al Cliente</h3>
+        <p class="text-orange-100 mb-4">Gestiona tickets y responde consultas</p>
+        @if(Route::has('admin.soporte.index'))
+        <a href="{{ route('admin.soporte.index') }}" 
+           class="inline-block bg-white text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-50 transition font-semibold">
+            Ir a Soporte
+        </a>
+        @endif
+    </div>
     
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function escapeHtml(text) {
-    if(!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function enviarRespuesta(id) {
-    const respuesta = document.getElementById('respuestaTexto').value;
-    const estado = document.getElementById('estadoTicket').value;
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition">
+        <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-chart-line text-3xl"></i>
+            <i class="fas fa-chevron-right text-green-200"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Reportes</h3>
+        <p class="text-green-100 mb-4">Visualiza estadísticas y métricas detalladas</p>
+        @if(Route::has('admin.reports.index'))
+        <a href="{{ route('admin.reports.index') }}" 
+           class="inline-block bg-white text-green-600 px-4 py-2 rounded-lg hover:bg-green-50 transition font-semibold">
+            Ver Reportes
+        </a>
+        @else
+        <span class="inline-block bg-white text-green-600 px-4 py-2 rounded-lg opacity-50 cursor-not-allowed">
+            Próximamente
+        </span>
+        @endif
+    </div>
     
-    if(!respuesta.trim()) {
-        alert('Por favor escribe una respuesta');
-        return;
-    }
-    
-    fetch(`/admin/soporte/${id}/responder`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        },
-        body: JSON.stringify({
-            respuesta: respuesta,
-            estado: estado
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            alert('Respuesta enviada correctamente');
-            location.reload();
-        } else {
-            alert(data.message || 'Error al enviar la respuesta');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar la respuesta');
-    });
-}
+    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition">
+        <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-users text-3xl"></i>
+            <i class="fas fa-chevron-right text-purple-200"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Gestión de Usuarios</h3>
+        <p class="text-purple-100 mb-4">Administra usuarios y sus mascotas</p>
+        @if(Route::has('admin.usuarios.index'))
+        <a href="{{ route('admin.usuarios.index') }}" 
+           class="inline-block bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition font-semibold">
+            Administrar
+        </a>
+        @endif
+    </div>
+</div>
 
-function cerrarModalTicket() {
-    const modal = document.getElementById('verTicketModal');
-    if(modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
-</script>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de Tickets por Estado
+    const ctxEstado = document.getElementById('ticketsEstadoChart');
+    if (ctxEstado) {
+        new Chart(ctxEstado.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Abiertos', 'En Proceso', 'Resueltos', 'Cerrados'],
+                datasets: [{
+                    data: [
+                        {{ $openTickets ?? 0 }}, 
+                        {{ $inProgressTickets ?? 0 }}, 
+                        {{ $resolvedTickets ?? 0 }}, 
+                        {{ $closedTickets ?? 0 }}
+                    ],
+                    backgroundColor: ['#eab308', '#3b82f6', '#10b981', '#6b7280'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico de Tickets por Prioridad
+    const ctxPrioridad = document.getElementById('ticketsPrioridadChart');
+    if (ctxPrioridad) {
+        new Chart(ctxPrioridad.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Baja', 'Media', 'Alta', 'Urgente'],
+                datasets: [{
+                    label: 'Cantidad de Tickets',
+                    data: [
+                        {{ $lowPriorityTickets ?? 0 }},
+                        {{ $mediumPriorityTickets ?? 0 }},
+                        {{ $highPriorityTickets ?? 0 }},
+                        {{ $urgentTickets ?? 0 }}
+                    ],
+                    backgroundColor: ['#10b981', '#eab308', '#f97316', '#ef4444'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: '#e5e7eb'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Número de Tickets'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

@@ -169,3 +169,11 @@ class User extends Authenticatable
         return $this->est_us === 'activo';
     }
 }
+
+
+
+
+
+
+
+

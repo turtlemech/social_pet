@@ -97,8 +97,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [SoporteController::class, 'dashboard'])
             ->name('dashboard');
 
-
-
         Route::get('/mis-tickets', [SoporteController::class, 'myTickets'])
             ->name('mis-tickets');
 
@@ -164,8 +162,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ->name('update');
 
             // Eliminar usuario
-            // En routes/api.php o web.php
-            Route::delete('/user/{id}', [adminController::class, 'deleteUser'])->middleware('auth');
+            Route::delete('/user/{id}', [AdminController::class, 'deleteUser'])
+                ->middleware('auth');
 
             // Bloquear/Activar usuario
             Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])
@@ -223,7 +221,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========== SOPORTE ADMIN ==========
         Route::prefix('soporte')->name('soporte.')->group(function () {
 
-            //  Ruta AGREGADA para listado principal de tickets (admin)
+            // Ruta AGREGADA para listado principal de tickets (admin)
             Route::get('/', [SoporteController::class, 'index'])->name('index');
 
             Route::get('/dashboard', [SoporteController::class, 'adminDashboard'])
@@ -252,6 +250,20 @@ Route::middleware(['auth'])
             ->name('agente.dashboard')
             ->middleware('can:verSoporte');
     });
+
+// ================= NUEVAS RUTAS PARA SOPORTE CON VISTAS TAILWIND =================
+
+// Ruta para el dashboard de soporte (vista con Tailwind)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/soporte/dashsoporte', function () {
+        return view('soporte.dashsoporte');
+    })->name('soporte.dashsoporte');
+    
+    // Ruta alternativa para compatibilidad
+    Route::get('/soporte/panel', function () {
+        return view('soporte.dashsoporte');
+    })->name('soporte.panel');
+});
 
 // ========== MASCOTAS ==========
 

@@ -37,15 +37,21 @@ class AdminLoginController extends Controller
             return back()->withErrors(['email' => 'Contraseña incorrecta']);
         }
 
-        // Verificar si es administrador
-        if (!$user->is_admin) {
-            return back()->withErrors(['email' => 'No tienes permisos de administrador']);
+        // Verificar si es administrador o soporte
+        if ($user->tip_us !== 'admin' && $user->tip_us !== 'soporte') {
+            return back()->withErrors(['email' => 'No tienes permisos de administrador o soporte']);
         }
 
         // Login manual
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Redirigir según el tipo de usuario
+        if ($user->tip_us === 'soporte') {
+            return redirect()->to('/soporte/dashsoporte');
+        }
+
+        // Si es admin, redirigir al dashboard de admin
         return redirect()->to('/admin/dashboard');
     }
 
@@ -54,7 +60,7 @@ class AdminLoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/admin/login');
     }
 }

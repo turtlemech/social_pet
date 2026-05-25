@@ -1,388 +1,456 @@
 @extends('layouts.admin')
 
-@section('title', 'Administración de Usuarios')
+@section('title', 'Gestión de Usuarios - Social Pet')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Alertas -->
-    @if(session('success'))
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
-        <span>{{ session('success') }}</span>
-        <button onclick="this.parentElement.remove()" class="text-green-700 font-bold">&times;</button>
+<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
+            <p class="text-gray-600 mt-1">Administra todos los usuarios de la plataforma</p>
+        </div>
+        <button onclick="window.location.reload()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+            <i class="fas fa-sync-alt"></i> Actualizar
+        </button>
     </div>
-    @endif
-
-    @if(session('error'))
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-center justify-between">
-        <span>{{ session('error') }}</span>
-        <button onclick="this.parentElement.remove()" class="text-red-700 font-bold">&times;</button>
-    </div>
-    @endif
-
-    <!-- Tarjetas de Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Total Usuarios</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $totalUsers ?? 0 }}</p>
-                </div>
-                <div class="bg-orange-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                </div>
-            </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+            <p class="text-sm opacity-90">Total Usuarios</p>
+            <p class="text-2xl font-bold">{{ $stats['total'] }}</p>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Usuarios Activos</p>
-                    <p class="text-3xl font-bold text-green-600">{{ $activeUsers ?? 0 }}</p>
-                </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+            <p class="text-sm opacity-90">Activos</p>
+            <p class="text-2xl font-bold">{{ $stats['activos'] }}</p>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Administradores</p>
-                    <p class="text-3xl font-bold text-purple-600">{{ $adminCount ?? 0 }}</p>
-                </div>
-                <div class="bg-purple-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg p-4 text-white">
+            <p class="text-sm opacity-90">Inactivos</p>
+            <p class="text-2xl font-bold">{{ $stats['inactivos'] }}</p>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Nuevos (Este Mes)</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ $newUsersThisMonth ?? 0 }}</p>
-                </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
+            <p class="text-sm opacity-90">Baneados</p>
+            <p class="text-2xl font-bold">{{ $stats['baneados'] }}</p>
+        </div>
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+            <p class="text-sm opacity-90">Administradores</p>
+            <p class="text-2xl font-bold">{{ $stats['admins'] }}</p>
         </div>
     </div>
-
-    <!-- Barra de Búsqueda -->
-    <div class="bg-white rounded-xl shadow-sm p-4">
-        <div class="relative">
-            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            <input type="text" id="searchInput" placeholder="Buscar usuarios por nombre, email o teléfono..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
-        </div>
+    
+    <!-- Filtros y Búsqueda -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <form method="GET" action="{{ route('admin.usuarios.index') }}" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <input type="text" name="search" value="{{ $search }}" 
+                       placeholder="Buscar por nombre, email o código..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            </div>
+            <div class="w-48">
+                <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                    <option value="">Todos los estados</option>
+                    <option value="activo" {{ $estado == 'activo' ? 'selected' : '' }}>Activo</option>
+                    <option value="inactivo" {{ $estado == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                    <option value="baneado" {{ $estado == 'baneado' ? 'selected' : '' }}>Baneado</option>
+                </select>
+            </div>
+            <div class="w-48">
+                <select name="rol" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                    <option value="">Todos los roles</option>
+                    <option value="admin" {{ $rol == 'admin' ? 'selected' : '' }}>Administradores</option>
+                    <option value="user" {{ $rol == 'user' ? 'selected' : '' }}>Usuarios normales</option>
+                </select>
+            </div>
+            <!-- Campos ocultos para mantener el ordenamiento -->
+            <input type="hidden" name="sort" value="{{ $sortField ?? 'codigo' }}">
+            <input type="hidden" name="direction" value="{{ $sortDirection ?? 'desc' }}">
+            <div class="flex gap-2">
+                <button type="submit" class="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                @if($search || $estado || $rol)
+                <a href="{{ route('admin.usuarios.index') }}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+                    <i class="fas fa-times"></i> Limpiar
+                </a>
+                @endif
+            </div>
+        </form>
     </div>
-
-    <!-- Tabla de Usuarios -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mascotas</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registro</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                    @forelse($users as $user)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#{{ $user->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white font-semibold">
-                                        {{ strtoupper(substr($user->nom_us, 0, 2)) }}
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $user->nom_us }} {{ $user->app_us }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->ema_us }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->tel_us ?? '—' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->is_admin)
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Administrador</span>
+    
+    <!-- Tabla de Usuarios con Ordenamiento -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'codigo', 'direction' => ($sortField == 'codigo' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Código
+                            @if($sortField == 'codigo')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
                             @else
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Usuario</span>
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
                             @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->est_us == 'activo')
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'nombre', 'direction' => ($sortField == 'nombre' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Nombre Completo
+                            @if($sortField == 'nombre')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
                             @else
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
                             @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->mascotas_count ?? 0 }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->created_at->format('d/m/Y') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                            <button onclick="editUser('{{ $user->id }}')"
-                                class="text-blue-600 hover:text-blue-800 transition font-medium">
-                                ✏️ Editar
-                            </button>
-                            @if(!$user->is_admin || auth()->id() != $user->id)
-                            <button onclick="toggleBlockUser('{{ $user->id }}')"
-                                class="text-yellow-600 hover:text-yellow-800 transition font-medium">
-                                {{ $user->est_us == 'activo' ? '🔒 Bloquear' : '🔓 Activar' }}
-                            </button>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'email', 'direction' => ($sortField == 'email' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Email
+                            @if($sortField == 'email')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
+                            @else
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
                             @endif
-                            @if(!$user->is_admin)
-                            <button onclick="deleteUser('{{ $user->id }}')"
-                                class="text-red-600 hover:text-red-800 transition font-medium">
-                                🗑️ Eliminar
-                            </button>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'telefono', 'direction' => ($sortField == 'telefono' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Teléfono
+                            @if($sortField == 'telefono')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
+                            @else
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
                             @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                            No hay usuarios registrados
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if(isset($users) && method_exists($users, 'links'))
-        <div class="px-6 py-4 border-t border-gray-200">
-            {{ $users->links() }}
-        </div>
-        @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'rol', 'direction' => ($sortField == 'rol' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Rol
+                            @if($sortField == 'rol')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
+                            @else
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'estado', 'direction' => ($sortField == 'estado' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Estado
+                            @if($sortField == 'estado')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
+                            @else
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition group">
+                        <a href="{{ route('admin.usuarios.index', array_merge(request()->query(), ['sort' => 'registro', 'direction' => ($sortField == 'registro' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" 
+                           class="flex items-center gap-2">
+                            Registro
+                            @if($sortField == 'registro')
+                                <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} text-orange-500"></i>
+                            @else
+                                <i class="fas fa-sort text-gray-400 opacity-0 group-hover:opacity-100 transition"></i>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @forelse($usuarios as $usuario)
+                <tr class="hover:bg-gray-50 transition" id="usuario-{{ $usuario->id }}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ $usuario->cod_us }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ $usuario->nom_us }} {{ $usuario->app_us }} {{ $usuario->apm_us }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $usuario->ema_us }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $usuario->tel_us ?? 'No registrado' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @if($usuario->is_admin)
+                            <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">Administrador</span>
+                        @else
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Usuario</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap" id="estado-{{ $usuario->id }}">
+                        @php
+                            $estadoColors = [
+                                'activo' => 'bg-green-100 text-green-800',
+                                'inactivo' => 'bg-gray-100 text-gray-800',
+                                'baneado' => 'bg-red-100 text-red-800',
+                            ];
+                        @endphp
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $estadoColors[$usuario->est_us] }}">
+                            {{ ucfirst($usuario->est_us) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ $usuario->created_at ? $usuario->created_at->format('d/m/Y') : 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if(!$usuario->is_admin)
+                            @if($usuario->est_us == 'activo')
+                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'inactivo')" 
+                                        class="text-orange-600 hover:text-orange-800 mr-3 transition" 
+                                        title="Desactivar usuario">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
+                                        class="text-red-600 hover:text-red-800 transition" 
+                                        title="Banear usuario">
+                                    <i class="fas fa-gavel"></i>
+                                </button>
+                            @elseif($usuario->est_us == 'inactivo')
+                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
+                                        class="text-green-600 hover:text-green-800 mr-3 transition" 
+                                        title="Activar usuario">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
+                                        class="text-red-600 hover:text-red-800 transition" 
+                                        title="Banear usuario">
+                                    <i class="fas fa-gavel"></i>
+                                </button>
+                            @elseif($usuario->est_us == 'baneado')
+                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
+                                        class="text-green-600 hover:text-green-800 transition" 
+                                        title="Desbanear usuario">
+                                    <i class="fas fa-unlock-alt"></i>
+                                </button>
+                            @endif
+                        @else
+                            <span class="text-gray-400 text-xs">
+                                <i class="fas fa-shield-alt"></i> Protegido
+                            </span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-users-slash text-4xl mb-2 block"></i>
+                        No se encontraron usuarios
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
-
-<!-- Modal Editar Usuario -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Editar Usuario</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            <form id="editUserForm">
-                @csrf
-                <input type="hidden" id="editUserId">
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
-                    <input type="text" id="editNombre" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno</label>
-                    <input type="text" id="editApp"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno</label>
-                    <input type="text" id="editApm"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="editEmail" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                    <input type="text" id="editTelefono"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Rol</label>
-                    <select id="editRol"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                        <option value="0">Usuario</option>
-                        <option value="1">Administrador</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select id="editEstado"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                </div>
-
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()"
-                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                        Cancelar
-                    </button>
-                    <button type="button" onclick="saveUser()"
-                        class="px-4 py-2 text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition">
-                        Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
+    
+    <!-- Paginación -->
+    <div class="mt-6">
+        {{ $usuarios->appends(request()->query())->links() }}
     </div>
 </div>
 
 <script>
-    const csrfToken = '{{ csrf_token() }}';
-
-    function searchUsers() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#usersTableBody tr');
-
-        rows.forEach(row => {
-            if (row.cells && row.cells.length > 0) {
-                const text = Array.from(row.cells).map(cell => cell.textContent.toLowerCase()).join(' ');
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            }
-        });
+function cambiarEstado(id, nuevoEstado) {
+    let config = {
+        title: '',
+        text: '',
+        icon: 'question',
+        confirmButtonText: 'Sí, continuar',
+        cancelButtonText: 'Cancelar',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33'
+    };
+    
+    // Configurar según la acción
+    switch(nuevoEstado) {
+        case 'activo':
+            config.title = '¿Activar usuario?';
+            config.text = 'Este usuario podrá acceder nuevamente a la plataforma.';
+            config.icon = 'success';
+            config.confirmButtonColor = '#10b981';
+            break;
+        case 'inactivo':
+            config.title = '¿Desactivar usuario?';
+            config.text = 'El usuario no podrá acceder a la plataforma. Podrá activarse después.';
+            config.icon = 'warning';
+            config.confirmButtonColor = '#f59e0b';
+            break;
+        case 'baneado':
+            config.title = '¿Banear usuario?';
+            config.text = 'El usuario será bloqueado permanentemente. ¿Estás seguro?';
+            config.icon = 'error';
+            config.confirmButtonColor = '#ef4444';
+            break;
     }
-
-    document.getElementById('searchInput').addEventListener('keyup', searchUsers);
-
-    function editUser(id) {
-        fetch(`/admin/usuarios/${id}/edit`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('editUserId').value = data.id;
-                document.getElementById('editNombre').value = data.nom_us || '';
-                document.getElementById('editApp').value = data.app_us || '';
-                document.getElementById('editApm').value = data.apm_us || '';
-                document.getElementById('editEmail').value = data.ema_us;
-                document.getElementById('editTelefono').value = data.tel_us || '';
-                document.getElementById('editRol').value = data.is_admin ? 1 : 0;
-                document.getElementById('editEstado').value = data.est_us || 'activo';
-                document.getElementById('editModal').classList.remove('hidden');
-                document.getElementById('editModal').classList.add('flex');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al cargar los datos del usuario');
+    
+    // Mostrar SweetAlert de confirmación
+    Swal.fire(config).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar loading
+            Swal.fire({
+                title: 'Procesando...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-    }
-
-    function saveUser() {
-        const id = document.getElementById('editUserId').value;
-        const formData = new FormData();
-        formData.append('_token', csrfToken);
-        formData.append('_method', 'PUT');
-        formData.append('nom_us', document.getElementById('editNombre').value);
-        formData.append('app_us', document.getElementById('editApp').value);
-        formData.append('apm_us', document.getElementById('editApm').value);
-        formData.append('ema_us', document.getElementById('editEmail').value);
-        formData.append('tel_us', document.getElementById('editTelefono').value);
-        formData.append('is_admin', document.getElementById('editRol').value);
-        formData.append('est_us', document.getElementById('editEstado').value);
-
-        fetch(`/admin/usuarios/${id}`, {
+            
+            // Realizar la petición
+            fetch(`/admin/usuarios/${id}/cambiar-estado`, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ estado: nuevoEstado })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        title: '¡Completado!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonColor: '#f97316',
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        // Recargar la página después del éxito
+                        location.reload();
+                    });
                 } else {
-                    alert(data.message || 'Error al guardar los cambios');
+                    // Mostrar mensaje de error
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message || 'Ocurrió un error al cambiar el estado',
+                        icon: 'error',
+                        confirmButtonColor: '#f97316'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar los cambios');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error de conexión al servidor',
+                    icon: 'error',
+                    confirmButtonColor: '#f97316'
+                });
             });
-    }
+        }
+    });
+}
 
-    function deleteUser(id) {
-        if (confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
-            fetch(`/admin/usuarios/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Error al eliminar el usuario');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al eliminar el usuario');
-                });
+// Función para mostrar notificaciones toast (pequeñas notificaciones)
+function showToast(message, type = 'success') {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+    });
+    
+    Toast.fire({
+        icon: type,
+        title: message
+    });
+}
+
+// Función para actualizar el estado visual sin recargar (opcional)
+function updateEstadoVisual(id, nuevoEstado) {
+    const estadoSpan = document.querySelector(`#estado-${id} span`);
+    if (estadoSpan) {
+        const estadoColors = {
+            'activo': 'bg-green-100 text-green-800',
+            'inactivo': 'bg-gray-100 text-gray-800',
+            'baneado': 'bg-red-100 text-red-800'
+        };
+        
+        estadoSpan.className = `px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${estadoColors[nuevoEstado]}`;
+        estadoSpan.textContent = nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1);
+        
+        // Actualizar botones
+        const accionesCell = document.querySelector(`#usuario-${id} td:last-child`);
+        if (accionesCell) {
+            actualizarBotones(accionesCell, id, nuevoEstado);
         }
     }
+}
 
-    function toggleBlockUser(id) {
-        const action = confirm('¿Deseas cambiar el estado de este usuario?');
-        if (action) {
-            fetch(`/admin/usuarios/${id}/toggle-block`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Error al cambiar el estado');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cambiar el estado');
-                });
-        }
+// Función para actualizar los botones según el nuevo estado
+function actualizarBotones(cell, id, estado) {
+    cell.innerHTML = '';
+    
+    if (estado === 'activo') {
+        cell.innerHTML = `
+            <button onclick="cambiarEstado(${id}, 'inactivo')" 
+                    class="text-orange-600 hover:text-orange-800 mr-3 transition" 
+                    title="Desactivar usuario">
+                <i class="fas fa-ban"></i>
+            </button>
+            <button onclick="cambiarEstado(${id}, 'baneado')"
+                    class="text-red-600 hover:text-red-800 transition" 
+                    title="Banear usuario">
+                <i class="fas fa-gavel"></i>
+            </button>
+        `;
+    } else if (estado === 'inactivo') {
+        cell.innerHTML = `
+            <button onclick="cambiarEstado(${id}, 'activo')" 
+                    class="text-green-600 hover:text-green-800 mr-3 transition" 
+                    title="Activar usuario">
+                <i class="fas fa-check-circle"></i>
+            </button>
+            <button onclick="cambiarEstado(${id}, 'baneado')"
+                    class="text-red-600 hover:text-red-800 transition" 
+                    title="Banear usuario">
+                <i class="fas fa-gavel"></i>
+            </button>
+        `;
+    } else if (estado === 'baneado') {
+        cell.innerHTML = `
+            <button onclick="cambiarEstado(${id}, 'activo')" 
+                    class="text-green-600 hover:text-green-800 transition" 
+                    title="Desbanear usuario">
+                <i class="fas fa-unlock-alt"></i>
+            </button>
+        `;
     }
-
-    function closeModal() {
-        document.getElementById('editModal').classList.add('hidden');
-        document.getElementById('editModal').classList.remove('flex');
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById('editModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    }
+}
 </script>
+
+<!-- Estilos adicionales para SweetAlert -->
+<style>
+.swal2-popup {
+    font-size: 1rem !important;
+    border-radius: 0.75rem !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+}
+
+.swal2-confirm {
+    background-color: #f97316 !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #ea580c !important;
+}
+</style>
 @endsection
 
 

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Gestión de Usuarios - Social Pet')
+@section('title', 'administracion de Usuarios - Social Pet')
 
 @section('content')
 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
@@ -196,41 +196,50 @@
                         {{ $usuario->created_at ? $usuario->created_at->format('d/m/Y') : 'N/A' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        @if(!$usuario->is_admin)
-                            @if($usuario->est_us == 'activo')
-                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'inactivo')" 
-                                        class="text-orange-600 hover:text-orange-800 mr-3 transition" 
-                                        title="Desactivar usuario">
-                                    <i class="fas fa-ban"></i>
+                        <div class="flex items-center gap-2">
+                            @if(!$usuario->is_admin)
+                                <!-- Botón para recuperar contraseña -->
+                                <button type="button" onclick="recuperarContrasena('{{ $usuario->id }}', '{{ addslashes($usuario->nom_us) }}', '{{ addslashes($usuario->app_us) }}')"
+                                        class="text-blue-600 hover:text-blue-800 transition" 
+                                        title="Restablecer contraseña">
+                                    <i class="fas fa-key"></i>
                                 </button>
-                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
-                                        class="text-red-600 hover:text-red-800 transition" 
-                                        title="Banear usuario">
-                                    <i class="fas fa-gavel"></i>
-                                </button>
-                            @elseif($usuario->est_us == 'inactivo')
-                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
-                                        class="text-green-600 hover:text-green-800 mr-3 transition" 
-                                        title="Activar usuario">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
-                                        class="text-red-600 hover:text-red-800 transition" 
-                                        title="Banear usuario">
-                                    <i class="fas fa-gavel"></i>
-                                </button>
-                            @elseif($usuario->est_us == 'baneado')
-                                <button onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
-                                        class="text-green-600 hover:text-green-800 transition" 
-                                        title="Desbanear usuario">
-                                    <i class="fas fa-unlock-alt"></i>
-                                </button>
+                                
+                                @if($usuario->est_us == 'activo')
+                                    <button type="button" onclick="cambiarEstado('{{ $usuario->id }}', 'inactivo')" 
+                                            class="text-orange-600 hover:text-orange-800 transition" 
+                                            title="Desactivar usuario">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button type="button" onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
+                                            class="text-red-600 hover:text-red-800 transition" 
+                                            title="Banear usuario">
+                                        <i class="fas fa-gavel"></i>
+                                    </button>
+                                @elseif($usuario->est_us == 'inactivo')
+                                    <button type="button" onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
+                                            class="text-green-600 hover:text-green-800 transition" 
+                                            title="Activar usuario">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                    <button type="button" onclick="cambiarEstado('{{ $usuario->id }}', 'baneado')"
+                                            class="text-red-600 hover:text-red-800 transition" 
+                                            title="Banear usuario">
+                                        <i class="fas fa-gavel"></i>
+                                    </button>
+                                @elseif($usuario->est_us == 'baneado')
+                                    <button type="button" onclick="cambiarEstado('{{ $usuario->id }}', 'activo')" 
+                                            class="text-green-600 hover:text-green-800 transition" 
+                                            title="Desbanear usuario">
+                                        <i class="fas fa-unlock-alt"></i>
+                                    </button>
+                                @endif
+                            @else
+                                <span class="text-gray-400 text-xs">
+                                    <i class="fas fa-shield-alt"></i> Protegido
+                                </span>
                             @endif
-                        @else
-                            <span class="text-gray-400 text-xs">
-                                <i class="fas fa-shield-alt"></i> Protegido
-                            </span>
-                        @endif
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -251,8 +260,16 @@
     </div>
 </div>
 
+<!-- SweetAlert2 CSS y JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+// Función para depuración
+console.log('Script cargado correctamente');
+
 function cambiarEstado(id, nuevoEstado) {
+    console.log('cambiarEstado llamado:', id, nuevoEstado);
+    
     let config = {
         title: '',
         text: '',
@@ -264,7 +281,6 @@ function cambiarEstado(id, nuevoEstado) {
         cancelButtonColor: '#d33'
     };
     
-    // Configurar según la acción
     switch(nuevoEstado) {
         case 'activo':
             config.title = '¿Activar usuario?';
@@ -286,10 +302,8 @@ function cambiarEstado(id, nuevoEstado) {
             break;
     }
     
-    // Mostrar SweetAlert de confirmación
     Swal.fire(config).then((result) => {
         if (result.isConfirmed) {
-            // Mostrar loading
             Swal.fire({
                 title: 'Procesando...',
                 text: 'Por favor espera',
@@ -302,19 +316,19 @@ function cambiarEstado(id, nuevoEstado) {
                 }
             });
             
-            // Realizar la petición
             fetch(`/admin/usuarios/${id}/cambiar-estado`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({ estado: nuevoEstado })
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Respuesta:', data);
                 if (data.success) {
-                    // Mostrar mensaje de éxito
                     Swal.fire({
                         title: '¡Completado!',
                         text: data.message,
@@ -323,11 +337,9 @@ function cambiarEstado(id, nuevoEstado) {
                         timer: 2000,
                         timerProgressBar: true
                     }).then(() => {
-                        // Recargar la página después del éxito
                         location.reload();
                     });
                 } else {
-                    // Mostrar mensaje de error
                     Swal.fire({
                         title: 'Error',
                         text: data.message || 'Ocurrió un error al cambiar el estado',
@@ -340,7 +352,7 @@ function cambiarEstado(id, nuevoEstado) {
                 console.error('Error:', error);
                 Swal.fire({
                     title: 'Error',
-                    text: 'Error de conexión al servidor',
+                    text: 'Error de conexión al servidor. Verifica la consola.',
                     icon: 'error',
                     confirmButtonColor: '#f97316'
                 });
@@ -349,7 +361,84 @@ function cambiarEstado(id, nuevoEstado) {
     });
 }
 
-// Función para mostrar notificaciones toast (pequeñas notificaciones)
+function recuperarContrasena(id, nombre, apellido) {
+    console.log('recuperarContrasena llamado:', id, nombre, apellido);
+    
+    Swal.fire({
+        title: 'Restablecer Contraseña',
+        html: `
+            <div class="text-left">
+                <p class="mb-3">¿Estás seguro de restablecer la contraseña para <strong>${nombre} ${apellido}</strong>?</p>
+                <p class="text-sm text-gray-500 mt-2">
+                    <i class="fas fa-info-circle"></i> Se generará una nueva contraseña automáticamente.
+                    El usuario recibirá un correo con la nueva contraseña.
+                </p>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, restablecer contraseña',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#f97316',
+        cancelButtonColor: '#d33',
+        width: '500px'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Restableciendo...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+            
+            fetch(`/admin/usuarios/${id}/restablecer-contrasena`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Respuesta:', data);
+                if (data.success) {
+                    Swal.fire({
+                        title: '¡Contraseña restablecida!',
+                        html: `
+                            <p>${data.message}</p>
+                            <p class="text-sm text-gray-500 mt-3">
+                                <i class="fas fa-envelope"></i> 
+                                La nueva contraseña ha sido enviada al correo del usuario.
+                            </p>
+                        `,
+                        icon: 'success',
+                        confirmButtonColor: '#f97316'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message || 'Ocurrió un error al restablecer la contraseña',
+                        icon: 'error',
+                        confirmButtonColor: '#f97316'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error de conexión al servidor. Verifica la consola.',
+                    icon: 'error',
+                    confirmButtonColor: '#f97316'
+                });
+            });
+        }
+    });
+}
+
 function showToast(message, type = 'success') {
     const Toast = Swal.mixin({
         toast: true,
@@ -368,71 +457,8 @@ function showToast(message, type = 'success') {
         title: message
     });
 }
-
-// Función para actualizar el estado visual sin recargar (opcional)
-function updateEstadoVisual(id, nuevoEstado) {
-    const estadoSpan = document.querySelector(`#estado-${id} span`);
-    if (estadoSpan) {
-        const estadoColors = {
-            'activo': 'bg-green-100 text-green-800',
-            'inactivo': 'bg-gray-100 text-gray-800',
-            'baneado': 'bg-red-100 text-red-800'
-        };
-        
-        estadoSpan.className = `px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${estadoColors[nuevoEstado]}`;
-        estadoSpan.textContent = nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1);
-        
-        // Actualizar botones
-        const accionesCell = document.querySelector(`#usuario-${id} td:last-child`);
-        if (accionesCell) {
-            actualizarBotones(accionesCell, id, nuevoEstado);
-        }
-    }
-}
-
-// Función para actualizar los botones según el nuevo estado
-function actualizarBotones(cell, id, estado) {
-    cell.innerHTML = '';
-    
-    if (estado === 'activo') {
-        cell.innerHTML = `
-            <button onclick="cambiarEstado(${id}, 'inactivo')" 
-                    class="text-orange-600 hover:text-orange-800 mr-3 transition" 
-                    title="Desactivar usuario">
-                <i class="fas fa-ban"></i>
-            </button>
-            <button onclick="cambiarEstado(${id}, 'baneado')"
-                    class="text-red-600 hover:text-red-800 transition" 
-                    title="Banear usuario">
-                <i class="fas fa-gavel"></i>
-            </button>
-        `;
-    } else if (estado === 'inactivo') {
-        cell.innerHTML = `
-            <button onclick="cambiarEstado(${id}, 'activo')" 
-                    class="text-green-600 hover:text-green-800 mr-3 transition" 
-                    title="Activar usuario">
-                <i class="fas fa-check-circle"></i>
-            </button>
-            <button onclick="cambiarEstado(${id}, 'baneado')"
-                    class="text-red-600 hover:text-red-800 transition" 
-                    title="Banear usuario">
-                <i class="fas fa-gavel"></i>
-            </button>
-        `;
-    } else if (estado === 'baneado') {
-        cell.innerHTML = `
-            <button onclick="cambiarEstado(${id}, 'activo')" 
-                    class="text-green-600 hover:text-green-800 transition" 
-                    title="Desbanear usuario">
-                <i class="fas fa-unlock-alt"></i>
-            </button>
-        `;
-    }
-}
 </script>
 
-<!-- Estilos adicionales para SweetAlert -->
 <style>
 .swal2-popup {
     font-size: 1rem !important;
@@ -452,6 +478,8 @@ function actualizarBotones(cell, id, estado) {
 }
 </style>
 @endsection
+
+
 
 
 

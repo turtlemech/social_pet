@@ -113,6 +113,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{id}', [AdminController::class, 'updateUser'])->name('update');
             Route::delete('/user/{id}', [AdminController::class, 'deleteUser'])->middleware('auth');
             Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])->name('toggle-block');
+            
+            Route::post('/{id}/restablecer-contrasena', [AdminController::class, 'restablecerContrasena'])->name('restablecer-contrasena');
+            Route::get('/{id}/generar-contrasena', [AdminController::class, 'generarContrasenaSugerida'])->name('generar-contrasena');
+
+
+
         });
 
         // ========== MASCOTAS ==========
@@ -146,6 +152,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/ticket/{id}', [SoporteController::class, 'updateTicket'])->name('update');
             Route::post('/asignar/{id}', [SoporteController::class, 'asignarTicket'])->name('asignar');
         });
+
+        
     });
 });
 
@@ -200,3 +208,6 @@ Route::middleware(['auth'])->group(function () {
 
 // Fallback
 Route::fallback(fn() => view('errors.404'));
+
+
+

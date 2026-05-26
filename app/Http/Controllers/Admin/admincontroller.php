@@ -11,6 +11,10 @@ use App\Models\Soporte;
 use App\Models\Especie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -170,7 +174,6 @@ class AdminController extends Controller
         $sortColumn = $sortableFields[$sortField] ?? 'cod_us';
         $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'desc';
         
-        // CORREGIDO: Usar ticketsSoporte en lugar de soportes
         $query = User::withCount(['mascotas', 'ticketsSoporte']);
         
         // Búsqueda
@@ -227,7 +230,6 @@ class AdminController extends Controller
      */
     public function verUsuario($id)
     {
-        // CORREGIDO: Usar ticketsSoporte en lugar de soportes
         $usuario = User::with(['mascotas', 'ticketsSoporte'])->findOrFail($id);
         
         return response()->json([
@@ -360,6 +362,158 @@ class AdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => $mensaje
+        ]);
+    }
+    
+    /**
+     * Restablecer contraseña de usuario
+     * Genera una nueva contraseña basada en nombre, apellido y teléfono
+     */
+    public function restablecerContrasena(Request $request, $id)
+    {
+        $usuario = User::findOrFail($id);
+        
+        // No permitir restablecer contraseña de administradores
+        if ($usuario->is_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede restablecer la contraseña de un administrador'
+            ], 403);
+        }
+        
+        // Validar que se reciba la nueva contraseña
+        $request->validate([
+            'nueva_contrasena' => 'required|string|min:6'
+        ]);
+        
+        $nuevaContrasena = $request->nueva_contrasena;
+        
+        // Hashear y guardar la nueva contraseña
+        $usuario->pas_us = Hash::make($nuevaContrasena);
+        $usuario->save();
+        
+        // Enviar email al usuario con la nueva contraseña
+        $emailEnviado = $this->enviarEmailNuevaContrasena($usuario, $nuevaContrasena);
+        
+        $mensaje = 'Contraseña restablecida correctamente';
+        if ($emailEnviado) {
+            $mensaje .= ' y enviada al correo del usuario';
+        } else {
+            $mensaje .= ' pero no se pudo enviar el email (revise la configuración de correo)';
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => $mensaje,
+            'email_enviado' => $emailEnviado
+        ]);
+    }
+    
+    /**
+     * Enviar email al usuario con la nueva contraseña
+     */
+    private function enviarEmailNuevaContrasena($usuario, $nuevaContrasena)
+    {
+        try {
+            // Verificar que el usuario tenga email
+            if (!$usuario->ema_us) {
+                Log::warning('Usuario sin email registrado', ['user_id' => $usuario->id]);
+                return false;
+            }
+            
+            // Preparar datos para la vista
+            $data = [
+                'usuario' => $usuario,
+                'nuevaContrasena' => $nuevaContrasena,
+                'nombreCompleto' => trim($usuario->nom_us . ' ' . $usuario->app_us),
+                'email' => $usuario->ema_us,
+                'fecha' => now()->format('d/m/Y H:i:s')
+            ];
+            
+            // Enviar correo usando la plantilla
+            Mail::send('emails.nueva-contrasena', $data, function ($message) use ($usuario) {
+                $message->to($usuario->ema_us, trim($usuario->nom_us . ' ' . $usuario->app_us))
+                        ->subject('🔐 Tu nueva contraseña - Social Pet')
+                        ->from(config('mail.from.address'), config('mail.from.name'));
+            });
+            
+            Log::info('Email de nueva contraseña enviado', [
+                'user_id' => $usuario->id,
+                'email' => $usuario->ema_us
+            ]);
+            
+            return true;
+            
+        } catch (\Exception $e) {
+            // Registrar error pero no detener el proceso
+            Log::error('Error al enviar email de nueva contraseña: ' . $e->getMessage(), [
+                'user_id' => $usuario->id,
+                'email' => $usuario->ema_us,
+                'error_line' => $e->getLine(),
+                'error_file' => $e->getFile()
+            ]);
+            return false;
+        }
+    }
+    
+    /**
+     * Función interna para generar contraseña según reglas
+     */
+    private function generarPassword($nombre, $apellido, $telefono = null)
+    {
+        $contrasena = '';
+        
+        // Primeras 3 letras del nombre (minúsculas)
+        $nombreBase = substr($nombre ?? 'usr', 0, 3);
+        if (strlen($nombreBase) < 3) $nombreBase = str_pad($nombreBase, 3, 'x');
+        $nombreBase = strtolower($nombreBase);
+        
+        // Primeras 3 letras del apellido (minúsculas)
+        $apellidoBase = substr($apellido ?? 'def', 0, 3);
+        if (strlen($apellidoBase) < 3) $apellidoBase = str_pad($apellidoBase, 3, 'x');
+        $apellidoBase = strtolower($apellidoBase);
+        
+        $contrasena = $nombreBase . $apellidoBase;
+        
+        // Parte numérica: últimos 4 dígitos del teléfono o aleatorio
+        if ($telefono && trim($telefono) !== '') {
+            $digitos = preg_replace('/\D/', '', $telefono);
+            if (strlen($digitos) >= 4) {
+                $contrasena .= substr($digitos, -4);
+            } elseif (strlen($digitos) > 0) {
+                $contrasena .= str_pad($digitos, 4, '0', STR_PAD_LEFT);
+            } else {
+                $contrasena .= rand(1000, 9999);
+            }
+        } else {
+            $contrasena .= rand(1000, 9999);
+        }
+        
+        // Añadir carácter especial y letra mayúscula
+        $especiales = '!@#$%';
+        $mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $contrasena .= $especiales[rand(0, strlen($especiales) - 1)];
+        $contrasena .= $mayusculas[rand(0, strlen($mayusculas) - 1)];
+        
+        return $contrasena;
+    }
+    
+    /**
+     * Generar contraseña automáticamente (endpoint para obtener contraseña sugerida)
+     */
+    public function generarContrasenaSugerida($id)
+    {
+        $usuario = User::findOrFail($id);
+        
+        $nuevaContrasena = $this->generarPassword(
+            $usuario->nom_us,
+            $usuario->app_us,
+            $usuario->tel_us
+        );
+        
+        return response()->json([
+            'success' => true,
+            'contrasena_sugerida' => $nuevaContrasena
         ]);
     }
     

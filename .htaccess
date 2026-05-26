@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirigir todas las solicitudes a la carpeta public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Proteger archivos sensibles (como en hosting)
+<Files ".env">
+    Require all denied
+</Files>
+
+<Files "artisan">
+    Require all denied
+</Files>
+
+# Deshabilitar visualización de directorios
+Options -Indexes

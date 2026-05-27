@@ -36,13 +36,13 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-    'is_admin' => 'boolean',
-];
+        'is_admin' => 'boolean',
+    ];
 
-public function getAuthPassword()
-{
-    return $this->pas_us;
-}
+    public function getAuthPassword()
+    {
+        return $this->pas_us;
+    }
 
     // ================= MASCOTAS =================
 
@@ -157,29 +157,6 @@ public function getAuthPassword()
         return $this->hasMany(Soporte::class, 'usu_reportado_id');
     }
 
-    // ================= MÉTODOS ÚTILES =================
-
-    public function isAdmin()
-    {
-        return $this->is_admin === true || $this->tip_us === 'admin';
-    }
-
-    public function isActive()
-    {
-        return $this->est_us === 'activo';
-    }
-<<<<<<< HEAD
-}
-
-
-
-
-
-
-
-
-=======
-
     // ================= SEGUIDORES =================
 
     public function seguidores()
@@ -220,6 +197,16 @@ public function getAuthPassword()
             'mas_seg'
         )->withTimestamps();
     }
-    
+
+    // ================= MÉTODOS ÚTILES =================
+
+    public function isAdmin()
+    {
+        return $this->is_admin === true || $this->tip_us === 'admin';
+    }
+
+    public function isActive()
+    {
+        return $this->est_us === 'activo';
+    }
 }
->>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)

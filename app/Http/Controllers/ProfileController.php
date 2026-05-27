@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Mascota;
 
 class ProfileController extends Controller
 {
@@ -16,6 +17,15 @@ class ProfileController extends Controller
         $user = Auth::user();
         return view('profile.index', compact('user'));
     }
+    public function myPets()
+{
+    $mascotas = Mascota::with('especie')
+        ->where('usuario_id', auth()->id())
+        ->latest()
+        ->get();
+
+    return view('my-pets', compact('mascotas'));
+}
 
     public function update(Request $request)
     {

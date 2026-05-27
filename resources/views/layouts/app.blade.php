@@ -144,6 +144,11 @@
                 }
             }
         </style>
+        <style>
+[x-cloak] {
+    display: none !important;
+}
+</style>
         <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -153,16 +158,15 @@
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 </script>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            {{-- SOLO UN NAVBAR --}}
-            @livewire('navigation-menu')
+   <body class="font-sans antialiased overflow-x-hidden bg-gray-100">
 
-            <!-- Page Content -->
-            <main>
-                @yield('content')
-            </main>
-        </div>
+    @livewire('navigation-menu')
+
+    <main class="pt-16">
+
+        @yield('content')
+
+    </main>
 
         <!-- Burbuja de soporte/administradores -->
         <div class="support-bubble">
@@ -301,94 +305,137 @@
             
             
         </script>
-    <script>
-    document.addEventListener('click', async (e) => {
+        <script>
 
-    const btn = e.target.closest('.like-btn');
-    if (!btn) return;
+document.addEventListener('DOMContentLoaded', () => {
 
-    const id = btn.dataset.id;
-    if (!id) return;
+    document.querySelectorAll('.like-btn').forEach(btn => {
 
-    const icon = btn.querySelector('.like-icon');
+        btn.addEventListener('click', async function(e) {
 
-    try {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
 
-        const res = await fetch(`/like/${id}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
+            this.blur();
+
+            const id = this.dataset.id;
+
+            const icon = this.querySelector('.like-icon');
+
+            try {
+
+                const res = await fetch(`/posts/${id}/like`, {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .content,
+
+                        'Accept': 'application/json',
+
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+
+                });
+
+                const data = await res.json();
+
+                // CONTADOR
+
+                const counter = document.getElementById(`likes-${id}`);
+
+                if (counter) {
+
+                    counter.innerText =
+                        data.likes + (data.likes == 1 ? ' like' : ' likes');
+
+                }
+
+                // TEXTO "LES GUSTA A"
+
+                const likesText = document.getElementById(`likes-text-${id}`);
+
+                if (likesText) {
+
+                    if (data.liked) {
+
+                        likesText.innerHTML = `
+                            Les gusta a
+                            <span class="font-semibold">
+                                ti
+                            </span>
+                        `;
+
+                    } else {
+
+                        if (data.likes > 0) {
+
+                            likesText.innerHTML = `
+                                Les gusta a
+                                <span class="font-semibold">
+                                    alguien
+                                </span>
+                            `;
+
+                        } else {
+
+                            likesText.innerHTML = '';
+
+                        }
+                    }
+                }
+
+                // ICONO
+
+                if (data.liked) {
+
+                    icon.setAttribute('fill', 'currentColor');
+                    icon.classList.add('fill-red-500');
+
+                } else {
+
+                    icon.setAttribute('fill', 'none');
+                    icon.classList.remove('fill-red-500');
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
             }
+
         });
 
-        // ❗ SI FALLA HTTP
-        if (!res.ok) {
-            console.error("HTTP ERROR:", res.status);
-            return;
-        }
+    });
 
-        const data = await res.json();
-
-        console.log("LIKE RESPONSE:", data);
-
-        // contador seguro
-        const counter = document.getElementById(`likes-${id}`);
-        if (counter) {
-
-    counter.innerText = (data.count ?? 0) + ' likes';
-
-}
-
-        // UI toggle
-        if (data.liked) {
-
-    btn.classList.add('text-red-500');
-    btn.classList.remove('text-gray-500');
-
-    icon.classList.add('fill-red-500');
-
-} else {
-
-    btn.classList.remove('text-red-500');
-    btn.classList.add('text-gray-500');
-
-    icon.classList.remove('fill-red-500');
-
-}
-
-    } catch (err) {
-        console.error("ERROR LIKE:", err);
-    }
 });
-    </script>
-    <script>
+
+</script>
+<script>
 
 function openCommentsModal(id) {
 
-    const modal = document.getElementById('comments-modal-' + id);
+    document
+        .getElementById(`comments-modal-${id}`)
+        .classList.remove('hidden');
 
-    if (modal) {
-
-        modal.classList.remove('hidden');
-
-        document.body.style.overflow = 'hidden';
-    }
+    document.body.classList.add('overflow-hidden');
 }
 
 function closeCommentsModal(id) {
 
-    const modal = document.getElementById('comments-modal-' + id);
+    document
+        .getElementById(`comments-modal-${id}`)
+        .classList.add('hidden');
 
-    if (modal) {
-
-        modal.classList.add('hidden');
-
-        document.body.style.overflow = 'auto';
-    }
+    document.body.classList.remove('overflow-hidden');
 }
 
-// cerrar con ESC
 document.addEventListener('keydown', function(e) {
 
     if (e.key === 'Escape') {
@@ -399,24 +446,8 @@ document.addEventListener('keydown', function(e) {
                 modal.classList.add('hidden');
             });
 
-        document.body.style.overflow = 'auto';
+        document.body.classList.remove('overflow-hidden');
     }
-});
-
-// cerrar clickeando fondo
-document.addEventListener('click', function(e) {
-
-    const modals = document.querySelectorAll('[id^="comments-modal-"]');
-
-    modals.forEach(modal => {
-
-        if (e.target === modal) {
-
-            modal.classList.add('hidden');
-
-            document.body.style.overflow = 'auto';
-        }
-    });
 });
 
 </script>

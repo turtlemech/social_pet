@@ -10,7 +10,17 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\SoporteController;
 use App\Http\Controllers\EventoController;
+<<<<<<< HEAD
 use App\Http\Controllers\User\RegisterController;
+=======
+use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\PetController;
+use App\Http\Controllers\SeguimientoMascotaController;
+use App\Http\Controllers\MessageController;
+
+
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)
 use Illuminate\Support\Facades\Route;
 
 // ========== PÁGINA PRINCIPAL ==========
@@ -51,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
+<<<<<<< HEAD
     // ❤️ LIKE
     Route::post('/like/{post}', [LikeController::class, 'toggle'])->name('like.toggle');
 
@@ -63,17 +74,77 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+=======
+        
+
+    // ❤️ LIKE
+Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])
+    ->name('posts.like');
+
+// 💬 COMENTARIOS
+Route::post('/posts/{post}/comment', [ComentarioController::class, 'store'])
+    ->name('posts.comment');
+
+    // ================= PERFIL =================
+
+    Route::get('/configuracion', [ProfileController::class, 'index'])
+    ->name('configuracion');
+
+Route::put('/configuracion', [ProfileController::class, 'update'])
+    ->name('configuracion.update');
+
+Route::put('/configuracion/password', [ProfileController::class, 'updatePassword'])
+    ->name('configuracion.password');
+
+Route::post('/configuracion/avatar', [ProfileController::class, 'updateAvatar'])
+    ->name('configuracion.avatar');
+
+Route::delete('/configuracion', [ProfileController::class, 'destroy'])
+    ->name('configuracion.destroy');
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)
 
     // ================= OTRAS RUTAS =================
     Route::view('/feed', 'feed')->name('feed');
-    Route::view('/my-pets', 'my-pets')->name('my-pets');
-    Route::view('/messages', 'messages')->name('messages');
+   Route::get('/my-pets', [ProfileController::class, 'myPets'])
+    ->name('my-pets');
+    Route::get('/messages', [MessageController::class, 'index'])
+    ->name('messages.index');
+
+Route::get('/messages/{id}', [MessageController::class, 'show'])
+    ->name('messages.show');
+
+Route::post('/messages/start/{user}', [MessageController::class, 'start'])
+    ->name('messages.start');
+
+Route::post('/messages/send/{id}', [MessageController::class, 'send'])
+    ->name('messages.send');
+
     Route::view('/settings', 'settings')->name('settings');
     Route::view('/explore', 'explore')->name('explore');
     Route::view('/search', 'search')->name('search');
     Route::view('/notifications', 'notifications')->name('notifications');
 
+<<<<<<< HEAD
     Route::get('/prueba', fn() => 'ESTA ES UNA PÁGINA DE PRUEBA - REDIRECCIÓN FUNCIONA!')->name('prueba');
+=======
+    Route::post('/notifications/read', function () {
+
+    \App\Models\Notificacion::where('usuario_id', auth()->id())
+        ->where('lei_not', false)
+        ->update([
+            'lei_not' => true,
+            'fch_lei_not' => now()
+        ]);
+
+    return response()->json([
+        'success' => true
+    ]);
+
+})->name('notifications.read');
+
+    Route::get('/prueba', fn() => 'ESTA ES UNA PÁGINA DE PRUEBA - REDIRECCIÓN FUNCIONA!')
+        ->name('prueba');
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)
 
     // ========== SOPORTE USUARIO ==========
     Route::prefix('soporte')->name('soporte.')->group(function () {
@@ -121,6 +192,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         });
 
+<<<<<<< HEAD
         // ========== MASCOTAS ==========
         Route::prefix('mascotas')->name('mascotas.')->group(function () {
             Route::get('/', [AdminController::class, 'mascotas'])->name('index');
@@ -130,6 +202,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [AdminController::class, 'deleteMascota'])->name('destroy');
         });
 
+=======
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)
         // ========== PUBLICACIONES ==========
         Route::prefix('publicaciones')->name('publicaciones.')->group(function () {
             Route::get('/', [AdminController::class, 'publicaciones'])->name('index');
@@ -159,12 +233,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 // ========== AGENTES/MODERADORES ==========
 Route::middleware(['auth'])
+
     ->prefix('soporte')
+
     ->name('soporte.')
+
     ->group(function () {
         Route::get('/agente/dashboard', [SoporteController::class, 'agenteDashboard'])
+
             ->name('agente.dashboard')
+
             ->middleware('can:verSoporte');
+
     });
 
 // ================= NUEVAS RUTAS PARA SOPORTE CON VISTAS TAILWIND =================
@@ -180,9 +260,13 @@ Route::middleware(['auth'])->group(function () {
 
 // ========== MASCOTAS ==========
 Route::middleware(['auth'])
+
     ->prefix('pets')
+
     ->name('pets.')
+
     ->group(function () {
+<<<<<<< HEAD
         Route::view('/', 'pets.index')->name('index');
         Route::view('/create', 'pets.create')->name('create');
         Route::post('/', fn() => back()->with('success', 'Mascota creada'))->name('store');
@@ -204,7 +288,84 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/eventos/{evento}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
     Route::put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
     Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])->name('eventos.reactivar');
+=======
+
+        Route::get('/create', [PetController::class, 'create'])
+
+            ->name('create');
+
+        Route::post('/', [PetController::class, 'store'])
+
+            ->name('store');
+
+        Route::get('/{id}', [PetController::class, 'show'])
+
+            ->name('show');
+
+        Route::get('/{id}/edit', [PetController::class, 'edit'])
+
+            ->name('edit');
+            Route::delete('/{id}', [PetController::class, 'destroy'])
+
+    ->name('destroy');
+
+    });
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::post(
+        '/mascotas/{mascota}/seguir',
+        [SeguimientoMascotaController::class, 'toggle']
+    )->name('mascotas.seguir');
+
+    // ================= EVENTOS =================
+
+    Route::get('/eventos', [EventoController::class, 'index'])
+
+        ->name('eventos.index');
+
+    Route::get('/eventos/{evento}', [EventoController::class, 'show'])
+
+        ->name('eventos.show');
+
+    Route::post('/eventos', [EventoController::class, 'store'])
+
+        ->name('eventos.store');
+
+    Route::post('/eventos/{evento}/join', [EventoController::class, 'join'])
+
+        ->name('eventos.join');
+
+    Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])
+
+        ->name('eventos.destroy');
+    Route::get('/mis-eventos', [EventoController::class, 'misEventos'])
+    ->name('eventos.mis-eventos');
+
+Route::get('/eventos-participando', [EventoController::class, 'participando'])
+    ->name('eventos.participando');
+    Route::get('/eventos/{evento}/edit', [EventoController::class, 'edit'])
+    ->name('eventos.edit');
+
+Route::put('/eventos/{evento}', [EventoController::class, 'update'])
+    ->name('eventos.update');
+    Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])
+    ->name('eventos.reactivar');
+Route::patch(
+    '/eventos/{evento}/finalizar',
+    [EventoController::class, 'finalizar']
+)->name('eventos.finalizar');
+// ================= PERFIL SOCIAL =================
+
+Route::get('/usuario/{user}', [UserProfileController::class, 'show'])
+    ->name('usuario.profile');
+
+Route::post('/seguir/{user}', [FollowController::class, 'toggle'])
+    ->name('seguir.toggle');
+
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)
 });
+
 
 // Fallback
 Route::fallback(fn() => view('errors.404'));

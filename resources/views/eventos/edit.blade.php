@@ -74,19 +74,19 @@ Swal.fire({
             <!-- FECHA -->
             <input
 
-    type="datetime-local"
+                type="datetime-local"
 
-    name="fch_eve"
+                name="fch_eve"
 
-    value="{{ \Carbon\Carbon::parse($evento->fch_eve)->format('Y-m-d\TH:i') }}"
+                value="{{ \Carbon\Carbon::parse($evento->fch_eve)->format('Y-m-d\TH:i') }}"
 
-    min="{{ now()->format('Y-m-d\TH:i') }}"
+                min="{{ now()->format('Y-m-d\TH:i') }}"
 
-    class="bg-gray-100 rounded-2xl p-4"
+                class="bg-gray-100 rounded-2xl p-4"
 
-    required
+                required
 
->
+            >
 
             <!-- DESCRIPCIÓN -->
             <textarea
@@ -143,6 +143,30 @@ Swal.fire({
                 value="{{ old('capacidad_eve', $evento->capacidad_eve) }}"
                 class="bg-gray-100 rounded-2xl p-4"
             >
+
+            <!-- ESTADO -->
+            <select
+                name="est_eve"
+                class="bg-gray-100 rounded-2xl p-4"
+                required
+            >
+
+                <option value="activo"
+                    {{ old('est_eve', $evento->est_eve) == 'activo' ? 'selected' : '' }}>
+                    Activo
+                </option>
+
+                <option value="cancelado"
+                    {{ old('est_eve', $evento->est_eve) == 'cancelado' ? 'selected' : '' }}>
+                    Cancelado
+                </option>
+
+                <option value="finalizado"
+                    {{ old('est_eve', $evento->est_eve) == 'finalizado' ? 'selected' : '' }}>
+                    Finalizado
+                </option>
+
+            </select>
 
             <!-- IMAGEN ACTUAL -->
             @if($evento->img_eve)

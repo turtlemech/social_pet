@@ -5,13 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Especie;
+use App\Models\User;
+use App\Models\Adopcion;
+use App\Models\Publicacion;
+
 class Mascota extends Model
 {
     use HasFactory;
 
     protected $table = 'mascotas';
+
     protected $primaryKey = 'id';
-    
+
     protected $fillable = [
         'nom_mas',
         'sex_mas',
@@ -28,16 +34,24 @@ class Mascota extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Relación con especie
+    // ================= ESPECIE =================
+
     public function especie()
     {
-        return $this->belongsTo(Especie::class, 'especie_id');
+        return $this->belongsTo(
+            Especie::class,
+            'especie_id'
+        );
     }
 
-    // Relación con usuario (dueño)
+    // ================= USUARIO =================
+
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'usuario_id');
+        return $this->belongsTo(
+            User::class,
+            'usuario_id'
+        );
     }
 
     // Alias para compatibilidad
@@ -46,34 +60,89 @@ class Mascota extends Model
         return $this->usuario();
     }
 
-    // Relación con adopciones
+    // ================= PUBLICACIONES =================
+
+    public function publicaciones()
+    {
+        return $this->hasMany(
+            Publicacion::class,
+            'mascota_id'
+        );
+    }
+
+    // ================= ADOPCIONES =================
+
     public function adopciones()
     {
-        return $this->hasMany(Adopcion::class, 'mas_id');
+        return $this->hasMany(
+            Adopcion::class,
+            'mas_id'
+        );
     }
 
-    // Scopes
+    // ================= SCOPES =================
+
     public function scopeActivos($query)
     {
-        return $query->where('est_mas', 'activo');
+        return $query->where(
+            'est_mas',
+            'activo'
+        );
     }
 
-    public function scopePorEspecie($query, $especieNombre)
-    {
-        return $query->whereHas('especie', function($q) use ($especieNombre) {
-            $q->where('nom_esp', $especieNombre);
-        });
+    public function scopePorEspecie(
+        $query,
+        $especieNombre
+    ) {
+        return $query->whereHas(
+            'especie',
+            function ($q) use ($especieNombre) {
+
+                $q->where(
+                    'nom_esp',
+                    $especieNombre
+                );
+            }
+        );
     }
 
-    // Accessor para obtener la URL de la foto
+    // ================= ACCESSOR FOTO =================
+
     public function getFotoUrlAttribute()
     {
         if ($this->fot_mas) {
-            return asset('storage/' . $this->fot_mas);
+
+            return asset(
+                'storage/' . $this->fot_mas
+            );
         }
+
         return null;
     }
+    
+    public function eventos()
+{
+    return $this->belongsToMany(
+        Evento::class,
+        'mascotas_evento',
+        'mascota_id',
+        'evento_id'
+    )->withTimestamps();
 }
+ // ================= SEGUIDORES =================
 
+public function seguidores()
+{
+    return $this->belongsToMany(
 
+        User::class,
 
+        'seguimiento_mascota',
+
+        'mas_seg',
+
+        'us_seg'
+
+    )->withTimestamps();
+}
+}

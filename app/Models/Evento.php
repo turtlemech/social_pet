@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\User;
+use App\Models\Ubicacion;
+use App\Models\Mascota;
+
 class Evento extends Model
 {
     protected $table = 'eventos';
@@ -26,19 +30,28 @@ class Evento extends Model
         'destacado' => 'boolean',
     ];
 
-    // Usuario creador
+    // ================= USUARIO CREADOR =================
+
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'usuario_id');
+        return $this->belongsTo(
+            User::class,
+            'usuario_id'
+        );
     }
 
-    // Ubicación
+    // ================= UBICACIÓN =================
+
     public function ubicacion()
     {
-        return $this->belongsTo(Ubicacion::class, 'id_ubicacion');
+        return $this->belongsTo(
+            Ubicacion::class,
+            'id_ubicacion'
+        );
     }
 
-    // Participantes
+    // ================= PARTICIPANTES (USUARIOS) =================
+
     public function participantes()
     {
         return $this->belongsToMany(
@@ -49,5 +62,17 @@ class Evento extends Model
         )
         ->withPivot('est_par')
         ->withTimestamps();
+    }
+
+    // ================= MASCOTAS PARTICIPANTES =================
+
+    public function mascotasParticipantes()
+    {
+        return $this->belongsToMany(
+            Mascota::class,
+            'mascotas_evento',
+            'evento_id',
+            'mascota_id'
+        )->withTimestamps();
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->timestamp('fch_sol_ado')->useCurrent();
             $table->timestamp('fch_res_ado')->nullable();
             $table->enum('est_ado', ['pendiente', 'aprobada', 'rechazada'])->nullable();
-            $table->unsignedBigInteger('mas_id');
+            $table->unsignedBigInteger('mas_id')->nullable();
             $table->unsignedBigInteger('us_act');
             $table->unsignedBigInteger('us_sol')->nullable();
             

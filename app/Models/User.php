@@ -36,8 +36,13 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'is_admin' => 'boolean',
-    ];
+    'is_admin' => 'boolean',
+];
+
+public function getAuthPassword()
+{
+    return $this->pas_us;
+}
 
     // ================= MASCOTAS =================
 
@@ -81,12 +86,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(
             Conversacion::class,
-            'participantes',
+            'conversacion_usuario',
             'us_id',
             'con_id'
-        )
-        ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
-        ->withTimestamps();
+        )->withTimestamps();
     }
 
     public function mensajes()
@@ -122,13 +125,11 @@ class User extends Authenticatable
 
     // ================= EVENTOS =================
 
-    // Eventos creados por el usuario
     public function eventosCreados()
     {
         return $this->hasMany(Evento::class, 'usuario_id');
     }
 
-    // Eventos en los que participa
     public function eventosParticipando()
     {
         return $this->belongsToMany(
@@ -136,8 +137,7 @@ class User extends Authenticatable
             'participacion_evento',
             'usuario_id',
             'evento_id'
-        )
-        ->withPivot('est_par');
+        )->withPivot('est_par');
     }
 
     // ================= SOPORTE =================
@@ -168,6 +168,7 @@ class User extends Authenticatable
     {
         return $this->est_us === 'activo';
     }
+<<<<<<< HEAD
 }
 
 
@@ -177,3 +178,48 @@ class User extends Authenticatable
 
 
 
+=======
+
+    // ================= SEGUIDORES =================
+
+    public function seguidores()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'seguidores',
+            'us_sig',
+            'us_seg'
+        );
+    }
+
+    public function siguiendo()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'seguidores',
+            'us_seg',
+            'us_sig'
+        );
+    }
+
+    public function sigueA($userId)
+    {
+        return $this->siguiendo()
+            ->where('us_sig', $userId)
+            ->exists();
+    }
+
+    // ================= MASCOTAS SEGUIDAS =================
+
+    public function mascotasSeguidas()
+    {
+        return $this->belongsToMany(
+            Mascota::class,
+            'seguimiento_mascota',
+            'us_seg',
+            'mas_seg'
+        )->withTimestamps();
+    }
+    
+}
+>>>>>>> 7b2c306 (agregue notificacines y opcion de mensajes y seguir)

@@ -11,8 +11,15 @@ class DashboardController extends Controller
     public function index()
     {
         $posts = Publicacion::with([
+
                 'usuario',
-                'comentarios.usuario'
+
+                'mascota',
+
+                'comentarios.usuario',
+
+                'likes'
+
             ])
             ->where('est_pub', 'activo')
             ->orderBy('id', 'desc')
@@ -20,27 +27,51 @@ class DashboardController extends Controller
 
         foreach ($posts as $post) {
 
-            // total likes
-            $post->likes_count = Like::where('id_publicacion', $post->id)
-                ->where('tip_rea', 'like')
+            // ================= TOTAL LIKES =================
+
+            $post->likes_count = Like::where(
+                    'id_publicacion',
+                    $post->id
+                )
+                ->where(
+                    'tip_rea',
+                    'like'
+                )
                 ->count();
 
-            // usuario ya dio like?
-            $post->liked = Like::where('id_publicacion', $post->id)
-                ->where('id_usuario', auth()->id())
-                ->where('tip_rea', 'like')
+            // ================= USUARIO YA DIO LIKE =================
+
+            $post->liked = Like::where(
+                    'id_publicacion',
+                    $post->id
+                )
+                ->where(
+                    'id_usuario',
+                    auth()->id()
+                )
+                ->where(
+                    'tip_rea',
+                    'like'
+                )
                 ->exists();
         }
 
-        // Próximo evento
+        // ================= PRÓXIMO EVENTO =================
+
         $eventoProximo = Evento::with('ubicacion')
+
             ->where('fch_eve', '>=', now())
+
             ->orderBy('fch_eve')
+
             ->first();
 
-        return view('user.dashboard', compact(
-            'posts',
-            'eventoProximo'
-        ));
+        return view(
+            'user.dashboard',
+            compact(
+                'posts',
+                'eventoProximo'
+            )
+        );
     }
 }

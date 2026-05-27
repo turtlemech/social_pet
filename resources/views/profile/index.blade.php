@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <form action="{{ route('profile.update') }}" method="POST" class="space-y-6">
+                <form action="{{ route('configuracion.update') }}" method="POST" class="space-y-6">
                     @csrf
                     @method('PUT')
 
@@ -166,7 +166,7 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Cambiar Contraseña</h2>
                 <p class="text-sm text-gray-600 mb-6">Mantén tu cuenta segura con una contraseña fuerte</p>
 
-                <form action="{{ route('profile.password') }}" method="POST" class="space-y-6">
+                <form action="{{ route('configuracion.password') }}" method="POST" class="space-y-6">
                     @csrf
                     @method('PUT')
 
@@ -237,7 +237,7 @@
                         @endif
                     </div>
                     
-                    <form action="{{ route('profile.avatar') }}" method="POST" enctype="multipart/form-data" class="flex-1">
+                    <form action="{{ route('configuracion.avatar') }}" method="POST" enctype="multipart/form-data" class="flex-1">
                         @csrf
                         <div class="flex flex-col sm:flex-row gap-4">
                             <label class="flex-1">
@@ -324,7 +324,7 @@
              x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
              class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             
-            <form method="POST" action="{{ route('profile.destroy') }}">
+            <form method="POST" action="{{ route('configuracion.destroy') }}">
                 @csrf
                 @method('DELETE')
                 

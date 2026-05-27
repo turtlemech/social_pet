@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ubicacion', function (Blueprint $table) {
-
-            $table->decimal('latitud', 10, 7)->nullable();
-
-            $table->decimal('longitud', 10, 7)->nullable();
-
+        Schema::table('publicaciones', function (Blueprint $table) {
+            //
         });
     }
 
@@ -25,13 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ubicacion', function (Blueprint $table) {
-
-            $table->dropColumn([
-                'latitud',
-                'longitud'
-            ]);
-
+        Schema::table('publicaciones', function (Blueprint $table) {
+            //
         });
     }
 };

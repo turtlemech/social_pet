@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'America/Lima', // Cambiado a tu zona horaria
+    'timezone' => 'America/La_Paz', // Cambiado a tu zona horaria
 
     /*
     |--------------------------------------------------------------------------

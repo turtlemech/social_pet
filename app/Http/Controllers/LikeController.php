@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Like;
+use App\Models\Notificacion;
+use App\Models\Publicacion;
 use Illuminate\Http\Request;
+
 
 class LikeController extends Controller
 {
@@ -12,13 +15,16 @@ class LikeController extends Controller
         $userId = auth()->id();
 
         if (!$userId) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'No autenticado'
             ], 401);
         }
 
-        // Buscar reacción existente
+        $post = Publicacion::findOrFail($postId);
+
+        // Buscar like existente
         $like = Like::where('id_usuario', $userId)
             ->where('id_publicacion', $postId)
             ->where('tip_rea', 'like')
@@ -27,6 +33,7 @@ class LikeController extends Controller
         if ($like) {
 
             $like->delete();
+
             $liked = false;
 
         } else {
@@ -37,6 +44,38 @@ class LikeController extends Controller
                 'tip_rea' => 'like'
             ]);
 
+            // 🔔 NOTIFICACIÓN
+if ($post->us_id != $userId) {
+
+    $existeNotificacion = Notificacion::where('usuario_id', $post->us_id)
+        ->where('tip_not', 'like')
+        ->where('url_not', route('usuario.profile', auth()->user()))
+        ->where('men_not', auth()->user()->nom_us . ' le dio like a tu publicación')
+        ->exists();
+
+    if (!$existeNotificacion) {
+
+        Notificacion::create([
+
+            'tit_not' => 'Nuevo like',
+
+            'men_not' => auth()->user()->nom_us .
+                ' le dio like a tu publicación',
+
+            'tip_not' => 'like',
+
+            'lei_not' => false,
+
+            'usuario_id' => $post->us_id,
+
+            'url_not' => route(
+                'usuario.profile',
+                auth()->user()
+            ),
+        ]);
+    }
+}
+
             $liked = true;
         }
 
@@ -45,10 +84,15 @@ class LikeController extends Controller
             ->count();
 
         return response()->json([
+
             'success' => true,
+
             'liked' => $liked,
-            'count' => $count,
+
+            'likes' => $count,
+
             'post_id' => $postId
+
         ]);
     }
 }

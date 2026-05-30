@@ -711,40 +711,39 @@ async function toggleModalLike()
 
     try {
 
-        const response = await fetch(
+const response = await fetch(
 
-            `/posts/${currentPostId}/like`,
+    `/like/${currentPostId}`,
 
-            {
+    {
 
-                method: 'POST',
+        method: 'POST',
 
-                headers: {
+        headers: {
 
-                    'X-CSRF-TOKEN':
+            'X-CSRF-TOKEN':
+                document.querySelector('meta[name="csrf-token"]').content,
 
-                        document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
 
-                    'Accept': 'application/json'
+        }
 
-                }
+    }
 
-            }
+);
 
-        );
+const data = await response.json();
 
-        const data = await response.json();
+console.log(data);
 
-        liked = data.liked;
+liked = data.liked;
 
-        document.getElementById('modalLikeButton').innerText =
+document.getElementById('modalLikeButton').innerText =
+    liked ? '❤️' : '🤍';
 
-            liked ? '❤️' : '🤍';
-
-        document.getElementById('modalLikes').innerText =
-
-            `❤️ ${data.likes} Me gusta`;
-
+document.getElementById('modalLikes').innerText =
+    `❤️ ${data.likes} Me gusta`;
+    
     } catch(error) {
 
         console.error(error);

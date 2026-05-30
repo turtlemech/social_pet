@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Models\Publicacion;
 use App\Models\Like;
 use App\Models\Comentario;
+use App\Models\Mascota;
 
 class PostController extends Controller
 {
@@ -16,31 +17,59 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación
+        // ================= VALIDACIÓN =================
+
         $request->validate([
             'content' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'mascota_id' => 'nullable|exists:mascotas,id',
         ]);
+
+        // ================= VALIDAR PROPIETARIO =================
+
+        if ($request->mascota_id) {
+
+            $mascota = Mascota::findOrFail($request->mascota_id);
+
+            // Evita publicar como mascota ajena
+            if ($mascota->usuario_id !== auth()->id()) {
+
+                abort(403, 'No puedes publicar como esta mascota');
+            }
+        }
 
         $imagePath = null;
 
-        // Guardar imagen
+        // ================= GUARDAR IMAGEN =================
+
         if ($request->hasFile('image')) {
 
             $imagePath = $request->file('image')
                 ->store('posts', 'public');
         }
 
-        // Crear publicación
+        // ================= CREAR PUBLICACIÓN =================
+
         Publicacion::create([
+
             'cod_pub' => strtoupper(Str::random(8)),
+
             'com_pub' => $request->content,
+
             'img_pub' => $imagePath,
+
             'us_id' => auth()->id(),
+
+            'mascota_id' => $request->mascota_id,
+
             'est_pub' => 'activo',
+
         ]);
 
-        return back()->with('success', 'Publicación creada correctamente');
+        return back()->with(
+            'success',
+            'Publicación creada correctamente'
+        );
     }
 
     /**
@@ -50,21 +79,34 @@ class PostController extends Controller
     {
         $post = Publicacion::findOrFail($id);
 
-        // Verificar dueño
+        // ================= VERIFICAR DUEÑO =================
+
         if ($post->us_id != auth()->id()) {
 
-            abort(403);
+            abort(403, 'No tienes permiso para eliminar esta publicación');
         }
 
-        // Eliminar likes/reacciones
-        Like::where('id_publicacion', $post->id)->delete();
+        // ================= ELIMINAR LIKES =================
 
-        // Eliminar comentarios
-        Comentario::where('id_publicacion', $post->id)->delete();
+        Like::where(
+            'id_publicacion',
+            $post->id
+        )->delete();
 
-        // Eliminar publicación
+        // ================= ELIMINAR COMENTARIOS =================
+
+        Comentario::where(
+            'id_publicacion',
+            $post->id
+        )->delete();
+
+        // ================= ELIMINAR PUBLICACIÓN =================
+
         $post->delete();
 
-        return back()->with('success', 'Publicación eliminada');
+        return back()->with(
+            'success',
+            'Publicación eliminada correctamente'
+        );
     }
 }

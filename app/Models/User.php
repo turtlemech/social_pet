@@ -12,20 +12,26 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'usuarios';
-
     protected $primaryKey = 'id';
 
     protected $fillable = [
-    'cod_us',
-    'nom_us',
-    'ape_us',
-    'ema_us',
-    'pas_us',
-    'tel_us',
-    'ciu_us',
-    'estado',
-    'is_admin',
-];
+        'cod_us',
+        'nom_us',
+        'app_us',
+        'apm_us',
+        'ape_us',
+        'ema_us',
+        'pas_us',
+        'tel_us',
+        'ubi_us',
+        'ciu_us',
+        'ava_us',
+        'tip_us',
+        'est_us',
+        'estado',
+        'is_admin',
+    ];
+
     protected $hidden = [
         'pas_us',
         'remember_token',
@@ -34,6 +40,11 @@ class User extends Authenticatable
     protected $casts = [
         'is_admin' => 'boolean',
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->pas_us;
+    }
 
     // ================= MASCOTAS =================
 
@@ -81,7 +92,11 @@ class User extends Authenticatable
             'us_id',
             'con_id'
         )
-        ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
+        ->withPivot(
+            'cod_par',
+            'fch_uni_par',
+            'fch_sal_par'
+        )
         ->withTimestamps();
     }
 
@@ -118,13 +133,11 @@ class User extends Authenticatable
 
     // ================= EVENTOS =================
 
-    // Eventos creados por el usuario
     public function eventosCreados()
     {
         return $this->hasMany(Evento::class, 'usuario_id');
     }
 
-    // Eventos en los que participa
     public function eventosParticipando()
     {
         return $this->belongsToMany(
@@ -132,42 +145,88 @@ class User extends Authenticatable
             'participacion_evento',
             'usuario_id',
             'evento_id'
-        )
-        ->withPivot('est_par');
+        )->withPivot('est_par');
     }
 
     // ================= SOPORTE =================
 
     public function ticketsSoporte()
     {
-        return $this->hasMany(Soporte::class, 'cod_us', 'cod_us');
+        return $this->hasMany(
+            Soporte::class,
+            'cod_us',
+            'cod_us'
+        );
     }
 
     public function reportesHechos()
     {
-        return $this->hasMany(Soporte::class, 'usu_reporta_id');
+        return $this->hasMany(
+            Soporte::class,
+            'usu_reporta_id'
+        );
     }
 
     public function reportesRecibidos()
     {
-        return $this->hasMany(Soporte::class, 'usu_reportado_id');
+        return $this->hasMany(
+            Soporte::class,
+            'usu_reportado_id'
+        );
+    }
+
+    // ================= SEGUIDORES =================
+
+    public function seguidores()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'seguidores',
+            'us_sig',
+            'us_seg'
+        );
+    }
+
+    public function siguiendo()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'seguidores',
+            'us_seg',
+            'us_sig'
+        );
+    }
+
+    public function sigueA($userId)
+    {
+        return $this->siguiendo()
+            ->where('us_sig', $userId)
+            ->exists();
+    }
+
+    // ================= MASCOTAS SEGUIDAS =================
+
+    public function mascotasSeguidas()
+    {
+        return $this->belongsToMany(
+            Mascota::class,
+            'seguimiento_mascota',
+            'us_seg',
+            'mas_seg'
+        )->withTimestamps();
     }
 
     // ================= MÉTODOS ÚTILES =================
 
     public function isAdmin()
     {
-        return $this->is_admin === true || $this->tip_us === 'admin';
+        return $this->is_admin === true
+            || $this->tip_us === 'admin';
     }
 
     public function isActive()
     {
-        return $this->est_us === 'activo';
+        return $this->est_us === 'activo'
+            || $this->estado === 'activo';
     }
-
-    public function getAuthPassword()
-{
-    return $this->pas_us;
 }
-}
-    

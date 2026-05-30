@@ -494,11 +494,31 @@ setTimeout(() => {
     class="bg-white rounded-2xl px-5 py-3 shadow"
 />
 
+   <div class="flex gap-3">
+
     <button
-       class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-2xl font-bold transition"
+
+        class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-2xl font-bold transition"
+
     >
+
         Filtrar
+
     </button>
+
+    <a
+
+        href="{{ route('eventos.index') }}"
+
+        class="bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 px-6 py-3 rounded-2xl font-bold transition shadow"
+
+    >
+
+        Reiniciar filtros
+
+    </a>
+
+</div>
 
 </form>
 

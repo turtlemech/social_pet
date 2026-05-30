@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Conversacion extends Model
 {
     use HasFactory;
 
     protected $table = 'conversaciones';
+
     protected $primaryKey = 'id';
     
     protected $fillable = [
@@ -26,26 +28,39 @@ class Conversacion extends Model
         'act_con' => 'boolean',
     ];
 
-    // Relaciones
+    // ================= RELACIONES =================
+
     public function creador()
     {
-        return $this->belongsTo(User::class, 'us_crea');
+        return $this->belongsTo(
+            User::class,
+            'us_crea'
+        );
     }
 
     public function participantes()
     {
-        return $this->belongsToMany(User::class, 'participantes', 'con_id', 'us_id')
-                    ->withPivot('cod_par', 'fch_uni_par', 'fch_sal_par')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            User::class,
+            'conversacion_usuario',
+            'con_id',
+            'us_id'
+        )->withTimestamps();
     }
 
     public function mensajes()
     {
-        return $this->hasMany(Mensaje::class, 'con_id');
+        return $this->hasMany(
+            Mensaje::class,
+            'con_id'
+        );
     }
 
     public function ultimoMensaje()
     {
-        return $this->hasOne(Mensaje::class, 'con_id')->latest();
+        return $this->hasOne(
+            Mensaje::class,
+            'con_id'
+        )->latest();
     }
 }

@@ -14,11 +14,18 @@ class EventoController extends Controller
     public function index()
     {
         $query = Evento::with([
-                'usuario',
-                'ubicacion',
-                'participantes'
-            ])
-            ->withCount('participantes');
+
+    'usuario',
+
+    'ubicacion',
+
+    'participantes',
+
+    'mascotasParticipantes',
+
+    'mascotasParticipantes.especie'
+
+])->withCount('mascotasParticipantes');
 
         // BUSCADOR
         if (request('buscar')) {
@@ -48,23 +55,14 @@ class EventoController extends Controller
             );
         }
 
-        // FILTRO ESTADO
-        if (request('estado')) {
-
-            $query->where(
-                'est_eve',
-                request('estado')
-            );
-        }
-
         $eventos = $query->get();
 
         foreach ($eventos as $evento) {
 
             $inicio = Carbon::parse($evento->fch_eve);
 
-            // DURACIÓN SIMULADA DEL EVENTO
-            $finEvento = $inicio->copy()->addMinutes(15);
+            // DURACIÓN DEL EVENTO
+            $finEvento = $inicio->copy()->addHours(2);
 
             $diasRestantes = now()->diffInDays(
                 $evento->fch_eve,
@@ -73,35 +71,41 @@ class EventoController extends Controller
 
             $puntajeFecha = 0;
 
-            // CAMBIO AUTOMÁTICO DE ESTADO
-            if (
-                $evento->est_eve != 'cancelado'
-                &&
-                $evento->est_eve != 'finalizado'
-            ) {
+            // ESTADO EN TIEMPO REAL
+            if ($evento->est_eve != 'cancelado') {
 
                 if (now()->between($inicio, $finEvento)) {
 
-                    $evento->est_eve = 'en_curso';
+                    $evento->estado_temp = 'en_curso';
 
                 } elseif (now()->gt($finEvento)) {
 
-                    $evento->est_eve = 'finalizado';
+                    $evento->estado_temp = 'finalizado';
 
                 } else {
 
-                    $evento->est_eve = 'activo';
+                    $evento->estado_temp = 'activo';
                 }
 
-                $evento->save();
+            } else {
+
+                $evento->estado_temp = 'cancelado';
             }
 
             // SI YA FINALIZÓ
-            if ($evento->est_eve == 'finalizado') {
+            if (
+                ($evento->estado_temp ?? $evento->est_eve)
+                == 'finalizado'
+            ) {
 
-                $evento->destacado = false;
+                // QUITAR DESTACADO
+                if ($evento->destacado) {
 
-                $evento->save();
+                    Evento::where('id', $evento->id)
+                        ->update([
+                            'destacado' => false
+                        ]);
+                }
 
                 continue;
             }
@@ -126,7 +130,7 @@ class EventoController extends Controller
 
             // SCORE TOTAL
             $score =
-                ($evento->participantes_count * 2)
+                ($evento->mascotas_participantes_count * 2)
                 + $puntajeFecha;
 
             // DESTACADO AUTOMÁTICO
@@ -134,23 +138,48 @@ class EventoController extends Controller
 
             if ($evento->destacado != $nuevoDestacado) {
 
-                $evento->destacado = $nuevoDestacado;
-
-                $evento->save();
+                Evento::where('id', $evento->id)
+                    ->update([
+                        'destacado' => $nuevoDestacado
+                    ]);
             }
 
             // SCORE TEMPORAL SOLO PARA ORDENAR
             $evento->score_temp = $score;
         }
 
+        // FILTRAR POR ESTADO EN TIEMPO REAL
+        if (request('estado')) {
+
+            $eventos = $eventos->filter(function ($evento) {
+
+                return
+                    ($evento->estado_temp ?? $evento->est_eve)
+                    == request('estado');
+            });
+        }
+
         // ORDENAR EVENTOS
         $eventos = $eventos->sortByDesc(function ($evento) {
 
-            return
-                (($evento->destacado ? 1 : 0) * 10000)
-                + ($evento->score_temp ?? 0);
+    $estado = $evento->estado_temp ?? $evento->est_eve;
 
-        })->values();
+    // Cancelados al fondo
+    if ($estado == 'cancelado') {
+        return -999999;
+    }
+
+    // Finalizados encima de cancelados
+    if ($estado == 'finalizado') {
+        return -500000;
+    }
+
+    // Activos y en curso arriba
+    return
+        (($evento->destacado ? 1 : 0) * 10000)
+        + ($evento->score_temp ?? 0);
+
+})->values();
 
         return view(
             'eventos.index',
@@ -162,16 +191,24 @@ class EventoController extends Controller
     public function misEventos()
     {
         $eventos = Evento::with([
-                'usuario',
-                'ubicacion',
-                'participantes'
-            ])
-            ->where(
-                'usuario_id',
-                auth()->id()
-            )
-            ->latest()
-            ->get();
+
+    'usuario',
+
+    'ubicacion',
+
+    'participantes',
+
+    'mascotasParticipantes',
+
+    'mascotasParticipantes.especie'
+
+])
+        ->where(
+            'usuario_id',
+            auth()->id()
+        )
+        ->latest()
+        ->get();
 
         return view(
             'eventos.mis-eventos',
@@ -185,10 +222,18 @@ class EventoController extends Controller
         $eventos = auth()->user()
             ->eventosParticipando()
             ->with([
-                'usuario',
-                'ubicacion',
-                'participantes'
-            ])
+
+    'usuario',
+
+    'ubicacion',
+
+    'participantes',
+
+    'mascotasParticipantes',
+
+    'mascotasParticipantes.especie'
+
+])
             ->get();
 
         return view(
@@ -254,66 +299,254 @@ class EventoController extends Controller
     }
 
     // UNIRSE A EVENTO
-    public function join(Evento $evento)
-    {
-        // NO permitir eventos cancelados/finalizados
-        if (
-            $evento->est_eve == 'cancelado'
-            ||
-            $evento->est_eve == 'finalizado'
-        ) {
+    public function join(Request $request, Evento $evento)
 
-            return back();
+{
+
+    $inicio = Carbon::parse($evento->fch_eve);
+
+    $finEvento = $inicio->copy()->addHours(2);
+
+    // ESTADO EN TIEMPO REAL
+
+    if (
+
+        $evento->est_eve != 'cancelado'
+
+        &&
+
+        $evento->est_eve != 'finalizado'
+
+    ) {
+
+        if (now()->between($inicio, $finEvento)) {
+
+            $estadoActual = 'en_curso';
+
+        } elseif (now()->gt($finEvento)) {
+
+            $estadoActual = 'finalizado';
+
+        } else {
+
+            $estadoActual = 'activo';
+
         }
 
-        // EL CREADOR YA PARTICIPA
-        if ($evento->usuario_id == auth()->id()) {
+    } else {
 
-            return back();
-        }
+        $estadoActual = $evento->est_eve;
 
-        // VALIDAR CUPOS
-        if (
-            $evento->capacidad_eve
-            &&
-            $evento->participantes->count()
-            >= $evento->capacidad_eve
-        ) {
+    }
 
-            return back()->with(
-                'error',
-                'El evento ya alcanzó su capacidad máxima'
-            );
-        }
+    // NO permitir eventos cancelados/finalizados
 
-        // NO duplicar participación
-        if (
-            !$evento->participantes
-                ->contains(auth()->id())
-        ) {
+    if (
 
-            $evento->participantes()->attach(
-                auth()->id(),
-                [
-                    'est_par' => 'aceptada'
-                ]
-            );
-        }
+        $estadoActual == 'cancelado'
+
+        ||
+
+        $estadoActual == 'finalizado'
+
+    ) {
+
+        return back();
+
+    }
+
+    // EL CREADOR YA PARTICIPA
+
+    if ($evento->usuario_id == auth()->id()) {
+
+        return back();
+
+    }
+
+    // MASCOTAS SELECCIONADAS
+
+    $mascotas = $request->mascotas ?? [];
+
+    if (count($mascotas) <= 0) {
 
         return back()->with(
-            'success',
-            'Te uniste al evento'
+
+            'error',
+
+            'Selecciona al menos una mascota'
+
         );
+
     }
+
+    // CUPOS OCUPADOS
+
+    $cuposOcupados = $evento
+
+        ->mascotasParticipantes()
+
+        ->count();
+
+    $nuevosCupos = count($mascotas);
+
+    // VALIDAR CAPACIDAD
+
+    if (
+
+        $evento->capacidad_eve
+
+        &&
+
+        ($cuposOcupados + $nuevosCupos)
+
+        > $evento->capacidad_eve
+
+    ) {
+
+        return back()->with(
+
+            'error',
+
+            'No hay suficientes cupos disponibles'
+
+        );
+
+    }
+
+    // REGISTRAR USUARIO
+
+    if (
+
+        !$evento->participantes()
+
+        ->where('usuario_id', auth()->id())
+
+        ->exists()
+
+    ) {
+
+        $evento->participantes()->attach(
+
+            auth()->id(),
+
+            [
+
+                'est_par' => 'aceptada'
+
+            ]
+
+        );
+
+    }
+
+    // REGISTRAR MASCOTAS
+
+    foreach ($mascotas as $mascotaId) {
+
+        // VALIDAR QUE LA MASCOTA SEA DEL USUARIO
+
+        $mascota = auth()->user()
+
+            ->mascotas()
+
+            ->where('id', $mascotaId)
+
+            ->first();
+
+        if (!$mascota) {
+
+            continue;
+
+        }
+
+        // EVITAR DUPLICADOS
+
+        if (
+
+              !$evento->mascotasParticipantes()
+
+        ->where('mascota_id', $mascotaId)
+
+        ->exists()
+
+        ) {
+
+            $evento->mascotasParticipantes()
+
+                ->attach(
+
+                    $mascotaId,
+
+                    [
+
+                        'usuario_id' => auth()->id()
+
+                    ]
+
+                );
+
+        }
+
+    }
+
+    return back()->with(
+
+        'success',
+
+        'Participación registrada'
+
+    );
+
+}
 
     // VER DETALLES
     public function show(Evento $evento)
     {
         $evento->load([
-            'usuario',
-            'ubicacion',
-            'participantes'
-        ]);
+
+    'usuario',
+
+    'ubicacion',
+
+    'participantes',
+
+    'mascotasParticipantes',
+
+    'mascotasParticipantes.especie'
+
+]);
+
+        $inicio = Carbon::parse($evento->fch_eve);
+
+        $finEvento = $inicio->copy()->addHours(2);
+
+        if (
+
+    $evento->est_eve != 'cancelado'
+
+    &&
+
+    $evento->est_eve != 'finalizado'
+
+) {
+
+    if (now()->between($inicio, $finEvento)) {
+
+        $evento->estado_temp = 'en_curso';
+
+    } elseif (now()->gt($finEvento)) {
+
+        $evento->estado_temp = 'finalizado';
+
+    } else {
+
+        $evento->estado_temp = 'activo';
+    }
+
+} else {
+
+    $evento->estado_temp = $evento->est_eve;
+}
 
         return view(
             'eventos.show',
@@ -347,8 +580,11 @@ class EventoController extends Controller
             abort(403);
         }
 
-        // NO EDITAR SI YA FINALIZÓ
-        if ($evento->est_eve == 'finalizado') {
+        $inicio = Carbon::parse($evento->fch_eve);
+
+        $finEvento = $inicio->copy()->addHours(2);
+
+        if (now()->gt($finEvento)) {
 
             return back();
         }
@@ -363,6 +599,31 @@ class EventoController extends Controller
             'nom_ubi' => 'required|max:150',
             'est_eve' => 'required',
         ]);
+        $participantesActuales = $evento
+
+    ->mascotasParticipantes()
+
+    ->count();
+
+if (
+
+    $request->capacidad_eve
+
+    &&
+
+    $request->capacidad_eve < $participantesActuales
+
+) {
+
+    return back()->with(
+
+        'error',
+
+        'La capacidad no puede ser menor a las mascotas registradas'
+
+    );
+
+}
 
         // ACTUALIZAR UBICACIÓN
         $evento->ubicacion->update([
@@ -372,7 +633,6 @@ class EventoController extends Controller
         // NUEVA IMAGEN
         if ($request->hasFile('img_eve')) {
 
-            // ELIMINAR ANTERIOR
             if ($evento->img_eve) {
 
                 Storage::disk('public')
@@ -410,8 +670,11 @@ class EventoController extends Controller
             abort(403);
         }
 
-        // NO CANCELAR SI YA FINALIZÓ
-        if ($evento->est_eve != 'finalizado') {
+        $inicio = Carbon::parse($evento->fch_eve);
+
+        $finEvento = $inicio->copy()->addHours(2);
+
+        if (now()->lt($finEvento)) {
 
             $evento->update([
                 'est_eve' => 'cancelado'
@@ -429,23 +692,22 @@ class EventoController extends Controller
             abort(403);
         }
 
-        // SOLO SI ESTÁ CANCELADO Y LA FECHA NO PASÓ
+        $inicio = Carbon::parse($evento->fch_eve);
+
+        $finEvento = $inicio->copy()->addHours(2);
+
         if (
 
             $evento->est_eve == 'cancelado'
 
             &&
 
-            Carbon::parse(
-                $evento->fch_eve
-            )->isFuture()
+            now()->lt($finEvento)
 
         ) {
 
             $evento->update([
-
                 'est_eve' => 'activo'
-
             ]);
         }
 
@@ -453,4 +715,26 @@ class EventoController extends Controller
             '/eventos?reactivado=1'
         );
     }
+    // FINALIZAR EVENTO
+public function finalizar(Evento $evento)
+{
+    if ($evento->usuario_id != auth()->id()) {
+
+        abort(403);
+    }
+
+    // NO finalizar cancelados
+    if ($evento->est_eve == 'cancelado') {
+
+        return back();
+    }
+
+    $evento->update([
+        'est_eve' => 'finalizado'
+    ]);
+
+    return redirect()->to(
+        '/eventos?finalizado=1'
+    );
+}
 }

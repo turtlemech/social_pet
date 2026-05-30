@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Mensaje extends Model
 {
     use HasFactory;
 
     protected $table = 'mensajes';
+
     protected $primaryKey = 'id';
     
     protected $fillable = [
@@ -28,22 +30,32 @@ class Mensaje extends Model
         'fch_lei_mens' => 'datetime',
     ];
 
-    // Relaciones
+    // ================= RELACIONES =================
+
     public function conversacion()
     {
-        return $this->belongsTo(Conversacion::class, 'con_id');
+        return $this->belongsTo(
+            Conversacion::class,
+            'con_id'
+        );
     }
 
     public function remitente()
     {
-        return $this->belongsTo(User::class, 'us_rem');
+        return $this->belongsTo(
+            User::class,
+            'us_rem'
+        );
     }
 
-    // Métodos
+    // ================= MÉTODOS =================
+
     public function marcarComoLeido()
     {
         $this->lei_mens = true;
+
         $this->fch_lei_mens = now();
+
         return $this->save();
     }
 }

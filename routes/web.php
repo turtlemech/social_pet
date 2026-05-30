@@ -18,6 +18,13 @@ use App\Http\Controllers\AdopcionController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ComunidadController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserProfileController;
+
+use App\Http\Controllers\FollowController;
+
+use App\Http\Controllers\SeguimientoMascotaController;
+
+use App\Http\Controllers\MessageController;
 
 // ========== PÁGINA PRINCIPAL ==========
 Route::get('/', function () {
@@ -62,8 +69,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('like.toggle');
 
     // 💬 COMENTARIOS
-    Route::post('/comentarios/{post}', [ComentarioController::class, 'store'])
-        ->name('comentarios.store');
+    Route::post('/posts/{post}/comment', [ComentarioController::class, 'store'])
+
+    ->name('posts.comment');
 
     // ================= PERFIL =================
 
@@ -81,20 +89,69 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+        Route::get('/configuracion', [ProfileController::class, 'index'])
+    ->name('configuracion');
+
+Route::put('/configuracion', [ProfileController::class, 'update'])
+    ->name('configuracion.update');
+
+Route::put('/configuracion/password', [ProfileController::class, 'updatePassword'])
+    ->name('configuracion.password');
+
+Route::post('/configuracion/avatar', [ProfileController::class, 'updateAvatar'])
+    ->name('configuracion.avatar');
+
+Route::delete('/configuracion', [ProfileController::class, 'destroy'])
+    ->name('configuracion.destroy');
 
     // ================= OTRAS RUTAS =================
 
     Route::view('/feed', 'feed')->name('feed');
-    Route::view('/my-pets', 'my-pets')->name('my-pets');
-    Route::view('/messages', 'messages')->name('messages');
+    Route::get('/my-pets', [ProfileController::class, 'myPets'])
+    ->name('my-pets');
+    Route::get('/messages', [MessageController::class, 'index'])
+    ->name('messages.index');
+
+Route::get('/messages/{id}', [MessageController::class, 'show'])
+    ->name('messages.show');
+
+Route::post('/messages/start/{user}', [MessageController::class, 'start'])
+    ->name('messages.start');
+
+Route::post('/messages/send/{id}', [MessageController::class, 'send'])
+    ->name('messages.send');
     Route::view('/settings', 'settings')->name('settings');
     Route::view('/explore', 'explore')->name('explore');
     Route::view('/search', 'search')->name('search');
     Route::view('/notifications', 'notifications')->name('notifications');
+    Route::post('/notifications/read', function () {
+
+    \App\Models\Notificacion::where('usuario_id', auth()->id())
+        ->where('lei_not', false)
+        ->update([
+            'lei_not' => true,
+            'fch_lei_not' => now()
+        ]);
+
+    return response()->json([
+        'success' => true
+    ]);
+})->name('notifications.read');
 
     Route::get('/prueba', fn() => 'ESTA ES UNA PÁGINA DE PRUEBA - REDIRECCIÓN FUNCIONA!')
         ->name('prueba');
+// ================= PERFIL SOCIAL =================
 
+Route::get('/usuario/{user}', [UserProfileController::class, 'show'])
+    ->name('usuario.profile');
+
+Route::post('/seguir/{user}', [FollowController::class, 'toggle'])
+    ->name('seguir.toggle');
+
+// ================= SEGUIR MASCOTAS =================
+
+Route::post('/mascotas/{mascota}/seguir', [SeguimientoMascotaController::class, 'toggle'])
+    ->name('mascotas.seguir');
     // ========== SOPORTE USUARIO ==========
 
     Route::prefix('soporte')->name('soporte.')->group(function () {
@@ -170,11 +227,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             // Eliminar usuario
             // En routes/api.php o web.php
-            Route::delete('/user/{id}', [adminController::class, 'deleteUser'])->middleware('auth');
+            Route::delete('/user/{id}', [AdminController::class, 'deleteUser'])->middleware('auth');
 
             // Bloquear/Activar usuario
             Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])
                 ->name('toggle-block');
+                Route::post('/{id}/restablecer-contrasena', [AdminController::class, 'restablecerContrasena'])
+
+    ->name('restablecer-contrasena');
+
+Route::get('/{id}/generar-contrasena', [AdminController::class, 'generarContrasenaSugerida'])
+
+    ->name('generar-contrasena');
         });
 
         // ========== MASCOTAS ==========
@@ -257,6 +321,17 @@ Route::middleware(['auth'])
             ->name('agente.dashboard')
             ->middleware('can:verSoporte');
     });
+    Route::middleware(['auth'])->group(function () {
+
+    Route::get('/soporte/dashsoporte', function () {
+        return view('soporte.dashsoporte');
+    })->name('soporte.dashsoporte');
+
+    Route::get('/soporte/panel', function () {
+        return view('soporte.dashsoporte');
+    })->name('soporte.panel');
+
+});
 
 
 // ========== MASCOTAS ==========
@@ -277,6 +352,17 @@ Route::middleware(['auth'])
         // Guardar mascota
         Route::post('/', [PetController::class, 'store'])
             ->name('store');
+            Route::get('/{id}', [PetController::class, 'show'])
+
+    ->name('show');
+
+Route::get('/{id}/edit', [PetController::class, 'edit'])
+
+    ->name('edit');
+
+Route::delete('/{id}', [PetController::class, 'destroy'])
+
+    ->name('destroy');
 
     });
 // ========== MARKETPLACE ==========
@@ -374,7 +460,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('eventos.update');
 
     Route::patch('/eventos/{evento}/reactivar', [EventoController::class, 'reactivar'])
-        ->name('eventos.reactivar');
+    ->name('eventos.reactivar');
+
+Route::patch('/eventos/{evento}/finalizar', [EventoController::class, 'finalizar'])
+    ->name('eventos.finalizar');
     
 });
 

@@ -1,23 +1,63 @@
 @props(['post'])
 
-<div class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+<div
+
+    onclick="openCommentsModal({{ $post->id }})"
+
+    class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden cursor-pointer hover:shadow-md transition"
+
+>
 
     <!-- HEADER -->
     <div class="p-4 flex items-center justify-between">
 
         <div class="flex items-center space-x-3">
 
-            <img
-                src="{{ $post->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->usuario->nom_us ?? 'Usuario').'&background=0d9488&color=fff' }}"
-                alt="Usuario"
-                class="w-10 h-10 rounded-full object-cover"
-            >
+          <a
+
+    onclick="event.stopPropagation()"
+
+    href="{{ $post->mascota
+
+        ? route('pets.show', $post->mascota->id)
+
+        : route('usuario.profile', optional($post->usuario)->id)
+
+    }}"
+
+>
+
+    <img
+    src="{{ $post->mascota && $post->mascota->fot_mas
+        ? asset('storage/' . $post->mascota->fot_mas)
+        : (
+            optional($post->usuario)->ava_us
+            ? asset('storage/' .optional($post->usuario)->ava_us)
+            : 'https://ui-avatars.com/api/?name='.urlencode(optional($post->usuario)->nom_us ?? 'Usuario').'&background=0d9488&color=fff'
+        )
+    }}"
+    alt="Usuario"
+    class="w-10 h-10 rounded-full object-cover hover:scale-105 transition"
+>
+
+</a>
 
             <div>
+<a
+    onclick="event.stopPropagation()"
+    href="{{ $post->mascota
+        ? route('pets.show', $post->mascota->id)
+        : route('usuario.profile', optional($post->usuario)->id)
+    }}"
+    class="font-semibold text-gray-900 hover:text-teal-600 transition"
+>
 
-                <h4 class="font-semibold text-gray-900">
-                    {{ $post->usuario->nom_us ?? 'Usuario' }}
-                </h4>
+    {{ $post->mascota
+        ? optional($post->mascota)->nom_mas
+        : (optional($post->usuario)->nom_us ?? 'Usuario')
+    }}
+
+</a>
 
                 <p class="text-xs text-gray-400">
 
@@ -51,7 +91,7 @@
                 <button
                     type="submit"
                     class="text-red-500 hover:text-red-700"
-                    onclick="return confirm('¿Eliminar publicación?')"
+                    onclick="event.stopPropagation(); return confirm('¿Eliminar publicación?')"
                 >
 
                     <svg
@@ -90,13 +130,19 @@
     <!-- IMAGE -->
     @if(!empty($post->img_pub))
 
-        <img
-            src="{{ asset('storage/' . $post->img_pub) }}"
-            alt="Publicación"
-            class="w-full object-cover max-h-96"
-        >
+    <img
 
-    @endif
+        onclick="event.stopPropagation(); openCommentsModal({{ $post->id }})"
+
+        src="{{ asset('storage/' . $post->img_pub) }}"
+
+        alt="Publicación"
+
+        class="w-full object-cover max-h-96 cursor-pointer"
+
+    >
+
+@endif
 
     <!-- STATS -->
     <div class="px-4 py-2 flex justify-between text-sm text-gray-500 border-t border-gray-100">
@@ -122,104 +168,122 @@
 
         <div>
 
-            {{ $post->comentarios->count() ?? 0 }} comentarios
+            {{ optional($post->comentarios)->count() ?? 0 }} comentarios
 
         </div>
 
     </div>
 
-    <!-- ACTIONS -->
-    <div class="flex border-t border-gray-100">
+ 
 
-        <!-- LIKE -->
-        <button
-            data-id="{{ $post->id }}"
-            class="like-btn flex-1 py-2 flex items-center justify-center space-x-2 transition
-            {{ !empty($post->liked) ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}"
+<!-- ACTIONS -->
+<div class="flex border-t border-gray-100">
+
+    <!-- LIKE -->
+   <button
+
+    type="button"
+
+    data-id="{{ $post->id }}"
+
+    class="like-btn flex-1 py-2 flex items-center justify-center space-x-2 transition {{ !empty($post->liked) ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}"
+
+>
+
+    <svg
+
+        class="w-5 h-5 like-icon {{ !empty($post->liked) ? 'fill-red-500' : '' }}"
+
+        fill="{{ !empty($post->liked) ? 'currentColor' : 'none' }}"
+
+        stroke="currentColor"
+
+        viewBox="0 0 24 24"
+
+    >
+
+        <path
+
+            stroke-linecap="round"
+
+            stroke-linejoin="round"
+
+            stroke-width="2"
+
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+
+        />
+
+    </svg>
+
+    <span>Like</span>
+
+</button>
+
+    <!-- COMMENT -->
+    <button
+        onclick="event.stopPropagation(); openCommentsModal({{ $post->id }})"
+        class="flex-1 py-2 flex items-center justify-center space-x-2 text-gray-500 hover:text-teal-500 transition"
+    >
+
+        <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
         >
 
-            <svg
-                class="w-5 h-5 like-icon {{ !empty($post->liked) ? 'fill-red-500' : '' }}"
-                fill="{{ !empty($post->liked) ? 'currentColor' : 'none' }}"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01"
+            />
 
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
+        </svg>
 
-            </svg>
+        <span>Comentarios</span>
 
-            <span>Like</span>
+    </button>
 
-        </button>
+    <!-- SHARE -->
+    <button
+        type="button"
+        class="flex-1 py-2 flex items-center justify-center space-x-2 text-gray-500 hover:text-green-500 transition"
+    >
 
-        <!-- COMMENT -->
-        <button
-            onclick="openCommentsModal({{ $post->id }})"
-            class="flex-1 py-2 flex items-center justify-center space-x-2 text-gray-500 hover:text-teal-500 transition"
+        <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
         >
 
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8.684 13.342l6.632 3.316m0-6l-6.632-3.316"
+            />
 
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 12h.01M12 12h.01M16 12h.01"
-                />
+        </svg>
 
-            </svg>
+        <span>Share</span>
 
-            <span>Comentarios</span>
+    </button>
 
-        </button>
-
-        <!-- SHARE -->
-        <button
-            class="flex-1 py-2 flex items-center justify-center space-x-2 text-gray-500 hover:text-green-500 transition"
-        >
-
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.684 13.342l6.632 3.316m0-6l-6.632-3.316"
-                />
-
-            </svg>
-
-            <span>Share</span>
-
-        </button>
-
-    </div>
+</div>
 
     <!-- COMMENTS -->
     <div class="border-t border-gray-100 p-4">
 
         <!-- FORM -->
         <form
-            action="{{ route('comentarios.store', ['post' => $post->id]) }}"
-            method="POST"
-            class="flex gap-2 mb-4"
-        >
+    onclick="event.stopPropagation()"
+    action="{{ route('posts.comment', ['post' => $post->id]) }}"
+    method="POST"
+    class="flex gap-2 mb-4"
+>
 
             @csrf
 
@@ -253,17 +317,25 @@
 
                         <div class="flex items-center justify-between mb-1">
 
-                            <div class="font-semibold text-sm text-gray-800">
+                           <a
 
-                                {{ $comentario->usuario->nom_us ?? 'Usuario' }}
+    onclick="event.stopPropagation()"
 
-                            </div>
+    href="{{ route('usuario.profile', optional($comentario->usuario)->id) }}"
+
+    class="font-semibold text-sm text-gray-800 hover:text-teal-600 transition"
+
+>
+
+    {{ optional($comentario->usuario)->nom_us ?? 'Usuario' }}
+
+</a>
 
                             <div class="text-xs text-gray-400">
 
                                 @if(!empty($comentario->created_at))
 
-                                    {{ $comentario->created_at->diffForHumans() }}
+                                    {{ optional($comentario->created_at)->diffForHumans() }}
 
                                 @endif
 
@@ -289,162 +361,199 @@
 
 </div>
 
+
+
+
+
+
 <!-- COMMENTS MODAL -->
 <div
     id="comments-modal-{{ $post->id }}"
+    onclick="event.stopPropagation(); closeCommentsModal({{ $post->id }})"
     class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-6"
 >
 
     <div
-        class="modal-animate bg-white/95 backdrop-blur-xl border border-white/20 w-full max-w-5xl h-[88vh] rounded-[32px] overflow-hidden flex relative shadow-2xl" >
+        onclick="event.stopPropagation()"
+        class="bg-white w-full max-w-6xl h-[92vh] rounded-3xl overflow-hidden flex relative shadow-2xl"
+    >
 
         <!-- CLOSE -->
         <button
-            onclick="closeCommentsModal({{ $post->id }})"
+            onclick="event.stopPropagation(); closeCommentsModal({{ $post->id }})"
             class="absolute top-5 right-5 z-50 bg-white/80 backdrop-blur-md text-gray-700 w-11 h-11 rounded-full hover:scale-110 transition shadow-lg"
         >
             ✕
         </button>
-@if(!empty($post->img_pub))
 
-    <!-- LEFT IMAGE -->
+        @if(!empty($post->img_pub))
 
-    <div class="hidden md:flex w-1/2 bg-black items-center justify-center">
-
-        <img
-
-            src="{{ asset('storage/' . $post->img_pub) }}"
-
-            class="w-full h-full object-cover"
-
-        >
-
-    </div>
-
-    <!-- RIGHT -->
-
-    <div class="w-full md:w-1/2 flex flex-col bg-white">
-
-@else
-
-    <!-- SIN IMAGEN -->
-
-    <div class="w-full flex flex-col bg-white">
-
-@endif
-            <!-- USER -->
-            <div class="p-5 border-b border-gray-100 flex items-center space-x-3 bg-white/80 backdrop-blur-sm">
+            <!-- LEFT IMAGE -->
+            <div class="hidden md:flex w-1/2 bg-black items-center justify-center">
 
                 <img
-                    src="{{ $post->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->usuario->nom_us ?? 'Usuario').'&background=0d9488&color=fff' }}"
-                    class="w-11 h-11 rounded-full ring-2 ring-teal-400/30 object-cover"
+                    src="{{ asset('storage/' . $post->img_pub) }}"
+                    class="w-full h-full object-cover"
                 >
 
-                <div>
+            </div>
 
-                    <div class="font-semibold">
+            <!-- RIGHT -->
+            <div class="w-full md:w-1/2 flex flex-col bg-white">
 
-                        {{ $post->usuario->nom_us ?? 'Usuario' }}
+        @else
 
-                    </div>
+            <!-- SIN IMAGEN -->
+            <div class="w-full flex flex-col bg-white">
 
-                    <div class="text-xs text-gray-400">
+        @endif
 
-                        {{ $post->created_at->diffForHumans() }}
+                <!-- USER -->
+                <div class="p-5 border-b border-gray-100 flex items-center space-x-3 bg-white">
+
+                    <a
+    onclick="event.stopPropagation()"
+    href="{{ $post->mascota
+        ? route('pets.show', $post->mascota->id)
+        : route('usuario.profile', optional($post->usuario)->id)
+    }}"
+>
+
+    <img
+        src="{{ $post->mascota && $post->mascota->fot_mas
+            ? asset('storage/' . $post->mascota->fot_mas)
+            : (
+                optional($post->usuario)->ava_us
+                ? asset('storage/' .optional($post->usuario)->ava_us)
+                : 'https://ui-avatars.com/api/?name='.urlencode(optional($post->usuario)->nom_us ?? 'Usuario').'&background=0d9488&color=fff'
+            )
+        }}"
+        alt="Usuario"
+        class="w-10 h-10 rounded-full object-cover hover:scale-105 transition"
+    >
+
+</a>
+
+                    <div>
+
+                        <a
+                            onclick="event.stopPropagation()"
+                            href="{{ $post->mascota
+                                ? route('pets.show', $post->mascota->id)
+                                : route('usuario.profile', optional($post->usuario)->id)
+                            }}"
+                            class="font-semibold hover:text-teal-600 transition"
+                        >
+
+                            {{ $post->mascota
+                                ? optional($post->mascota)->nom_mas
+                                : (optional($post->usuario)->nom_us ?? 'Usuario')
+                            }}
+
+                        </a>
+
+                        <div class="text-xs text-gray-400">
+
+                            {{ optional($post->created_at)->diffForHumans() }}
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
+                <!-- POST CONTENT -->
+                <div class="p-4 border-b">
 
-            <!-- POST CONTENT -->
-            <div class="p-4 border-b">
+                    <p class="text-gray-700 whitespace-pre-line leading-7 text-[15px]">
 
-                <p class="text-gray-700 whitespace-pre-line leading-7 text-[15px]">
+                        {{ $post->com_pub }}
 
-                    {{ $post->com_pub }}
+                    </p>
 
-                </p>
+                </div>
 
-            </div>
+                <!-- COMMENTS -->
+                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fafafa]">
 
-            <!-- COMMENTS -->
-           <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll">
+                    @foreach($post->comentarios as $comentario)
 
-                @foreach($post->comentarios as $comentario)
+                        @if($comentario->estado == 'activo')
 
-                    @if($comentario->estado == 'activo')
+                            <div class="bg-white rounded-2xl p-4 shadow-sm">
 
-                        <div class="bg-gray-50 rounded-2xl p-4 hover:bg-gray-100 transition">
+                                <div class="flex justify-between items-start">
 
-                            <div class="flex justify-between items-start">
+                                    <div>
 
-                                <div>
+                                        <a
+                                            onclick="event.stopPropagation()"
+                                            href="{{ route('usuario.profile', optional($comentario->usuario)->id) }}"
+                                            class="font-semibold text-sm hover:text-teal-600 transition"
+                                        >
 
-                                    <span class="font-semibold text-sm">
+                                            {{ optional($comentario->usuario)->nom_us ?? 'Usuario' }}
 
-                                        {{ $comentario->usuario->nom_us ?? 'Usuario' }}
+                                        </a>
+
+                                        <p class="text-sm text-gray-700 mt-1">
+
+                                            {{ $comentario->con_com }}
+
+                                        </p>
+
+                                    </div>
+
+                                    <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">
+
+                                        {{ optional($comentario->created_at)->diffForHumans() }}
 
                                     </span>
 
-                                    <p class="text-sm text-gray-700 mt-1">
-
-                                        {{ $comentario->con_com }}
-
-                                    </p>
-
                                 </div>
-
-                                <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">
-
-                                    {{ $comentario->created_at->diffForHumans() }}
-
-                                </span>
 
                             </div>
 
-                        </div>
+                        @endif
 
-                    @endif
+                    @endforeach
 
-                @endforeach
+                </div>
 
-            </div>
+                <!-- COMMENT FORM -->
+                <div class="border-t p-4 bg-white">
 
-            <!-- COMMENT FORM -->
-            <div class="border-t p-4">
-
-                <form
-                    action="{{ route('comentarios.store', ['post' => $post->id]) }}"
-                    method="POST"
-                    class="flex gap-2"
-                >
-
-                    @csrf
-
-                    <input
-                        type="text"
-                        name="comentario"
-                        placeholder="Agrega un comentario..."
-                        class="flex-1 bg-gray-100 border-0 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder:text-gray-400"
-                        required
+                    <form
+                        onclick="event.stopPropagation()"
+                        action="{{ route('posts.comment', ['post' => $post->id]) }}"
+                        method="POST"
+                        class="flex gap-2"
                     >
 
-                    <button
-                        type="submit"
-                        class="bg-gradient-to-r from-teal-400 to-emerald-500 text-white px-6 py-3 rounded-full hover:scale-105 transition font-medium shadow-lg"
-                    >
+                        @csrf
 
-                        Enviar
+                        <input
+                            type="text"
+                            name="comentario"
+                            placeholder="Agrega un comentario..."
+                            class="flex-1 bg-gray-100 border-0 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder:text-gray-400"
+                            required
+                        >
 
-                    </button>
+                        <button
+                            type="submit"
+                            class="bg-gradient-to-r from-teal-400 to-emerald-500 text-white px-6 py-3 rounded-full hover:scale-105 transition font-medium shadow-lg"
+                        >
 
-                </form>
+                            Enviar
+
+                        </button>
+
+                    </form>
+
+                </div>
 
             </div>
-
-        </div>
 
     </div>
 

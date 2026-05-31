@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Publicacion;
 use App\Models\Like;
 use App\Models\Evento;
+use App\Models\Mascota;
 
 class DashboardController extends Controller
 {
@@ -58,20 +59,34 @@ class DashboardController extends Controller
 
         // ================= PRÓXIMO EVENTO =================
 
-        $eventoProximo = Evento::with('ubicacion')
+       $eventoProximo = Evento::with('ubicacion')
+    ->where('fch_eve', '>=', now())
+    ->where('est_eve', 'activo')
+    ->orderBy('fch_eve')
+    ->first();
 
-            ->where('fch_eve', '>=', now())
+$mascotasPopulares = Mascota::withCount('seguidores')
+    ->having('seguidores_count', '>', 0)
+    ->orderByDesc('seguidores_count')
+    ->take(3)
+    ->get();
 
-            ->orderBy('fch_eve')
+return view(
 
-            ->first();
+    'user.dashboard',
 
-        return view(
-            'user.dashboard',
-            compact(
-                'posts',
-                'eventoProximo'
-            )
-        );
+    compact(
+
+        'posts',
+
+        'eventoProximo',
+
+        'mascotasPopulares'
+
+    )
+
+);
+
     }
+
 }

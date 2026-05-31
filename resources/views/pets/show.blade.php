@@ -5,8 +5,8 @@
 <div class="max-w-5xl mx-auto px-4 py-10">
 
     <!-- CARD PRINCIPAL -->
-<div class="bg-white/80 backdrop-blur-xl rounded-[36px] shadow-2xl overflow-hidden border border-white/40">
-        <!-- PORTADA -->
+<div class="bg-white rounded-[36px] shadow-2xl border border-white/40">
+            <!-- PORTADA -->
         <div class="relative">
 
             @if($mascota->fot_mas)
@@ -126,25 +126,20 @@ class="w-full h-[500px] object-cover"                >
 
                 <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 text-center border border-gray-100 shadow-sm hover:shadow-md transition">
 
-                    <div class="text-3xl font-bold text-gray-800">
-
-    <button
-
+                    <button
     onclick="openFollowersModal()"
-
-    class="hover:text-teal-500 transition"
-
+    class="w-full"
 >
 
-    {{ $mascota->seguidores()->count() }}
+    <div class="text-3xl font-bold text-gray-800 hover:text-teal-500 transition">
+        {{ $mascota->seguidores->count() }}
+    </div>
+
+    <div class="text-sm text-gray-500 mt-1 hover:text-teal-500 transition">
+        seguidores
+    </div>
 
 </button>
-
-</div>
-
-                    <div class="text-sm text-gray-500 mt-1">
-                        seguidores
-                    </div>
 
                 </div>
 
@@ -252,13 +247,9 @@ class="w-full h-[500px] object-cover"                >
 
                     @forelse($posts as $post)
 
-                        <div class="hover:scale-[1.01] transition duration-300">
-
     <x-posts.post-card :post="$post" />
 
-</div>
-
-                    @empty
+@empty
 
                         <div class="bg-gray-50 rounded-3xl p-10 text-center text-gray-500">
 

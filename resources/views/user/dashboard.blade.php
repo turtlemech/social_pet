@@ -40,11 +40,8 @@
                 :stories="['Max', 'Luna', 'Charlie', 'Bella']"
             />
 
-            <x-dashboard.quick-menu />
+            <x-dashboard.pet-tip />
 
-            <x-dashboard.user-card
-                :user="Auth::user()"
-            />
 
         </div>
 
@@ -83,9 +80,11 @@
 
             <x-dashboard.suggested-pets />
 
-            <x-dashboard.trending-topics />
+<x-dashboard.trending-topics
+    :mascotasPopulares="$mascotasPopulares"
+/>
 
-            @if(isset($eventoProximo))
+@if(isset($eventoProximo))
 
     <x-dashboard.event-card
 

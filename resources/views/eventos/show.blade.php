@@ -245,25 +245,87 @@
 
                     @if(auth()->check() && $evento->usuario_id == auth()->id())
 
-                        <form
-                            action="{{ route('eventos.destroy', $evento) }}"
-                            method="POST"
-                        >
+    @if(($evento->estado_temp ?? $evento->est_eve) == 'en_curso')
 
-                            @csrf
-                            @method('DELETE')
+        <form
+            action="{{ route('eventos.finalizar', $evento) }}"
+            method="POST"
+        >
 
-                            <button
-                                class="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-2xl font-bold transition"
-                            >
-                                Eliminar Evento
-                            </button>
+            @csrf
+            @method('PATCH')
 
-                        </form>
+            <button
+                class="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold transition"
+            >
+                Finalizar Evento
+            </button>
 
-                    @else
+        </form>
 
-                        @if($todasParticipando)
+    @elseif(($evento->estado_temp ?? $evento->est_eve) == 'activo')
+
+        <form
+            action="{{ route('eventos.destroy', $evento) }}"
+            method="POST"
+        >
+
+            @csrf
+            @method('DELETE')
+
+            <button
+                class="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-2xl font-bold transition"
+            >
+                Cancelar Evento
+            </button>
+
+        </form>
+
+    @elseif(($evento->estado_temp ?? $evento->est_eve) == 'cancelado')
+
+        <form
+            action="{{ route('eventos.reactivar', $evento) }}"
+            method="POST"
+        >
+
+            @csrf
+            @method('PATCH')
+
+            <button
+                class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-bold transition"
+            >
+                Reactivar Evento
+            </button>
+
+        </form>
+
+    @else
+
+        <div class="w-full bg-gray-100 text-gray-500 py-4 rounded-2xl text-center font-bold">
+
+            Evento finalizado
+
+        </div>
+
+    @endif
+
+@else
+
+    @if(
+    ($evento->estado_temp ?? $evento->est_eve) == 'cancelado'
+    ||
+    ($evento->estado_temp ?? $evento->est_eve) == 'finalizado'
+    ||
+    ($evento->estado_temp ?? $evento->est_eve) == 'en_curso'
+)
+
+        <div class="w-full bg-gray-100 text-gray-500 py-4 rounded-2xl text-center font-bold">
+
+            Evento no disponible
+
+        </div>
+
+    @elseif($todasParticipando)
 
                             <div class="w-full bg-emerald-100 text-emerald-700 py-4 rounded-2xl text-center font-bold">
 

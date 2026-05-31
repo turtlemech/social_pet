@@ -425,20 +425,27 @@ console.log(data);
 
 function openCommentsModal(id) {
 
-    document
-        .getElementById(`comments-modal-${id}`)
-        .classList.remove('hidden');
+    event?.preventDefault();
+
+    const modal = document.getElementById(`comments-modal-${id}`);
+
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
 
     document.body.classList.add('overflow-hidden');
+
 }
 
 function closeCommentsModal(id) {
 
-    document
-        .getElementById(`comments-modal-${id}`)
-        .classList.add('hidden');
+    const modal = document.getElementById(`comments-modal-${id}`);
 
-    document.body.classList.remove('overflow-hidden');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+
+    document.body.style.overflow = 'auto';
 }
 
 document.addEventListener('keydown', function(e) {
@@ -446,12 +453,9 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
 
         document.querySelectorAll('[id^="comments-modal-"]')
-            .forEach(modal => {
+            .forEach(modal => modal.classList.add('hidden'));
 
-                modal.classList.add('hidden');
-            });
-
-        document.body.classList.remove('overflow-hidden');
+        document.body.style.overflow = 'auto';
     }
 });
 

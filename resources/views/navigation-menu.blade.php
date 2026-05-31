@@ -15,20 +15,34 @@
 
 
             <!-- barra de busqueda -->
-            @auth
-            @if(Route::currentRouteName() == 'dashboard' || Route::currentRouteName() == 'feed')
             <div class="hidden md:flex flex-1 max-w-md mx-8">
-                <div class="relative w-full">
-                    <input type="text"
-                        placeholder="Buscar mascotas, dueños o lugares..."
-                        class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 border-0 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all duration-200">
-                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-            </div>
-            @endif
-            @endauth
+    <div class="relative w-full">
+
+        <input
+            id="liveSearch"
+            type="text"
+            placeholder="Buscar mascotas o usuarios..."
+            autocomplete="off"
+            class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 border-0 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all duration-200">
+
+        <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+
+        <!-- RESULTADOS -->
+        <div id="searchResults"
+            class="hidden absolute top-12 left-0 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+        </div>
+
+    </div>
+</div>  
 
             <!-- Botones de navegación -->
             <div class="flex items-center space-x-3">
@@ -40,11 +54,19 @@
                     </svg>
                 </a>
 
-                <a href="{{ route('feed') }}" class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                </a>
+                <a href="{{ route('marketplace.index') }}"
+
+   class="p-2 rounded-lg text-gray-600 hover:text-teal-600 hover:bg-teal-50 transition">
+
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+
+        d="M5 8h14l-1 11H6L5 8zm4 0V6a3 3 0 116 0v2" />
+
+</svg>
+
+</a>
 
                 <!-- Notificaciones -->
 <div x-data="{
@@ -130,27 +152,46 @@ if (notificationsOpen) {
     </button>
 
     <!-- OVERLAY -->
-    <div
-        x-show="notificationsOpen"
-        x-transition.opacity
-        class="fixed inset-0 bg-black/40 z-40"
-        @click="notificationsOpen = false"
-        x-cloak
-    ></div>
+   <div
+
+    x-show="notificationsOpen"
+
+    x-transition.opacity
+
+    class="fixed inset-0 bg-black/40 z-40"
+
+    @click.self="notificationsOpen = false"
+
+    x-cloak
+
+></div>
 
     <!-- PANEL -->
     <div
+
     x-show="notificationsOpen"
+
+    @click.stop
+
     x-effect="document.body.classList.toggle('overflow-hidden', notificationsOpen)"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="translate-x-full"
-        x-transition:enter-end="translate-x-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="translate-x-full"
-        class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[60] overflow-hidden flex flex-col"
-        x-cloak
-    >
+
+    x-transition:enter="transition ease-out duration-300"
+
+    x-transition:enter-start="translate-x-full"
+
+    x-transition:enter-end="translate-x-0"
+
+    x-transition:leave="transition ease-in duration-200"
+
+    x-transition:leave-start="translate-x-0"
+
+    x-transition:leave-end="translate-x-full"
+
+    class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[60] overflow-hidden flex flex-col"
+
+    x-cloak
+
+>
 
         <!-- HEADER -->
         <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
@@ -292,24 +333,29 @@ if (notificationsOpen) {
             </div>
             @empty
 
-            <div class="flex flex-col items-center justify-center h-full text-center px-10">
+<div class="flex flex-col items-center justify-center h-full text-center px-10">
 
-                <div class="text-6xl mb-4">
-                    🔔
-                </div>
+    <div class="text-6xl mb-4">
 
-                <h3 class="text-xl font-bold text-gray-800 mb-2">
-                    Sin notificaciones
-                </h3>
+        🔔
 
-                <p class="text-gray-500">
-                    Aquí aparecerán likes, comentarios y nuevos seguidores.
-                </p>
+    </div>
 
-            </div>
-            </div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">
 
-            @endforelse
+        Sin notificaciones
+
+    </h3>
+
+    <p class="text-gray-500">
+
+        Aquí aparecerán likes, comentarios y nuevos seguidores.
+
+    </p>
+
+</div>
+
+@endforelse
 
         </div>
 
@@ -378,15 +424,67 @@ if (notificationsOpen) {
 </a>
 
 
-                        <a href="{{ route('configuracion') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <span>Configuración de cuenta</span>
-                            </div>
-                        </a>
+                        <a href="{{ route('matches.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+    <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span>Matches</span>
+    </div>
+</a>
+<a href="{{ route('comunidades.index') }}"
+
+   class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+
+    <div class="flex items-center space-x-2">
+
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+
+                stroke-linejoin="round"
+
+                stroke-width="2"
+
+                d="M17 20h5V4H2v16h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m10-8a4 4 0 11-8 0 4 4 0 018 0z" />
+
+        </svg>
+
+        <span>Comunidades</span>
+
+    </div>
+
+</a>
+<a href="{{ route('adopciones.index') }}"
+   class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+
+    <div class="flex items-center space-x-2">
+
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5.121 17.804A9 9 0 1118.879 17.8L12 21l-6.879-3.196z" />
+        </svg>
+
+        <span>Adopciones</span>
+
+    </div>
+
+</a>
+
+<a href="{{ route('configuracion') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
+    <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span>Configuración de cuenta</span>
+    </div>
+</a>
 
                         <hr class="my-1">
 
@@ -429,4 +527,101 @@ if (notificationsOpen) {
             }
         }))
     })
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const input = document.getElementById('liveSearch');
+    const results = document.getElementById('searchResults');
+
+    if (!input) return;
+
+    input.addEventListener('keyup', async () => {
+
+        const q = input.value.trim();
+
+        if (q.length < 2) {
+            results.classList.add('hidden');
+            results.innerHTML = '';
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                `/search/live?q=${encodeURIComponent(q)}`
+            );
+
+            const data = await response.json();
+
+            let html = '';
+
+            data.usuarios.forEach(usuario => {
+                html += `
+                    <a href="${usuario.url}"
+                       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b">
+
+                        <div class="w-10 h-10 rounded-full bg-teal-500 text-white flex items-center justify-center">
+                            👤
+                        </div>
+
+                        <div>
+                            <div class="font-medium">${usuario.nombre}</div>
+                            <div class="text-xs text-gray-500">Usuario</div>
+                        </div>
+
+                    </a>
+                `;
+            });
+
+            data.mascotas.forEach(mascota => {
+                html += `
+                    <a href="${mascota.url}"
+                       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b">
+
+                        <div class="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center">
+                            🐾
+                        </div>
+
+                        <div>
+                            <div class="font-medium">${mascota.nombre}</div>
+                            <div class="text-xs text-gray-500">Mascota</div>
+                        </div>
+
+                    </a>
+                `;
+            });
+
+            if (
+                data.usuarios.length === 0 &&
+                data.mascotas.length === 0
+            ) {
+                html = `
+                    <div class="p-4 text-center text-gray-500">
+                        No se encontraron resultados
+                    </div>
+                `;
+            }
+
+            results.innerHTML = html;
+            results.classList.remove('hidden');
+
+        } catch (error) {
+            console.error(error);
+        }
+
+    });
+
+    document.addEventListener('click', (e) => {
+
+        if (
+            !input.contains(e.target) &&
+            !results.contains(e.target)
+        ) {
+            results.classList.add('hidden');
+        }
+
+    });
+
+});
 </script>

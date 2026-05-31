@@ -32,21 +32,7 @@
         </a>
 
     </div>
-    <div class="flex gap-6 border-b border-gray-200 mb-10 pb-4">
-
-    <button class="font-semibold text-teal-600 border-b-2 border-teal-600 pb-2">
-        Mis mascotas
-    </button>
-
-    <button class="text-gray-500 hover:text-gray-700 transition">
-        Publicaciones
-    </button>
-
-    <button class="text-gray-500 hover:text-gray-700 transition">
-        Estadísticas
-    </button>
-
-</div>
+<div class="flex gap-6 border-b border-gray-200 mb-10 pb-4">
 
     <!-- GRID -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -118,7 +104,7 @@
                     </p>
 
                     <!-- DESCRIPCIÓN -->
-                    <p class="text-gray-600 text-sm leading-6 mb-6 h-16 overflow-hidden">
+                    <p class="text-gray-600 text-sm leading-6 mb-4">
 
                         {{ $mascota->des_mas ?? 'Esta mascota todavía no tiene descripción.' }}
 
@@ -129,7 +115,7 @@
     <div class="text-center flex-1">
 
         <span class="block font-bold text-gray-800 text-lg">
-            0
+            {{ $mascota->publicaciones_count }}
         </span>
 
         publicaciones
@@ -139,7 +125,7 @@
     <div class="text-center flex-1">
 
         <span class="block font-bold text-gray-800 text-lg">
-            0
+            {{ $mascota->seguidores_count }}
         </span>
 
         seguidores

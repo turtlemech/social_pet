@@ -2,7 +2,7 @@
 
 <div
 
-    onclick="openCommentsModal({{ $post->id }})"
+    onclick="event.preventDefault(); event.stopPropagation(); openCommentsModal({{ $post->id }})"
 
     class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden cursor-pointer hover:shadow-md transition"
 
@@ -119,13 +119,19 @@
     </div>
 
     <!-- CONTENT -->
-    <div class="px-4 pb-3">
+    @if(!empty($post->com_pub))
 
-        <p class="text-gray-800 whitespace-pre-line">
-            {{ $post->com_pub ?? 'Sin contenido' }}
-        </p>
+<div class="px-4 pb-3">
 
-    </div>
+    <p class="text-gray-800 whitespace-pre-line">
+
+        {{ $post->com_pub }}
+
+    </p>
+
+</div>
+
+@endif
 
     <!-- IMAGE -->
     @if(!empty($post->img_pub))
@@ -368,15 +374,18 @@
 
 <!-- COMMENTS MODAL -->
 <div
+
     id="comments-modal-{{ $post->id }}"
+
     onclick="event.stopPropagation(); closeCommentsModal({{ $post->id }})"
-    class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-6"
+
+    class="hidden fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-6"
+
 >
 
     <div
         onclick="event.stopPropagation()"
-        class="bg-white w-full max-w-6xl h-[92vh] rounded-3xl overflow-hidden flex relative shadow-2xl"
-    >
+        class="bg-white w-full max-w-6xl h-[92vh] rounded-3xl overflow-hidden flex relative shadow-2xl my-auto"    >
 
         <!-- CLOSE -->
         <button
@@ -463,15 +472,20 @@
                 </div>
 
                 <!-- POST CONTENT -->
-                <div class="p-4 border-b">
 
-                    <p class="text-gray-700 whitespace-pre-line leading-7 text-[15px]">
+@if(!empty($post->com_pub))
 
-                        {{ $post->com_pub }}
+<div class="px-4 py-3 border-b">
 
-                    </p>
+    <p class="text-gray-700 whitespace-pre-line text-[15px]">
 
-                </div>
+        {{ $post->com_pub }}
+
+    </p>
+
+</div>
+
+@endif
 
                 <!-- COMMENTS -->
                 <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fafafa]">

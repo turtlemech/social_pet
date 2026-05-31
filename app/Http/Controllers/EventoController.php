@@ -7,6 +7,7 @@ use App\Models\Ubicacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EventoController extends Controller
 {
@@ -72,43 +73,48 @@ class EventoController extends Controller
             $puntajeFecha = 0;
 
             // ESTADO EN TIEMPO REAL
-            if ($evento->est_eve != 'cancelado') {
+            if (
+    $evento->est_eve != 'cancelado'
+    &&
+    $evento->est_eve != 'finalizado'
+) {
 
-                if (now()->between($inicio, $finEvento)) {
+    if (now()->between($inicio, $finEvento)) {
 
-                    $evento->estado_temp = 'en_curso';
+        $evento->estado_temp = 'en_curso';
 
-                } elseif (now()->gt($finEvento)) {
+    } elseif (now()->gt($finEvento)) {
 
-                    $evento->estado_temp = 'finalizado';
+        $evento->estado_temp = 'finalizado';
 
-                } else {
+    } else {
 
-                    $evento->estado_temp = 'activo';
-                }
+        $evento->estado_temp = 'activo';
+    }
 
-            } else {
+} else {
 
-                $evento->estado_temp = 'cancelado';
-            }
+    $evento->estado_temp = $evento->est_eve;
+}
 
             // SI YA FINALIZÓ
             if (
-                ($evento->estado_temp ?? $evento->est_eve)
-                == 'finalizado'
-            ) {
+    in_array(
+        ($evento->estado_temp ?? $evento->est_eve),
+        ['finalizado', 'cancelado']
+    )
+) {
 
-                // QUITAR DESTACADO
-                if ($evento->destacado) {
+    if ($evento->destacado) {
 
-                    Evento::where('id', $evento->id)
-                        ->update([
-                            'destacado' => false
-                        ]);
-                }
+        Evento::where('id', $evento->id)
+            ->update([
+                'destacado' => false
+            ]);
+    }
 
-                continue;
-            }
+    continue;
+}
 
             // PUNTAJE POR FECHA
             if ($diasRestantes <= 1) {
@@ -180,11 +186,51 @@ class EventoController extends Controller
         + ($evento->score_temp ?? 0);
 
 })->values();
+$page = request()->get('page', 1);
+
+$perPage = 15;
+
+$eventos = new LengthAwarePaginator(
+
+    $eventos->forPage($page, $perPage),
+
+    $eventos->count(),
+
+    $perPage,
+
+    $page,
+
+    [
+
+        'path' => request()->url(),
+
+        'query' => request()->query(),
+
+    ]
+
+);
+
+$eventosDestacados = Evento::where(
+
+    'destacado',
+
+    true
+
+)->count();
 
         return view(
-            'eventos.index',
-            compact('eventos')
-        );
+
+    'eventos.index',
+
+    compact(
+
+        'eventos',
+
+        'eventosDestacados'
+
+    )
+
+);
     }
 
     // MIS EVENTOS
@@ -218,29 +264,86 @@ class EventoController extends Controller
 
     // EVENTOS DONDE PARTICIPO
     public function participando()
-    {
-        $eventos = auth()->user()
-            ->eventosParticipando()
-            ->with([
+{
+    $eventos = auth()->user()
+        ->eventosParticipando()
+        ->with([
+            'usuario',
+            'ubicacion',
+            'participantes',
+            'mascotasParticipantes',
+            'mascotasParticipantes.especie'
+        ])
+        ->get();
 
-    'usuario',
+    foreach ($eventos as $evento) {
 
-    'ubicacion',
+        $inicio = Carbon::parse($evento->fch_eve);
+        $finEvento = $inicio->copy()->addHours(2);
 
-    'participantes',
+        if (
+    $evento->est_eve != 'cancelado'
+    &&
+    $evento->est_eve != 'finalizado'
+) {
 
-    'mascotasParticipantes',
+    if (now()->between($inicio, $finEvento)) {
 
-    'mascotasParticipantes.especie'
+        $evento->estado_temp = 'en_curso';
 
-])
-            ->get();
+    } elseif (now()->gt($finEvento)) {
 
-        return view(
-            'eventos.participando',
-            compact('eventos')
-        );
+        $evento->estado_temp = 'finalizado';
+
+    } else {
+
+        $evento->estado_temp = 'activo';
     }
+
+} else {
+
+    $evento->estado_temp = $evento->est_eve;
+}
+    }
+
+    // SOLO EVENTOS DONDE TENGO AL MENOS UNA MASCOTA INSCRITA
+    $eventos = $eventos->filter(function ($evento) {
+
+        return $evento
+            ->mascotasParticipantes()
+            ->wherePivot('usuario_id', auth()->id())
+            ->exists();
+
+    });
+
+    // ORDENAR
+    $eventos = $eventos->sortByDesc(function ($evento) {
+
+        switch ($evento->estado_temp) {
+
+            case 'en_curso':
+                return 4000000000;
+
+            case 'activo':
+                return 3000000000 + strtotime($evento->fch_eve);
+
+            case 'finalizado':
+                return 2000000000;
+
+            case 'cancelado':
+                return 1000000000;
+
+            default:
+                return 0;
+        }
+
+    });
+
+    return view(
+        'eventos.participando',
+        compact('eventos')
+    );
+}
 
     // CREAR EVENTO
     public function store(Request $request)
@@ -343,17 +446,21 @@ class EventoController extends Controller
 
     if (
 
-        $estadoActual == 'cancelado'
+    $estadoActual == 'cancelado'
 
-        ||
+    ||
 
-        $estadoActual == 'finalizado'
+    $estadoActual == 'finalizado'
 
-    ) {
+    ||
 
-        return back();
+    $estadoActual == 'en_curso'
 
-    }
+) {
+
+    return back();
+
+}
 
     // EL CREADOR YA PARTICIPA
 
@@ -717,24 +824,22 @@ if (
     }
     // FINALIZAR EVENTO
 public function finalizar(Evento $evento)
+
 {
+
     if ($evento->usuario_id != auth()->id()) {
 
         abort(403);
-    }
 
-    // NO finalizar cancelados
-    if ($evento->est_eve == 'cancelado') {
-
-        return back();
     }
 
     $evento->update([
+
         'est_eve' => 'finalizado'
+
     ]);
 
-    return redirect()->to(
-        '/eventos?finalizado=1'
-    );
+    return redirect()->to('/eventos?finalizado=1');
+
 }
 }

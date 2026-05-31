@@ -165,7 +165,7 @@ setTimeout(() => {
                 </p>
 
                 <h2 class="text-4xl font-black text-gray-900 mt-2">
-                    {{ $eventos->count() }}
+                    {{ $eventos->total() }}
                 </h2>
 
             </div>
@@ -179,7 +179,7 @@ setTimeout(() => {
 
                 <h2 class="text-4xl font-black text-gray-900 mt-2">
 
-                    {{ $eventos->where('destacado', true)->count() }}
+                    {{ $eventosDestacados }}
 
                 </h2>
 
@@ -534,6 +534,71 @@ setTimeout(() => {
                     @endforeach
 
                 </div>
+                @if($eventos->hasPages())
+
+<div class="flex justify-center items-center gap-3 mt-12 flex-wrap">
+
+    @if($eventos->onFirstPage())
+
+        <span class="opacity-30 text-2xl">🐾</span>
+
+    @else
+
+       <a
+
+    href="{{ $eventos->previousPageUrl() }}"
+
+    class="text-2xl hover:scale-125 transition"
+
+>
+
+    ⬅️
+
+</a>
+
+    @endif
+
+    @for($i = 1; $i <= $eventos->lastPage(); $i++)
+
+        <a
+            href="{{ $eventos->url($i) }}"
+            class="
+                w-12 h-12 rounded-full flex items-center justify-center
+                font-black text-lg transition
+                {{ $eventos->currentPage() == $i
+                    ? 'bg-teal-500 text-white shadow-xl scale-110'
+                    : 'bg-white text-gray-700 hover:bg-teal-100'
+                }}
+            "
+        >
+            🐾{{ $i }}
+        </a>
+
+    @endfor
+
+    @if($eventos->hasMorePages())
+
+        <a
+
+    href="{{ $eventos->nextPageUrl() }}"
+
+    class="text-2xl hover:scale-125 transition"
+
+>
+
+    ➡️
+
+</a>
+
+    @else
+
+        <span class="opacity-30 text-2xl">🐾</span>
+
+    @endif
+
+</div>
+
+@endif
 
             @else
 

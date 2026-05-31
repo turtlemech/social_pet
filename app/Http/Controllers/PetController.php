@@ -60,7 +60,15 @@ class PetController extends Controller
      */
     public function show($id)
     {
-        $pet = Mascota::findOrFail($id);
+        $pet = Mascota::with([
+
+    'usuario',
+
+    'especie',
+
+    'seguidores'
+
+])->findOrFail($id);
 
         $posts = Publicacion::with([
                 'usuario',
@@ -131,5 +139,56 @@ class PetController extends Controller
 
         ->with('success', 'Mascota eliminada correctamente');
 
+}
+public function edit($id)
+{
+    $mascota = Mascota::findOrFail($id);
+
+    if ($mascota->usuario_id != auth()->id()) {
+        abort(403);
+    }
+
+    return view('pets.edit', compact('mascota'));
+}
+public function update(Request $request, $id)
+{
+    $mascota = Mascota::findOrFail($id);
+
+    if ($mascota->usuario_id != auth()->id()) {
+        abort(403);
+    }
+
+    $request->validate([
+        'nom_mas' => 'required|max:100',
+        'sex_mas' => 'required',
+        'des_mas' => 'nullable|max:500',
+        'fot_mas' => 'nullable|image|max:2048'
+    ]);
+
+    $mascota->nom_mas = $request->nom_mas;
+    $mascota->sex_mas = $request->sex_mas;
+    $mascota->des_mas = $request->des_mas;
+
+    // Nueva foto
+    if ($request->hasFile('fot_mas')) {
+
+        if (
+            $mascota->fot_mas &&
+            \Storage::disk('public')->exists($mascota->fot_mas)
+        ) {
+            \Storage::disk('public')->delete($mascota->fot_mas);
+        }
+
+        $path = $request->file('fot_mas')
+            ->store('mascotas', 'public');
+
+        $mascota->fot_mas = $path;
+    }
+
+    $mascota->save();
+
+    return redirect()
+        ->route('pets.show', $mascota->id)
+        ->with('success', 'Mascota actualizada correctamente');
 }
 }

@@ -19,6 +19,7 @@ use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ComunidadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\SearchController;
 
 use App\Http\Controllers\FollowController;
 
@@ -117,6 +118,8 @@ Route::get('/messages/{id}', [MessageController::class, 'show'])
 
 Route::post('/messages/start/{user}', [MessageController::class, 'start'])
     ->name('messages.start');
+    Route::get('/search/live', [SearchController::class, 'live'])
+    ->name('search.live');
 
 Route::post('/messages/send/{id}', [MessageController::class, 'send'])
     ->name('messages.send');
@@ -359,6 +362,8 @@ Route::middleware(['auth'])
 Route::get('/{id}/edit', [PetController::class, 'edit'])
 
     ->name('edit');
+    Route::put('/{id}', [PetController::class, 'update'])
+    ->name('update');
 
 Route::delete('/{id}', [PetController::class, 'destroy'])
 

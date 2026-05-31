@@ -20,6 +20,10 @@ class ProfileController extends Controller
     public function myPets()
 {
     $mascotas = Mascota::with('especie')
+        ->withCount([
+            'publicaciones',
+            'seguidores'
+        ])
         ->where('usuario_id', auth()->id())
         ->latest()
         ->get();

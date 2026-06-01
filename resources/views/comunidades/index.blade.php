@@ -64,20 +64,52 @@
 
                         </div>
 
-                        <form
-                            action="{{ route('comunidades.unirse', $com->cod_com) }}"
-                            method="POST"
-                            class="mt-5"
-                        >
-                            @csrf
+                        @if(in_array($com->cod_com, $misComunidades))
 
-                            <button
-                                class="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold"
-                            >
-                                Unirse
-                            </button>
+    <div class="mt-5 space-y-2">
 
-                        </form>
+        <a
+            href="{{ route('comunidades.show', $com->cod_com) }}"
+            class="block w-full text-center bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold"
+        >
+            Ver comunidad
+        </a>
+
+        <form
+            action="{{ route('comunidades.salir', $com->cod_com) }}"
+            method="POST"
+        >
+            @csrf
+
+            <button
+                class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold"
+            >
+                Salir
+            </button>
+
+        </form>
+
+    </div>
+
+@else
+
+
+    <form
+        action="{{ route('comunidades.unirse', $com->cod_com) }}"
+        method="POST"
+        class="mt-5"
+    >
+        @csrf
+
+        <button
+            class="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold"
+        >
+            Unirse
+        </button>
+
+    </form>
+
+@endif
 
                     </div>
 

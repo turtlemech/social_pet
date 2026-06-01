@@ -16,7 +16,7 @@
 
         <div class="p-6">
 
-            <h1 class="text-3xl font-bold">
+            <h1 class="text-4xl font-extrabold text-gray-800">
                 {{ $comunidad->nom_com }}
             </h1>
 
@@ -26,7 +26,32 @@
 
             <div class="mt-4 text-sm text-gray-500">
                 {{ $miembros }} miembros
+                @if($esMiembro)
+
+    <span class="inline-block mt-3 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+        ✓ Eres miembro
+    </span>
+
+@endif
             </div>
+            @if($esMiembro)
+
+    <form
+        action="{{ route('comunidades.salir', $comunidad->cod_com) }}"
+        method="POST"
+        class="mt-4"
+    >
+        @csrf
+
+        <button
+            class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl font-semibold"
+        >
+            Salir de la comunidad
+        </button>
+
+    </form>
+
+@endif
 
         </div>
     </div>

@@ -118,6 +118,10 @@ Route::get('/messages/{id}', [MessageController::class, 'show'])
 
 Route::post('/messages/start/{user}', [MessageController::class, 'start'])
     ->name('messages.start');
+    Route::post(
+    '/comunidades/{cod_com}/salir',
+    [ComunidadController::class, 'salir']
+)->name('comunidades.salir');
     Route::get('/search/live', [SearchController::class, 'live'])
     ->name('search.live');
     Route::get('/comunidades/{cod_com}', [ComunidadController::class, 'show'])

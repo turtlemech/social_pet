@@ -8,13 +8,21 @@ use Illuminate\Support\Facades\DB;
 class ComunidadController extends Controller
 {
     public function index()
-    {
-        $comunidades = DB::table('comunidad')
-            ->latest('fch_cre_com')
-            ->get();
+{
+    $comunidades = DB::table('comunidad')
+        ->latest('fch_cre_com')
+        ->get();
 
-        return view('comunidades.index', compact('comunidades'));
-    }
+    $misComunidades = DB::table('miembro_comunidad')
+        ->where('id', auth()->id())
+        ->pluck('cod_com')
+        ->toArray();
+
+    return view(
+        'comunidades.index',
+        compact('comunidades', 'misComunidades')
+    );
+}
 
     public function create()
     {
@@ -111,18 +119,31 @@ class ComunidadController extends Controller
     }
 
     $miembros = DB::table('miembro_comunidad')
+    ->where('cod_com', $cod_com)
+    ->count();
 
+$esMiembro = DB::table('miembro_comunidad')
+    ->where('cod_com', $cod_com)
+    ->where('id', auth()->id())
+    ->exists();
+
+return view('comunidades.show', compact(
+    'comunidad',
+    'miembros',
+    'esMiembro'
+));
+
+}
+public function salir($cod_com)
+{
+    DB::table('miembro_comunidad')
         ->where('cod_com', $cod_com)
+        ->where('id', auth()->id())
+        ->delete();
 
-        ->count();
-
-    return view('comunidades.show', compact(
-
-        'comunidad',
-
-        'miembros'
-
-    ));
-
+    return back()->with(
+        'success',
+        'Saliste de la comunidad'
+    );
 }
 }

@@ -120,13 +120,18 @@ Route::post('/messages/start/{user}', [MessageController::class, 'start'])
     ->name('messages.start');
     Route::get('/search/live', [SearchController::class, 'live'])
     ->name('search.live');
+    Route::get('/comunidades/{cod_com}', [ComunidadController::class, 'show'])
+
+    ->name('comunidades.show');
 
 Route::post('/messages/send/{id}', [MessageController::class, 'send'])
     ->name('messages.send');
     Route::view('/settings', 'settings')->name('settings');
     Route::view('/explore', 'explore')->name('explore');
     Route::view('/search', 'search')->name('search');
+
     Route::view('/notifications', 'notifications')->name('notifications');
+
     Route::post('/notifications/read', function () {
 
     \App\Models\Notificacion::where('usuario_id', auth()->id())

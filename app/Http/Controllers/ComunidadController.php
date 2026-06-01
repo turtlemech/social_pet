@@ -58,12 +58,16 @@ class ComunidadController extends Controller
 
 ]);
         DB::table('miembro_comunidad')->insert([
-            'cod_mie_com' => rand(100, 999),
-            'cod_com' => $codigo,
-            'id' => auth()->id(),
-            'rol_mie_com' => 'admin',
-            'fch_union_com' => now(),
-        ]);
+
+    'cod_com' => $codigo,
+
+    'id' => auth()->id(),
+
+    'rol_mie_com' => 'admin',
+
+    'fch_union_com' => now(),
+
+]);
 
         return redirect()
             ->route('comunidades.index')
@@ -79,14 +83,46 @@ class ComunidadController extends Controller
 
         if (!$existe) {
             DB::table('miembro_comunidad')->insert([
-                'cod_mie_com' => 'M' . rand(100, 999),
-                'cod_com' => $cod_com,
-                'id' => auth()->id(),
-                'rol_mie_com' => 'miembro',
-                'fch_union_com' => now(),
-            ]);
+    'cod_com' => $cod_com,
+    'id' => auth()->id(),
+    'rol_mie_com' => 'miembro',
+    'fch_union_com' => now(),
+]);
         }
 
-        return back()->with('success', 'Te uniste a la comunidad');
+        return redirect()
+    ->route('comunidades.show', $cod_com)
+    ->with('success', 'Te uniste a la comunidad');
     }
+    public function show($cod_com)
+
+{
+
+    $comunidad = DB::table('comunidad')
+
+        ->where('cod_com', $cod_com)
+
+        ->first();
+
+    if (!$comunidad) {
+
+        abort(404);
+
+    }
+
+    $miembros = DB::table('miembro_comunidad')
+
+        ->where('cod_com', $cod_com)
+
+        ->count();
+
+    return view('comunidades.show', compact(
+
+        'comunidad',
+
+        'miembros'
+
+    ));
+
+}
 }

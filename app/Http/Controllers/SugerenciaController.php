@@ -2,32 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
+use App\Models\Mascota;
 
 class SugerenciaController extends Controller
 {
     public function index()
     {
-        $mascotas = DB::table('mascotas')
-            ->leftJoin('usuarios', 'mascotas.usuario_id', '=', 'usuarios.id')
-            ->leftJoin('especies', 'mascotas.especie_id', '=', 'especies.id')
-            ->where('mascotas.est_mas', 'activo')
-            ->select(
-                'mascotas.id',
-                'mascotas.nom_mas',
-                'mascotas.fot_mas',
-                'mascotas.sex_mas',
-                'mascotas.des_mas',
-                'mascotas.usuario_id',
-                'especies.nom_esp as especie',
-                'usuarios.nom_us',
-                'usuarios.app_us',
-                'usuarios.apm_us'
-            )
-            ->inRandomOrder()
-            ->limit(12)
+        $usuario = auth()->user();
+
+        $usuariosSeguidos = $usuario->siguiendo()
+            ->pluck('usuarios.id');
+
+        // ===============================
+        // PRIORIDAD 1: USUARIOS SEGUIDOS
+        // ===============================
+
+        $seguidos = Mascota::with([
+                'usuario',
+                'especie',
+                'seguidores'
+            ])
+            ->where('est_mas', 'activo')
+            ->whereIn('usuario_id', $usuariosSeguidos)
+            ->where('usuario_id', '!=', $usuario->id)
             ->get();
 
-        return view('sugerencias.index', compact('mascotas'));
+        // ===============================
+        // PRIORIDAD 2: MÁS POPULARES
+        // ===============================
+
+        $populares = Mascota::with([
+                'usuario',
+                'especie',
+                'seguidores'
+            ])
+            ->withCount('seguidores')
+            ->where('est_mas', 'activo')
+            ->where('usuario_id', '!=', $usuario->id)
+            ->orderByDesc('seguidores_count')
+            ->get();
+
+        // ===============================
+        // PRIORIDAD 3: ALEATORIAS
+        // ===============================
+
+        $aleatorias = Mascota::with([
+                'usuario',
+                'especie',
+                'seguidores'
+            ])
+            ->where('est_mas', 'activo')
+            ->where('usuario_id', '!=', $usuario->id)
+            ->inRandomOrder()
+            ->get();
+
+        // ===============================
+        // UNIR Y ELIMINAR DUPLICADOS
+        // ===============================
+
+        $mascotas = $seguidos
+            ->concat($populares)
+            ->concat($aleatorias)
+            ->unique('id')
+            ->take(20);
+
+        return view(
+            'sugerencias.index',
+            compact('mascotas')
+        );
     }
 }

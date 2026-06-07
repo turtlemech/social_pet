@@ -21,8 +21,16 @@ class PostController extends Controller
 
         $request->validate([
             'content' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'images' => 'nullable|array|max:5',
+
+'images.*' => 'image|mimes:jpg,jpeg,png,gif|max:4096',
             'mascota_id' => 'nullable|exists:mascotas,id',
+            'ubicacion' => 'nullable|string|max:255',
+            'musica' => 'nullable|string|max:255',
+
+'musica_artista' => 'nullable|string|max:255',
+
+'musica_preview' => 'nullable|url',
         ]);
 
         // ================= VALIDAR PROPIETARIO =================
@@ -38,33 +46,51 @@ class PostController extends Controller
             }
         }
 
-        $imagePath = null;
+        $imagenes = [];
 
-        // ================= GUARDAR IMAGEN =================
+if ($request->hasFile('images')) {
 
-        if ($request->hasFile('image')) {
+    foreach ($request->file('images') as $archivo) {
 
-            $imagePath = $request->file('image')
-                ->store('posts', 'public');
-        }
+        $imagenes[] = $archivo->store(
+
+            'posts',
+
+            'public'
+
+        );
+
+    }
+
+}
 
         // ================= CREAR PUBLICACIÓN =================
-
         Publicacion::create([
 
-            'cod_pub' => strtoupper(Str::random(8)),
+    'cod_pub' => strtoupper(Str::random(8)),
 
-            'com_pub' => $request->content,
+    'com_pub' => $request->content,
+    'ubicacion' => $request->ubicacion,
 
-            'img_pub' => $imagePath,
+'musica' => $request->musica,
 
-            'us_id' => auth()->id(),
+'musica_artista' => $request->musica_artista,
 
-            'mascota_id' => $request->mascota_id,
+'musica_preview' => $request->musica_preview,
 
-            'est_pub' => 'activo',
+    'img_pub'   => $imagenes[0] ?? null,
+    'img_pub_2' => $imagenes[1] ?? null,
+    'img_pub_3' => $imagenes[2] ?? null,
+    'img_pub_4' => $imagenes[3] ?? null,
+    'img_pub_5' => $imagenes[4] ?? null,
 
-        ]);
+    'us_id' => auth()->id(),
+
+    'mascota_id' => $request->mascota_id,
+
+    'est_pub' => 'activo',
+
+]);
 
         return back()->with(
             'success',

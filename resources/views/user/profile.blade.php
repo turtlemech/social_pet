@@ -12,14 +12,61 @@
             <!-- AVATAR -->
             <div class="flex justify-center">
 
-                <img
-                    src="{{ $user->ava_us
-                        ? asset('storage/' . $user->ava_us)
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($user->nom_us) }}"
-                    class="w-40 h-40 rounded-full object-cover border-4 border-teal-500 shadow-lg"
-                >
+    <div class="relative">
 
-            </div>
+        <div class="
+            {{ $tieneHistorias
+                ? 'p-1 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'
+                : ''
+            }}
+        ">
+
+            @if($tieneHistorias)
+
+<a href="{{ route('historias.ver', [
+
+    'usuario' => $user->id,
+
+    'origen' => 'perfil'
+
+]) }}">
+
+@endif
+
+<img
+    src="{{ $user->ava_us
+        ? asset('storage/' . $user->ava_us)
+        : 'https://ui-avatars.com/api/?name=' . urlencode($user->nom_us) }}"
+    class="w-40 h-40 rounded-full object-cover bg-white p-1 shadow-lg cursor-pointer hover:scale-105 transition"
+>
+
+@if($tieneHistorias)
+
+</a>
+
+@endif
+
+        </div>
+
+        @if(auth()->id() == $user->id)
+
+            <a
+                href="{{ route('historias.crear') }}"
+                class="absolute bottom-1 right-1
+                       bg-blue-500 text-white
+                       w-10 h-10 rounded-full
+                       flex items-center justify-center
+                       text-2xl font-bold
+                       border-2 border-white shadow-lg"
+            >
+                +
+            </a>
+
+        @endif
+
+    </div>
+
+</div>
 
             <!-- INFO -->
             <div class="flex-1">
@@ -157,36 +204,74 @@
 
     </div>
 
-    <!-- HISTORIAS DESTACADAS -->
-    <div class="bg-white rounded-3xl shadow-sm p-6 mb-8">
+<!-- HISTORIAS DESTACADAS -->
+<div class="bg-white rounded-3xl shadow-sm p-6 mb-8">
 
-        <div class="flex gap-6 overflow-x-auto">
+    <h3 class="font-semibold text-gray-700 mb-4">
+        Historias destacadas
+    </h3>
 
-            @foreach(['Mascotas', 'Viajes', 'Adopciones', 'Eventos'] as $story)
+    <div class="flex gap-6 overflow-x-auto">
 
-                <div class="flex flex-col items-center min-w-[80px]">
+        @if(auth()->id() == $user->id)
 
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-teal-400 to-teal-600 p-1">
+        <div
+            onclick="openNuevaDestacadaModal()"
+            class="flex flex-col items-center min-w-[80px] cursor-pointer"
+        >
 
-                        <div class="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl">
+            <div class="w-20 h-20 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100 transition">
 
-                            🐾
+                <span class="text-4xl text-gray-500">
+                    +
+                </span>
 
-                        </div>
+            </div>
 
-                    </div>
-
-                    <p class="text-sm mt-2 text-gray-600">
-                        {{ $story }}
-                    </p>
-
-                </div>
-
-            @endforeach
+            <p class="text-sm mt-2 text-gray-600">
+                Nueva
+            </p>
 
         </div>
 
+        @endif
+
+        @foreach($user->historiasDestacadas as $destacada)
+
+        <a
+            href="{{ route('historias.destacadas.show', $destacada->id) }}"
+            class="flex flex-col items-center min-w-[80px]"
+        >
+
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-1">
+
+                <div class="w-full h-full rounded-full bg-white overflow-hidden">
+
+                    <img
+                        src="{{ $destacada->portada
+                            ? asset('storage/'.$destacada->portada)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($destacada->titulo)
+                        }}"
+                        class="w-full h-full object-cover"
+                    >
+
+                </div>
+
+            </div>
+
+            <p class="text-sm mt-2 text-gray-600">
+
+                {{ $destacada->titulo }}
+
+            </p>
+
+        </a>
+
+        @endforeach
+
     </div>
+
+</div>
 
     <!-- POSTS -->
     <div>
@@ -734,8 +819,6 @@ const response = await fetch(
 
 const data = await response.json();
 
-console.log(data);
-
 liked = data.liked;
 
 document.getElementById('modalLikeButton').innerText =
@@ -743,7 +826,7 @@ document.getElementById('modalLikeButton').innerText =
 
 document.getElementById('modalLikes').innerText =
     `❤️ ${data.likes} Me gusta`;
-    
+
     } catch(error) {
 
         console.error(error);
@@ -751,6 +834,19 @@ document.getElementById('modalLikes').innerText =
     }
 
 }
+
+/* NUEVO */
+
+function openNuevaDestacadaModal()
+
+{
+
+    window.location.href =
+
+        "{{ route('historias.destacadas.seleccionar') }}";
+
+}
+
 </script>
 
 @endsection

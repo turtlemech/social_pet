@@ -58,6 +58,15 @@
     }}
 
 </a>
+@if($post->ubicacion)
+
+<p class="text-xs text-teal-600 font-medium">
+
+    📍 {{ $post->ubicacion }}
+
+</p>
+
+@endif
 
                 <p class="text-xs text-gray-400">
 
@@ -123,30 +132,76 @@
 
 <div class="px-4 pb-3">
 
-    <p class="text-gray-800 whitespace-pre-line">
-
-        {{ $post->com_pub }}
-
-    </p>
+    <p class="text-gray-800 whitespace-normal">
+    {{ trim($post->com_pub) }}
+</p>
 
 </div>
 
 @endif
 
     <!-- IMAGE -->
-    @if(!empty($post->img_pub))
+    @php
 
-    <img
+$imagenes = array_filter([
+    $post->img_pub,
+    $post->img_pub_2,
+    $post->img_pub_3,
+    $post->img_pub_4,
+    $post->img_pub_5,
+]);
 
-        onclick="event.stopPropagation(); openCommentsModal({{ $post->id }})"
+@endphp
 
-        src="{{ asset('storage/' . $post->img_pub) }}"
+@if(count($imagenes))
 
-        alt="Publicación"
+<div class="relative overflow-hidden">
 
-        class="w-full object-cover max-h-96 cursor-pointer"
+    <div
 
+    id="carousel-{{ $post->id }}"
+
+    class="flex transition-transform duration-300 ease-in-out"
+
+    style="transform: translateX(0%)"
+
+>
+
+        @foreach($imagenes as $imagen)
+
+        <img
+
+    src="{{ asset('storage/'.$imagen) }}"
+
+    class="w-full min-w-full flex-shrink-0 object-cover max-h-96"
+
+>
+
+        @endforeach
+
+    </div>
+
+    @if(count($imagenes) > 1)
+
+    <button
+        type="button"
+        onclick="event.stopPropagation(); moverCarrusel({{ $post->id }}, -1)"
+        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full"
     >
+        ‹
+    </button>
+
+    <button
+        type="button"
+        onclick="event.stopPropagation(); moverCarrusel({{ $post->id }}, 1)"
+        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full"
+    >
+        ›
+    </button>
+
+    @endif
+
+</div>
 
 @endif
 
@@ -572,3 +627,45 @@
     </div>
 
 </div>
+<script>
+
+window.carouselIndex = window.carouselIndex || {};
+
+function moverCarrusel(postId, direccion){
+
+    const carrusel =
+        document.getElementById(
+            'carousel-' + postId
+        );
+
+    if(!carrusel) return;
+
+    const total =
+        carrusel.children.length;
+
+    if(window.carouselIndex[postId] === undefined){
+
+        window.carouselIndex[postId] = 0;
+
+    }
+
+    window.carouselIndex[postId] += direccion;
+
+    if(window.carouselIndex[postId] < 0){
+
+        window.carouselIndex[postId] = total - 1;
+
+    }
+
+    if(window.carouselIndex[postId] >= total){
+
+        window.carouselIndex[postId] = 0;
+
+    }
+
+    carrusel.style.transform =
+        `translateX(-${window.carouselIndex[postId] * 100}%)`;
+
+}
+
+</script>

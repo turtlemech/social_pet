@@ -151,4 +151,34 @@ class ProfileController extends Controller
             return back()->with('error', 'Error al desactivar la cuenta: ' . $e->getMessage());
         }
     }
+    public function actualizarUbicacion(Request $request)
+{
+    $request->validate([
+        'latitud' => 'required|numeric',
+        'longitud' => 'required|numeric',
+    ]);
+
+    auth()->user()->update([
+        'latitud' => $request->latitud,
+        'longitud' => $request->longitud,
+        'ubicacion_activa' => true,
+        'ubicacion_actualizada' => now(),
+    ]);
+
+    return response()->json([
+        'success' => true
+    ]);
+}
+
+public function desactivarUbicacion()
+{
+    auth()->user()->update([
+        'ubicacion_activa' => false,
+    ]);
+
+    return back()->with(
+        'success',
+        'Ubicación desactivada correctamente'
+    );
+}
 }

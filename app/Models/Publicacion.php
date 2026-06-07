@@ -13,15 +13,41 @@ class Publicacion extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = [
-        'cod_pub',
-        'com_pub',
-        'img_pub',
-        'us_id',
-        'mascota_id',
-        'est_pub',
-    ];
+protected $fillable = [
 
+    'cod_pub',
+
+    'com_pub',
+
+    'img_pub',
+
+    'img_pub_2',
+
+    'img_pub_3',
+
+    'img_pub_4',
+
+    'img_pub_5',
+
+    'us_id',
+
+    'mascota_id',
+
+    'est_pub',
+
+    'musica',
+
+    'musica_artista',
+
+    'musica_preview',
+
+    'ubicacion',
+
+    'latitud',
+
+    'longitud',
+
+];
     // ================= USUARIO =================
 
     public function usuario()

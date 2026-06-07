@@ -37,8 +37,10 @@
         <div class="lg:w-1/4 space-y-6">
 
             <x-dashboard.stories-section
-                :stories="['Max', 'Luna', 'Charlie', 'Bella']"
-            />
+
+    :stories="$historias"
+
+/>
 
             <x-dashboard.pet-tip />
 
@@ -78,7 +80,11 @@
         <!-- Sidebar Right -->
         <div class="lg:w-1/4 space-y-6">
 
-            <x-dashboard.suggested-pets />
+            <x-dashboard.suggested-pets
+
+    :pets="$mascotasSugeridas"
+
+/>
 
 <x-dashboard.trending-topics
     :mascotasPopulares="$mascotasPopulares"

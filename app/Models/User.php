@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Historia;
+use App\Models\HistoriaDestacada;
 
 class User extends Authenticatable
 {
@@ -14,24 +16,29 @@ class User extends Authenticatable
     protected $table = 'usuarios';
     protected $primaryKey = 'id';
 
-    protected $fillable = [
-        'cod_us',
-        'nom_us',
-        'app_us',
-        'apm_us',
-        'ape_us',
-        'ema_us',
-        'pas_us',
-        'tel_us',
-        'ubi_us',
-        'ciu_us',
-        'ava_us',
-        'tip_us',
-        'est_us',
-        'estado',
-        'is_admin',
-    ];
+protected $fillable = [
+    'cod_us',
+    'nom_us',
+    'app_us',
+    'apm_us',
+    'ape_us',
+    'ema_us',
+    'pas_us',
+    'tel_us',
+    'ubi_us',
+    'ciu_us',
 
+    'latitud',
+    'longitud',
+    'ubicacion_activa',
+    'ubicacion_actualizada',
+
+    'ava_us',
+    'tip_us',
+    'est_us',
+    'estado',
+    'is_admin',
+];
     protected $hidden = [
         'pas_us',
         'remember_token',
@@ -85,20 +92,14 @@ class User extends Authenticatable
     // ================= MENSAJES =================
 
     public function conversaciones()
-    {
-        return $this->belongsToMany(
-            Conversacion::class,
-            'participantes',
-            'us_id',
-            'con_id'
-        )
-        ->withPivot(
-            'cod_par',
-            'fch_uni_par',
-            'fch_sal_par'
-        )
-        ->withTimestamps();
-    }
+{
+    return $this->belongsToMany(
+        Conversacion::class,
+        'conversacion_usuario',
+        'us_id',
+        'con_id'
+    )->withTimestamps();
+}
 
     public function mensajes()
     {
@@ -215,6 +216,40 @@ class User extends Authenticatable
             'mas_seg'
         )->withTimestamps();
     }
+    // ================= HISTORIAS =================
+
+public function historias()
+{
+    return $this->hasMany(
+        Historia::class,
+        'usuario_id'
+    );
+}
+
+public function historiasActivas()
+{
+    return $this->hasMany(
+        Historia::class,
+        'usuario_id'
+    )->where(
+        'fecha_expiracion',
+        '>',
+        now()
+    );
+}
+public function historiasDestacadas()
+{
+    return $this->hasMany(
+        HistoriaDestacada::class,
+        'usuario_id'
+    );
+}
+
+public function tieneHistoriasActivas()
+{
+    return $this->historiasActivas()
+        ->exists();
+}
 
     // ================= MÉTODOS ÚTILES =================
 

@@ -114,6 +114,16 @@
             <div class="lg:col-span-2">
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:p-8">
+                    @if ($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <strong>Errores:</strong>
+        <ul class="mt-2">
+            @foreach ($errors->all() as $error)
+                <li>• {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
                     <form action="{{ route('marketplace.store') }}" method="POST" enctype="multipart/form-data">
 
@@ -125,7 +135,21 @@
                                 <span class="icon-circle bg-[#ccfbf1] text-[#0d9488]">🎁</span>
                                 Nombre del producto
                             </label>
-                            <input type="text" name="nom_pro" placeholder="Ejemplo: Collar premium para perro" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition bg-gray-50/50" required>
+                           <input
+
+    type="text"
+
+    name="nom_pro"
+
+    value="{{ old('nom_pro') }}"
+
+    placeholder="Ejemplo: Collar premium para perro"
+
+    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition bg-gray-50/50"
+
+    required
+
+>
                         </div>
 
                         {{-- DESCRIPCION --}}
@@ -134,7 +158,12 @@
                                 <span class="icon-circle bg-[#ccfbf1] text-[#0d9488]">📋</span>
                                 Descripción
                             </label>
-                            <textarea name="des_pro" rows="4" placeholder="Describe tu producto..." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition resize-none bg-gray-50/50"></textarea>
+                            <textarea
+    name="des_pro"
+    rows="4"
+    placeholder="Describe tu producto..."
+    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition resize-none bg-gray-50/50"
+>{{ old('des_pro') }}</textarea>
                         </div>
 
                         {{-- FILA: PRECIO + CATEGORIA --}}
@@ -146,7 +175,23 @@
                                     <span class="icon-circle bg-[#ccfbf1] text-[#0d9488]">💲</span>
                                     Precio (Bs.)
                                 </label>
-                                <input type="number" step="0.01" name="pre_pro" placeholder="Ejemplo: 50" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition bg-gray-50/50" required>
+                               <input
+
+    type="number"
+
+    step="0.01"
+
+    name="pre_pro"
+
+    value="{{ old('pre_pro') }}"
+
+    placeholder="Ejemplo: 50"
+
+    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition bg-gray-50/50"
+
+    required
+
+>
                             </div>
 
                             {{-- CATEGORIA --}}
@@ -157,11 +202,31 @@
                                 </label>
                                 <div class="relative">
                                     <select name="cat_pro" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-700 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition appearance-none bg-white cursor-pointer pr-10" required>
-                                        <option value="" disabled selected>Selecciona una categoría</option>
-                                        <option value="Comida">🍖 Comida para mascotas</option>
-                                        <option value="Juguetes">🧸 Juguetes</option>
-                                        <option value="Accesorios">🎀 Accesorios</option>
-                                        <option value="Salud">💊 Salud y cuidado</option>
+                                        <option value="">Selecciona una categoría</option>
+
+<option value="alimento" {{ old('cat_pro') == 'alimento' ? 'selected' : '' }}>
+    🍖 Comida para mascotas
+</option>
+
+<option value="juguete" {{ old('cat_pro') == 'juguete' ? 'selected' : '' }}>
+    🧸 Juguetes
+</option>
+
+<option value="accesorio" {{ old('cat_pro') == 'accesorio' ? 'selected' : '' }}>
+    🎀 Accesorios
+</option>
+
+<option value="salud" {{ old('cat_pro') == 'salud' ? 'selected' : '' }}>
+    💊 Salud y cuidado
+</option>
+
+<option value="ropa" {{ old('cat_pro') == 'ropa' ? 'selected' : '' }}>
+    👕 Ropa
+</option>
+
+<option value="otro" {{ old('cat_pro') == 'otro' ? 'selected' : '' }}>
+    📦 Otro
+</option>
                                     </select>
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -187,6 +252,15 @@
                                     <p class="text-gray-400 text-sm">JPG, PNG o WEBP. Máximo 5MB</p>
                                 </div>
                             </div>
+                            @error('img_pro')
+
+        <div class="mt-3 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+
+            {{ $message }}
+
+        </div>
+
+    @enderror
                         </div>
 
                         {{-- ============================================ --}}
@@ -286,17 +360,36 @@
 
 <script>
     function updateFileName(input) {
-        const label = document.getElementById('file-label');
-        if (input.files && input.files[0]) {
-            label.textContent = input.files[0].name;
-            label.classList.add('text-[#0f766e]', 'font-bold');
-            label.classList.remove('text-gray-800');
-        } else {
-            label.textContent = 'Selecciona una imagen o arrastra aquí';
-            label.classList.remove('text-[#0f766e]', 'font-bold');
-            label.classList.add('text-gray-800');
-        }
+
+    const label = document.getElementById('file-label');
+
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+
+    const allowed = [
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+    ];
+
+    if (!allowed.includes(file.type)) {
+
+        alert('Solo se permiten imágenes JPG, PNG o WEBP.');
+
+        input.value = '';
+
+        label.textContent = 'Selecciona una imagen o arrastra aquí';
+        label.classList.remove('text-[#0f766e]', 'font-bold');
+        label.classList.add('text-gray-800');
+
+        return;
     }
+
+    label.textContent = file.name;
+    label.classList.add('text-[#0f766e]', 'font-bold');
+    label.classList.remove('text-gray-800');
+}
 
     const dropZone = document.getElementById('dropZone');
     ['dragenter', 'dragover'].forEach(eventName => {

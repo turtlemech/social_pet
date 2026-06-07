@@ -30,15 +30,39 @@ $suggestedUsers = \App\Models\User::where('id', '!=', auth()->id())
                 <div>
 
                     <h1 class="text-2xl font-bold text-gray-800">
-                        Mensajes
-                    </h1>
+    💬 Mensajes
+</h1>
 
-                    <p class="text-sm text-gray-500 mt-1">
-                        Conecta con otros amantes de mascotas
-                    </p>
+<p class="text-sm text-gray-500 mt-1">
+    Conecta con otros amantes de mascotas
+</p>
+
+<div class="flex gap-2 mt-4">
+
+    <a
+        href="{{ route('messages.index') }}"
+        class="flex-1 text-center py-2 rounded-xl bg-teal-500 text-white font-semibold"
+    >
+        💬 Mensajes
+    </a>
+
+    <a
+        href="{{ route('messages.adopciones') }}"
+        class="flex-1 text-center py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+    >
+        🐾 Adopciones
+    </a>
+
+    <a
+        href="{{ route('messages.marketplace') }}"
+        class="flex-1 text-center py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+    >
+        🛒 Marketplace
+    </a>
+
+</div>
 
                 </div>
-
 
             </div>
 

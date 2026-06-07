@@ -55,6 +55,40 @@
 <div class="min-h-screen bg-[#f3f4f6] py-8 px-4 sm:px-6">
 
     <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+
+    <form method="GET" action="{{ route('matches.index') }}">
+
+        <label class="block text-sm font-bold text-gray-700 mb-2">
+            Mascota para buscar pareja ❤️
+        </label>
+
+        <div class="flex gap-3">
+
+            <select
+                name="mascota"
+                class="flex-1 border rounded-xl px-4 py-3"
+                onchange="this.form.submit()"
+            >
+
+                @foreach($misMascotas as $m)
+
+                    <option
+                        value="{{ $m->id }}"
+                        {{ request('mascota') == $m->id ? 'selected' : '' }}
+                    >
+                        {{ $m->nom_mas }}
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+    </form>
+
+</div>
 
         {{-- HEADER --}}
         <div class="match-header rounded-2xl shadow-lg overflow-hidden mb-8 relative">
@@ -87,7 +121,7 @@
 
                 @php
                     $especie = strtolower($pet->especie ?? 'mascota');
-                    $compatibilidad = rand(75, 98);
+                    $compatibilidad = $pet->compatibilidad;
                     $nombreDueno = trim(($pet->nom_us ?? 'Usuario') . ' ' . ($pet->app_us ?? '') . ' ' . ($pet->apm_us ?? ''));
                     
                     $emojiEspecie = match($especie) {
@@ -150,14 +184,28 @@
                         <div class="flex items-center justify-between mb-1">
                             <h2 class="text-xl font-bold text-gray-800">{{ $pet->nom_mas }}</h2>
                             <span class="text-lg" title="{{ $pet->sex_mas ?? 'No especificado' }}">
-                                {{ ($pet->sex_mas ?? '') == 'Macho' ? '♂️' : (($pet->sex_mas ?? '') == 'Hembra' ? '♀️' : '⚪') }}
-                            </span>
+
+    {{ ($pet->sex_mas ?? '') == 'macho' ? '♂️' : (($pet->sex_mas ?? '') == 'hembra' ? '♀️' : '⚪') }}
+
+</span>
                         </div>
 
                         {{-- Descripción --}}
-                        <p class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow">
-                            {{ $pet->des_mas ?? 'Una mascota buscando nuevos amigos.' }}
-                        </p>
+                        @if($pet->per_mas)
+
+    <div class="mb-3">
+
+        <span class="bg-teal-50 text-teal-700 px-3 py-1 rounded-full text-xs font-semibold">
+            🧠 {{ $pet->per_mas }}
+        </span>
+
+    </div>
+
+@endif
+
+<p class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow">
+    {{ $pet->des_mas ?? 'Una mascota buscando nuevos amigos.' }}
+</p>
 
                         {{-- Dueño --}}
                         <div class="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">

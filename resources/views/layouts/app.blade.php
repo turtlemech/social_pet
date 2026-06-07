@@ -460,6 +460,15 @@ document.addEventListener('keydown', function(e) {
 });
 
 </script>
+<script>
+
+document.addEventListener('submit', function(e){
+
+    console.log('FORM SUBMIT DETECTADO');
+
+});
+
+</script>
         @stack('scripts')
     </body>
     </html>

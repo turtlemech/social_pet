@@ -21,119 +21,22 @@
 
         @endif
 
-        <!-- INPUT -->
+        <!-- BOTÓN PUBLICAR -->
         <div class="flex-1">
 
-            <input
-                type="text"
-                placeholder="¿Qué está pasando?"
-                class="w-full px-4 py-2 rounded-full bg-gray-100 border-0 focus:ring-2 focus:ring-teal-500 focus:bg-white transition cursor-pointer"
-                readonly
+            <button
+                type="button"
                 onclick="document.getElementById('post-modal').classList.remove('hidden')"
+                class="w-full text-left px-4 py-3 rounded-full bg-gray-100 hover:bg-gray-200 transition text-gray-500"
             >
+                ✍️ Hacer publicación
+            </button>
 
         </div>
 
     </div>
 
-    <!-- ACTIONS -->
-    <div class="flex justify-around mt-4 pt-3 border-t border-gray-100">
-
-        <!-- IMAGEN -->
-        <button
-            onclick="document.getElementById('post-modal').classList.remove('hidden')"
-            class="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition"
-        >
-
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                ></path>
-
-            </svg>
-
-            <span class="text-sm font-medium">
-                Imagen
-            </span>
-
-        </button>
-
-        <!-- VIDEO -->
-        <button
-            onclick="document.getElementById('post-modal').classList.remove('hidden')"
-            class="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition"
-        >
-
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                ></path>
-
-            </svg>
-
-            <span class="text-sm font-medium">
-                Video
-            </span>
-
-        </button>
-
-        <!-- UBICACIÓN -->
-        <button
-            onclick="document.getElementById('post-modal').classList.remove('hidden')"
-            class="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition"
-        >
-
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                ></path>
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                ></path>
-
-            </svg>
-
-            <span class="text-sm font-medium">
-                Ubicación
-            </span>
-
-        </button>
-
-    </div>
-
 </div>
-
 <!-- MODAL -->
 <div
     id="post-modal"
@@ -249,24 +152,93 @@
                     class="w-full border border-gray-200 rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700"
                     rows="5"
                 ></textarea>
+                <!-- UBICACIÓN -->
 
-                <!-- IMAGEN -->
-                <div class="mt-5">
+<div class="mt-5">
 
-                    <label class="block mb-2 font-semibold text-gray-700">
+    <label class="block mb-2 font-semibold text-gray-700">
+        Ubicación
+    </label>
 
-                        Imagen
+    <input
+        type="text"
+        name="ubicacion"
+        placeholder="Ej: La Paz, Bolivia"
+        class="w-full border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+    >
 
-                    </label>
+</div>
+<!-- MÚSICA -->
 
-                    <input
-                        type="file"
-                        name="image"
-                        accept="image/*"
-                        class="w-full border border-gray-200 rounded-2xl p-3"
-                    >
+<div class="mt-5">
 
-                </div>
+    <label class="block mb-2 font-semibold text-gray-700">
+        Música
+    </label>
+
+    <input
+
+    type="text"
+
+    id="spotifySearch"
+
+    placeholder="Buscar canción..."
+
+    class="w-full border border-gray-200 rounded-2xl px-4 py-3"
+
+>
+
+<input type="hidden" name="musica" id="musica">
+
+<input type="hidden" name="musica_artista" id="musica_artista">
+
+<input type="hidden" name="musica_preview" id="musica_preview">
+
+<div
+
+    id="spotifyResults"
+
+    class="mt-2 max-h-60 overflow-y-auto"
+
+></div>
+
+</div>
+
+                <!-- IMÁGENES CARRUSEL -->
+
+<div class="mt-5">
+
+    <label class="block mb-2 font-semibold text-gray-700">
+
+        Imágenes (máximo 5)
+
+    </label>
+
+    <input
+
+        id="imagesInput"
+
+        type="file"
+
+        name="images[]"
+
+        accept="image/*"
+
+        multiple
+
+        class="w-full border border-gray-200 rounded-2xl p-3"
+
+    >
+
+    <div
+
+        id="previewContainer"
+
+        class="grid grid-cols-3 gap-2 mt-4"
+
+    ></div>
+
+</div>
 
                 <!-- BOTÓN -->
                 <div class="mt-6">
@@ -289,3 +261,146 @@
     </div>
 
 </div>
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const input =
+        document.getElementById('imagesInput');
+
+    const preview =
+        document.getElementById('previewContainer');
+
+    if(!input) return;
+
+    input.addEventListener('change', function() {
+
+        preview.innerHTML = '';
+
+        if(this.files.length > 5){
+
+            alert('Máximo 5 imágenes');
+
+            this.value = '';
+
+            return;
+        }
+
+        Array.from(this.files).forEach(file => {
+
+            const reader = new FileReader();
+
+            reader.onload = function(e){
+
+                preview.innerHTML += `
+                    <img
+                        src="${e.target.result}"
+                        class="w-full h-24 object-cover rounded-xl"
+                    >
+                `;
+
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+    });
+
+});
+
+</script>
+<script>
+
+const searchInput =
+    document.getElementById('spotifySearch');
+
+const resultsBox =
+    document.getElementById('spotifyResults');
+
+if(searchInput){
+
+    let timer;
+
+    searchInput.addEventListener('input', function(){
+
+        clearTimeout(timer);
+
+        if(this.value.length < 2){
+
+            resultsBox.innerHTML = '';
+            return;
+
+        }
+
+        timer = setTimeout(async () => {
+
+            const response =
+                await fetch(
+                    '/music/search?q=' +
+                    encodeURIComponent(this.value)
+                );
+
+            const data =
+                await response.json();
+
+            resultsBox.innerHTML = '';
+
+            data.tracks.forEach(track => {
+
+                resultsBox.innerHTML += `
+                    <div
+                        class="spotify-track flex items-center gap-3 p-2 hover:bg-gray-100 rounded-xl cursor-pointer"
+                        data-title="${track.title}"
+                        data-artist="${track.artist}"
+                        data-preview="${track.preview ?? ''}"
+                    >
+                        <img
+                            src="${track.cover}"
+                            class="w-12 h-12 rounded-lg"
+                        >
+
+                        <div>
+                            <div class="font-medium">
+                                ${track.title}
+                            </div>
+
+                            <div class="text-sm text-gray-500">
+                                ${track.artist}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            });
+
+        }, 500);
+
+    });
+
+    document.addEventListener('click', function(e){
+
+        const track =
+            e.target.closest('.spotify-track');
+
+        if(!track) return;
+
+        document.getElementById('musica').value =
+            track.dataset.title;
+
+        document.getElementById('musica_artista').value =
+            track.dataset.artist;
+
+        document.getElementById('musica_preview').value =
+            track.dataset.preview;
+
+        searchInput.value =
+            `${track.dataset.title} - ${track.dataset.artist}`;
+
+        resultsBox.innerHTML = '';
+
+    });
+
+}
+
+</script>

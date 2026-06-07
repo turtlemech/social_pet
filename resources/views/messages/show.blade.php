@@ -11,10 +11,10 @@ $otherUser = $conversation
 
 $conversations = auth()->user()
     ->conversaciones()
+    ->where('tipo', 'normal')
     ->with('ultimoMensaje', 'participantes')
     ->latest('fch_act_con')
     ->get();
-
 @endphp
 
 <div class="h-[calc(100vh-72px)] bg-gradient-to-br from-slate-100 to-gray-200 p-4">
@@ -116,12 +116,19 @@ $conversations = auth()->user()
 
                 <div class="flex items-center gap-4">
 
-                    <a
-                        href="{{ route('messages.index') }}"
-                        class="md:hidden w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center"
-                    >
-                        ←
-                    </a>
+                   <a
+
+    href="{{ route('messages.index') }}"
+
+    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+
+>
+
+    <span>←</span>
+
+    <span class="text-sm font-medium">Volver</span>
+
+</a>
 
                     <img
                         src="{{ $otherUser->ava_us

@@ -19,14 +19,29 @@ class Mascota extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'nom_mas',
-        'sex_mas',
-        'des_mas',
-        'fot_mas',
-        'est_mas',
-        'especie_id',
-        'usuario_id',
-    ];
+
+    'nom_mas',
+
+    'sex_mas',
+
+    'per_mas',
+
+    'des_mas',
+
+    'fot_mas',
+
+    'est_mas',
+
+    'especie_id',
+
+    'usuario_id',
+
+];
+    protected $appends = [
+
+    'foto_url'
+
+];
 
     protected $casts = [
         'est_mas'    => 'string',

@@ -9,18 +9,22 @@
         <div class="bg-teal-600 text-white rounded-2xl p-6 mb-8 shadow-lg flex justify-between items-center">
 
             <div>
-                <h1 class="text-4xl font-bold">
-                    👥 Comunidades
-                </h1>
+                <h1 class="text-2xl font-bold">
 
-                <p class="mt-2">
-                    Encuentra grupos de mascotas y comparte experiencias.
-                </p>
+    Comunidades
+
+</h1>
+
+<p class="text-teal-100 text-sm mt-1">
+
+    Descubre grupos para compartir fotos, consejos y eventos de mascotas.
+
+</p>
             </div>
 
             <a
                 href="{{ route('comunidades.create') }}"
-                class="bg-white text-teal-700 px-5 py-3 rounded-xl font-bold"
+                class="bg-white text-teal-700 px-5 py-2.5 rounded-xl font-bold shadow hover:bg-gray-50 transition text-sm"
             >
                 + Crear
             </a>
@@ -37,7 +41,7 @@
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            @foreach($comunidades as $com)
+            @forelse($comunidades as $com)
 
                 <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
 
@@ -52,6 +56,10 @@
                             {{ $com->nom_com }}
                         </h2>
 
+                        <p class="text-xs text-gray-400 mt-1">
+    {{ \Carbon\Carbon::parse($com->fch_cre_com)->diffForHumans() }}
+</p>
+
                         <p class="text-gray-600 mt-3">
                             {{ $com->des_com }}
                         </p>
@@ -61,6 +69,11 @@
                             <span class="bg-teal-100 text-teal-700 px-3 py-2 rounded-full text-sm font-bold">
                                 {{ $com->pri_com }}
                             </span>
+                            @if($com->cat_com)
+    <span class="bg-orange-100 text-orange-700 px-3 py-2 rounded-full text-sm font-bold ml-2">
+        {{ ucfirst($com->cat_com) }}
+    </span>
+@endif
 
                         </div>
 
@@ -115,7 +128,23 @@
 
                 </div>
 
-            @endforeach
+            @empty
+
+<div class="col-span-3 bg-white rounded-2xl shadow-sm p-12 text-center">
+
+    <div class="text-5xl mb-4">🐾</div>
+
+    <h2 class="text-xl font-bold text-gray-800 mb-2">
+        No hay comunidades todavía
+    </h2>
+
+    <p class="text-gray-500">
+        Crea la primera comunidad para amantes de mascotas.
+    </p>
+
+</div>
+
+@endforelse
 
         </div>
 

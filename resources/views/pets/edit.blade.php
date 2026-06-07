@@ -60,6 +60,46 @@
                 </select>
 
             </div>
+            <!-- Personalidad -->
+<div class="mb-6">
+
+    <label class="block font-semibold mb-2">
+        Personalidad
+    </label>
+
+    <select
+        name="per_mas"
+        class="w-full border rounded-2xl p-3"
+    >
+
+        <option value="Sociable"
+            {{ $mascota->per_mas == 'Sociable' ? 'selected' : '' }}>
+            Sociable
+        </option>
+
+        <option value="Juguetón"
+            {{ $mascota->per_mas == 'Juguetón' ? 'selected' : '' }}>
+            Juguetón
+        </option>
+
+        <option value="Tranquilo"
+            {{ $mascota->per_mas == 'Tranquilo' ? 'selected' : '' }}>
+            Tranquilo
+        </option>
+
+        <option value="Protector"
+            {{ $mascota->per_mas == 'Protector' ? 'selected' : '' }}>
+            Protector
+        </option>
+
+        <option value="Activo"
+            {{ $mascota->per_mas == 'Activo' ? 'selected' : '' }}>
+            Activo
+        </option>
+
+    </select>
+
+</div>
 
             <!-- Descripción -->
             <div class="mb-6">

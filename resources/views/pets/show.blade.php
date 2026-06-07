@@ -55,6 +55,11 @@ class="w-full h-[500px] object-cover"                >
                         {{ ucfirst($mascota->sex_mas ?? 'Sin especificar') }}
 
                     </p>
+                    @if($mascota->per_mas)
+    <p class="text-gray-500 text-lg mt-1">
+        🧠 Personalidad: {{ $mascota->per_mas }}
+    </p>
+@endif
 
                 </div>
 
@@ -163,7 +168,7 @@ class="w-full h-[500px] object-cover"                >
             </div>
 
             <!-- DESCRIPCIÓN -->
-            <div class="mt-10">
+            <div class="mt-10a">
 
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">
                     Sobre mí
@@ -293,6 +298,15 @@ class="w-full h-[500px] object-cover"                >
             Dueño del perfil
 
         </div>
+        @if($mascota->usuario->ubi_us)
+
+    <div class="text-sm text-gray-500">
+
+        📍 {{ $mascota->usuario->ubi_us }}
+
+    </div>
+
+@endif
 
     </div>
 

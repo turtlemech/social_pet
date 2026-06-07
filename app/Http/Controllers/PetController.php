@@ -21,19 +21,46 @@ class PetController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nom_mas' => 'required|max:100',
-            'especie_id' => 'required',
-            'sex_mas' => 'required',
-            'des_mas' => 'nullable|max:500',
-            'fot_mas' => 'nullable|image|max:2048'
-        ]);
+        $request->validate(
+
+[
+    'nom_mas' => 'required|min:2|max:100',
+
+'especie_id' => 'required',
+
+'sex_mas' => 'required',
+
+'per_mas' => 'required',
+
+'des_mas' => 'nullable|min:10|max:500',
+
+'fot_mas' => 'nullable|image|max:2048'
+],
+
+[
+    'nom_mas.required' => 'Debes ingresar el nombre de la mascota.',
+    'nom_mas.min' => 'El nombre es demasiado corto.',
+    'nom_mas.max' => 'El nombre es demasiado largo.',
+
+    'especie_id.required' => 'Debes seleccionar una especie.',
+
+    'sex_mas.required' => 'Debes seleccionar el sexo de la mascota.',
+
+    'des_mas.min' => 'La descripción es muy corta. Escribe al menos 10 caracteres.',
+    'des_mas.max' => 'La descripción no puede superar los 500 caracteres.',
+
+    'fot_mas.image' => 'El archivo debe ser una imagen.',
+    'fot_mas.max' => 'La imagen no puede superar los 2 MB.',
+]
+
+);
 
         $mascota = new Mascota();
 
         $mascota->nom_mas = $request->nom_mas;
         $mascota->especie_id = $request->especie_id;
         $mascota->sex_mas = $request->sex_mas;
+        $mascota->per_mas = $request->per_mas;
         $mascota->des_mas = $request->des_mas;
 
         // usuario dueño
@@ -158,15 +185,47 @@ public function update(Request $request, $id)
         abort(403);
     }
 
-    $request->validate([
-        'nom_mas' => 'required|max:100',
-        'sex_mas' => 'required',
-        'des_mas' => 'nullable|max:500',
-        'fot_mas' => 'nullable|image|max:2048'
-    ]);
+    $request->validate(
+
+[
+
+    'nom_mas' => 'required|min:2|max:100',
+
+'sex_mas' => 'required',
+
+'per_mas' => 'required',
+
+'des_mas' => 'nullable|min:10|max:500',
+
+'fot_mas' => 'nullable|image|max:2048'
+
+],
+
+[
+
+    'nom_mas.required' => 'Debes ingresar el nombre de la mascota.',
+
+    'nom_mas.min' => 'El nombre es demasiado corto.',
+
+    'nom_mas.max' => 'El nombre es demasiado largo.',
+
+    'sex_mas.required' => 'Debes seleccionar el sexo de la mascota.',
+
+    'des_mas.min' => 'La descripción es muy corta. Escribe al menos 10 caracteres.',
+
+    'des_mas.max' => 'La descripción no puede superar los 500 caracteres.',
+
+    'fot_mas.image' => 'El archivo debe ser una imagen.',
+
+    'fot_mas.max' => 'La imagen no puede superar los 2 MB.',
+
+]
+
+);
 
     $mascota->nom_mas = $request->nom_mas;
     $mascota->sex_mas = $request->sex_mas;
+    $mascota->per_mas = $request->per_mas;
     $mascota->des_mas = $request->des_mas;
 
     // Nueva foto

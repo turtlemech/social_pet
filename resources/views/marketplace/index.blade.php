@@ -109,10 +109,10 @@
                 {{-- Filtros --}}
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="filterByCategory('all')" class="filter-btn active px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="all">Todos</button>
-                    <button onclick="filterByCategory('Comida')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="Comida">🍖 Comida</button>
-                    <button onclick="filterByCategory('Juguetes')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="Juguetes">🧸 Juguetes</button>
-                    <button onclick="filterByCategory('Accesorios')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="Accesorios">🎀 Accesorios</button>
-                    <button onclick="filterByCategory('Salud')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="Salud">💊 Salud</button>
+                    <button onclick="filterByCategory('alimento')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="alimento">🍖 Comida</button>
+                    <button onclick="filterByCategory('juguete')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="juguete">🧸 Juguetes</button>
+                    <button onclick="filterByCategory('accesorio')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="accesorio">🎀 Accesorios</button>
+                    <button onclick="filterByCategory('salud')" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-[#0d9488] hover:text-white transition" data-cat="salud">💊 Salud</button>
                 </div>
 
             </div>
@@ -134,7 +134,25 @@
 
             @forelse($productos as $producto)
 
-                <div class="card-product bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col h-full" data-category="{{ $producto->cat_pro }}" data-name="{{ strtolower($producto->nom_pro) }}">
+                <div class="card-product bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col h-full"
+
+     data-category="{{ $producto->cat_pro }}"
+
+     data-name="{{ strtolower($producto->nom_pro) }}"
+
+     data-id="{{ $producto->id }}"
+
+     data-nombre="{{ $producto->nom_pro }}"
+
+     data-descripcion="{{ $producto->des_pro }}"
+
+     data-precio="{{ $producto->pre_pro }}"
+
+     data-categoria="{{ $producto->cat_pro }}"
+
+     data-imagen="{{ $producto->img_pro ? asset('storage/' . $producto->img_pro) : '' }}"
+
+     data-vendedor="{{ $producto->us_ven }}">
 
                     {{-- IMAGEN --}}
                     <div class="relative overflow-hidden group">
@@ -168,20 +186,134 @@
                         </div>
 
                         {{-- BOTONES --}}
-                        <div class="flex gap-2 mt-auto">
-                            <button class="btn-sp flex-1 py-3 rounded-xl font-semibold shadow-sm text-sm flex items-center justify-center gap-2" onclick="alert('Función de compra en desarrollo')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                Comprar
-                            </button>
-                            <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 p-3 rounded-xl transition" title="Ver detalles">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                        </div>
+<div class="flex gap-2 mt-auto">
+
+    {{-- SI ES EL DUEÑO DEL PRODUCTO --}}
+    @if(auth()->id() == $producto->us_ven)
+
+    <button
+
+        onclick="abrirModal({{ $producto->id }})"
+
+        class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-3 rounded-xl transition"
+
+        title="Ver detalles">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+
+             class="h-5 w-5"
+
+             fill="none"
+
+             viewBox="0 0 24 24"
+
+             stroke="currentColor"
+
+             stroke-width="2">
+
+            <path stroke-linecap="round"
+
+                  stroke-linejoin="round"
+
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+            <path stroke-linecap="round"
+
+                  stroke-linejoin="round"
+
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+
+        </svg>
+
+    </button>
+
+        {{-- EDITAR --}}
+        <a href="{{ route('marketplace.edit', $producto->id) }}"
+           class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-3 rounded-xl transition"
+           title="Editar">
+
+            ✏️
+        </a>
+
+        {{-- ELIMINAR --}}
+        <form action="{{ route('marketplace.destroy', $producto->id) }}"
+              method="POST"
+              onsubmit="return confirm('¿Eliminar este producto?')">
+
+            @csrf
+            @method('DELETE')
+
+            <button
+                type="submit"
+                class="bg-red-100 hover:bg-red-200 text-red-600 p-3 rounded-xl transition"
+                title="Eliminar">
+
+                🗑️
+            </button>
+        </form>
+
+    @else
+
+        {{-- COMPRAR --}}
+       <form
+
+    action="{{ route('messages.startMarketplace', [
+
+        $producto->us_ven,
+
+        $producto->id
+
+    ]) }}"
+
+    method="POST"
+
+    class="flex-1"
+
+>
+
+    @csrf
+
+    <button
+
+        type="submit"
+
+        class="btn-sp w-full py-3 rounded-xl font-semibold shadow-sm text-sm flex items-center justify-center gap-2"
+
+    >
+
+        💬 Contactar
+
+    </button>
+
+</form>
+
+        {{-- DETALLES --}}
+        <button
+    onclick="abrirModal({{ $producto->id }})"
+    class="bg-gray-100 hover:bg-gray-200 text-gray-600 p-3 rounded-xl transition"
+    title="Ver detalles">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="h-5 w-5"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         stroke-width="2">
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+
+</button>
+
+    @endif
+
+</div>
 
                     </div>
 
@@ -210,8 +342,96 @@
     </div>
 
 </div>
+<div id="productModal"
+     class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl max-w-3xl w-full overflow-hidden">
+
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-xl font-bold">Detalles del producto</h2>
+
+            <button onclick="cerrarModal()"
+                class="text-gray-500 hover:text-red-500 text-xl">
+                ✖
+            </button>
+        </div>
+
+        <div id="modalContent" class="p-6">
+            Cargando...
+        </div>
+
+    </div>
+</div>
 
 <script>
+    function abrirModal(id)
+{
+    const card = document.querySelector(`[data-id="${id}"]`);
+
+    document.getElementById('modalContent').innerHTML = `
+
+    ${card.dataset.imagen
+
+    ? `<img src="${card.dataset.imagen}"
+
+            class="w-full h-80 object-cover rounded-xl mb-5">`
+
+    : `<div class="w-full h-80 bg-gray-100 rounded-xl mb-5 flex items-center justify-center text-6xl">
+
+            🐾
+
+       </div>`
+
+}
+
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">
+
+        ${card.dataset.nombre}
+
+    </h2>
+
+    <div class="bg-teal-50 text-teal-700 font-bold inline-block px-3 py-1 rounded-full mb-4">
+
+        ${card.dataset.categoria}
+
+    </div>
+
+    <p class="text-gray-600 leading-relaxed mb-5">
+
+        ${card.dataset.descripcion}
+
+    </p>
+
+    <div class="border-t pt-4 space-y-2">
+
+        <p class="text-2xl font-bold text-teal-600">
+
+            Bs. ${card.dataset.precio}
+
+        </p>
+
+        <p class="text-sm text-gray-500">
+
+            Vendedor #${card.dataset.vendedor}
+
+        </p>
+
+    </div>
+
+`;
+    document.getElementById('productModal')
+        .classList.remove('hidden');
+}
+
+    function cerrarModal()
+
+    {
+
+        document.getElementById('productModal')
+
+            .classList.add('hidden');
+
+    }
     function filterByCategory(category) {
         const products = document.querySelectorAll('[data-category]');
         const buttons = document.querySelectorAll('.filter-btn');

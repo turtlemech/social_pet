@@ -14,7 +14,7 @@ class AdopcionController extends Controller
             ->join('mascotas', 'adopciones.mas_id', '=', 'mascotas.id')
             ->leftJoin('usuarios', 'adopciones.us_act', '=', 'usuarios.id')
             ->leftJoin('especies', 'mascotas.especie_id', '=', 'especies.id')
-            ->where('adopciones.est_ado', '!=', 'completado')
+            ->where('adopciones.est_ado', 'pendiente')
             ->select(
                 'adopciones.*',
                 'mascotas.nom_mas',
@@ -34,42 +34,95 @@ class AdopcionController extends Controller
 
     // ================= FORMULARIO =================
     public function create()
-    {
-        $mascotas = DB::table('mascotas')
-            ->leftJoin('especies', 'mascotas.especie_id', '=', 'especies.id')
-            ->where('mascotas.usuario_id', auth()->id())
-            ->where('mascotas.est_mas', 'activo')
-            ->select('mascotas.*', 'especies.nom_esp as especie')
-            ->get();
+{
+    $mascotas = DB::table('mascotas')
+        ->leftJoin('especies', 'mascotas.especie_id', '=', 'especies.id')
+        ->where('mascotas.usuario_id', auth()->id())
+        ->where('mascotas.est_mas', 'activo')
+        ->select('mascotas.*', 'especies.nom_esp as especie')
+        ->get();
 
-        return view('adopciones.create', compact('mascotas'));
-    }
+    return view('adopciones.create', compact('mascotas'));
+}
 
     // ================= GUARDAR =================
     public function store(Request $request)
-    {
-        $request->validate([
-            'des_ado' => 'required|string|min:20',
-            'mas_id' => 'required|integer|exists:mascotas,id',
+{
+    try {
+
+        $request->validate(
+
+[
+
+    'des_ado' => 'required|string|min:20',
+
+    'mas_id' => 'required|integer|exists:mascotas,id',
+
+],
+
+[
+
+    'des_ado.required' => 'Debes escribir una descripción para la adopción.',
+
+    'des_ado.min' => 'La descripción es muy corta. Escribe al menos 20 caracteres.',
+
+    'mas_id.required' => 'Debes seleccionar una mascota.',
+
+    'mas_id.exists' => 'La mascota seleccionada no es válida.',
+
+]
+
+);
+
+        DB::table('adopciones')->insert([
+            'des_ado' => $request->des_ado,
+            'fch_pub_ado' => now(),
+            'fch_sol_ado' => now(),
+            'fch_res_ado' => null,
+            'est_ado' => 'pendiente',
+            'mas_id' => $request->mas_id,
+            'us_act' => auth()->id(),
+            'us_sol' => auth()->id(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
-       DB::table('adopciones')->insert([
-
-    'des_ado' => $request->des_ado,
-    'fch_pub_ado' => now(),
-    'fch_sol_ado' => now(),
-    'fch_res_ado' => now(),
-    'est_ado' => '1',
-    'mas_id' => $request->mas_id,
-    'us_act' => auth()->id(),
-    'us_sol' => auth()->id(),
-    'created_at' => now(),
-    'updated_at' => now(),
-
-]);
 
         return redirect()
             ->route('adopciones.index')
-            ->with('success', '¡Mascota publicada para adopción exitosamente! 🐾');
+            ->with('success', '¡Mascota publicada!');
+
+    } catch (\Exception $e) {
+
+        dd($e->getMessage());
+
     }
+}
+    public function marcarAdoptada($id)
+{
+    DB::table('adopciones')
+        ->where('id', $id)
+        ->where('us_act', auth()->id())
+        ->update([
+            'est_ado' => 'aprobada',
+            'updated_at' => now()
+        ]);
+
+    return back()->with(
+        'success',
+        '🐾 La mascota fue marcada como adoptada.'
+    );
+}
+
+public function cancelar($id)
+{
+    DB::table('adopciones')
+        ->where('id', $id)
+        ->where('us_act', auth()->id())
+        ->delete();
+
+    return back()->with(
+        'success',
+        '❌ La publicación de adopción fue cancelada.'
+    );
+}
 }

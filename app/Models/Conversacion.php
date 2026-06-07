@@ -15,13 +15,26 @@ class Conversacion extends Model
     protected $primaryKey = 'id';
     
     protected $fillable = [
-        'cod_con',
-        'tip_con',
-        'nom_con',
-        'us_crea',
-        'fch_act_con',
-        'act_con',
-    ];
+
+    'cod_con',
+
+    'tip_con',
+
+    'tipo',
+
+    'adopcion_id',
+
+    'producto_id',
+
+    'nom_con',
+
+    'us_crea',
+
+    'fch_act_con',
+
+    'act_con',
+
+];
 
     protected $casts = [
         'fch_act_con' => 'datetime',

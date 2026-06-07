@@ -26,16 +26,18 @@
         transform: translateY(-2px);
         box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.4);
     }
-    .like-btn {
-        transition: all 0.2s ease;
-    }
-    .like-btn:hover {
-        transform: scale(1.15);
-    }
-    .like-btn.liked {
-        background: #fecaca !important;
-        color: #dc2626 !important;
-    }
+    .follow-pet-btn {
+    transition: all 0.2s ease;
+}
+
+.follow-pet-btn:hover {
+    transform: scale(1.15);
+}
+
+.follow-pet-btn.liked {
+    background: #fecaca !important;
+    color: #dc2626 !important;
+}
     .filter-btn.active {
         background: #0d9488;
         color: white;
@@ -88,16 +90,20 @@
             @forelse($mascotas as $pet)
 
                 @php
-                    $especie = strtolower($pet->especie ?? 'mascota');
-                    
-                    // Nombre completo del dueño
-                    $nombreDueno = trim(
-                        ($pet->nom_us ?? 'Usuario') . ' ' . 
-                        ($pet->app_us ?? '') . ' ' . 
-                        ($pet->apm_us ?? '')
-                    );
-                    
-                    $emojiEspecie = match($especie) {
+    $especie = strtolower($pet->especie->nom_esp ?? 'mascota');
+
+    $yaLaSigo = $pet->seguidores
+
+    ->contains('id', auth()->id());
+
+    // Nombre completo del dueño
+    $nombreDueno = trim(
+        ($pet->usuario->nom_us ?? 'Usuario') . ' ' .
+        ($pet->usuario->app_us ?? '') . ' ' .
+        ($pet->usuario->apm_us ?? '')
+    );
+
+    $emojiEspecie = match($especie) {
                         'perro' => '🐕',
                         'gato' => '🐈',
                         'conejo' => '🐰',
@@ -127,14 +133,35 @@
                         <div class="absolute top-3 left-3">
                             <span class="bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm uppercase flex items-center gap-1">
                                 <span>{{ $emojiEspecie }}</span>
-                                <span>{{ $pet->especie ?? 'Mascota' }}</span>
+                                <span>{{ $pet->especie->nom_esp ?? 'Mascota' }}</span>
                             </span>
                         </div>
 
                         {{-- Like --}}
-                        <button onclick="toggleLike(this)" class="like-btn absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-red-500 shadow-sm">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
+                        <form
+    action="{{ route('mascotas.seguir', $pet->id) }}"
+    method="POST"
+    class="absolute top-3 right-3"
+>
+    @csrf
+
+    <button
+
+    type="submit"
+
+    onclick="animarCorazon(this);"
+
+    class="follow-pet-btn w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110
+
+    {{ $yaLaSigo ? 'text-red-500' : 'text-gray-400' }}"
+
+>
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+    </button>
+
+</form>
 
                         {{-- Online --}}
                         <div class="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
@@ -171,7 +198,7 @@
                         </div>
 
                         {{-- BOTÓN --}}
-                        <a href="{{ route('pets.index') }}" class="btn-ver-perfil w-full py-3 rounded-xl text-white font-bold text-center flex items-center justify-center gap-2 shadow-md mt-auto">
+                        <a href="{{ route('pets.show', $pet->id) }}" class="btn-ver-perfil w-full py-3 rounded-xl text-white font-bold text-center flex items-center justify-center gap-2 shadow-md mt-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -211,13 +238,20 @@
 </div>
 
 <script>
-    function toggleLike(btn) {
-        btn.classList.toggle('liked');
-        const isLiked = btn.classList.contains('liked');
-        btn.style.transform = 'scale(1.3)';
-        setTimeout(() => btn.style.transform = 'scale(1)', 200);
-        console.log(isLiked ? 'Like añadido' : 'Like removido');
-    }
+    function animarCorazon(btn) {
+
+    btn.animate(
+        [
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.3)' },
+            { transform: 'scale(1)' }
+        ],
+        {
+            duration: 300
+        }
+    );
+
+}
 
     function filterPets(species) {
         const cards = document.querySelectorAll('.pet-card');
@@ -234,13 +268,26 @@
         });
 
         cards.forEach(card => {
-            if (species === 'all' || card.dataset.species === species) {
-                card.style.display = '';
-                card.style.animation = 'fadeInUp 0.4s ease';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+
+    if (
+        species === 'all' ||
+        card.dataset.species === species ||
+        (
+            species === 'otro' &&
+            !['perro', 'gato'].includes(card.dataset.species)
+        )
+    ) {
+
+        card.style.display = '';
+        card.style.animation = 'fadeInUp 0.4s ease';
+
+    } else {
+
+        card.style.display = 'none';
+
+    }
+
+});
     }
 </script>
 

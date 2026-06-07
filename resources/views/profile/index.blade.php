@@ -159,6 +159,70 @@
                 </form>
             </div>
         </div>
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+    <div class="p-6">
+
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            📍 Ubicación
+        </h2>
+
+        <p class="text-sm text-gray-600 mb-6">
+            Utilizamos tu ubicación para recomendar mascotas, eventos y comunidades cercanas.
+        </p>
+
+        <div class="flex items-center justify-between flex-wrap gap-4">
+
+            <div>
+
+                <p class="font-semibold text-gray-800">
+                    Estado:
+                    @if($user->ubicacion_activa)
+                        <span class="text-green-600">Activada</span>
+                    @else
+                        <span class="text-red-600">Desactivada</span>
+                    @endif
+                </p>
+
+                @if($user->ubicacion_actualizada)
+                    <p class="text-sm text-gray-500 mt-1">
+                        Última actualización:
+                        {{ \Carbon\Carbon::parse($user->ubicacion_actualizada)->diffForHumans() }}
+                    </p>
+                @endif
+
+            </div>
+
+            <div class="flex gap-3">
+
+                <button
+                    onclick="actualizarUbicacion()"
+                    class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
+                >
+                    📍 Actualizar ubicación
+                </button>
+
+                @if($user->ubicacion_activa)
+
+                <form method="POST" action="{{ route('ubicacion.desactivar') }}">
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                    >
+                        Desactivar
+                    </button>
+
+                </form>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
         <!-- Tarjeta de Cambiar Contraseña -->
         <div class="bg-white overflow-hidden shadow-sm rounded-lg">
@@ -392,6 +456,69 @@
         50% { transform: translateX(-10px); }
     }
 </style>
+<script>
+
+function actualizarUbicacion() {
+
+    if (!navigator.geolocation) {
+
+        alert('Tu navegador no soporta geolocalización');
+
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position) {
+
+            const response = await fetch(
+                "{{ route('ubicacion.actualizar') }}",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN':
+                            document.querySelector(
+                                'meta[name="csrf-token"]'
+                            ).content
+                    },
+                    body: JSON.stringify({
+
+                        latitud:
+                            position.coords.latitude,
+
+                        longitud:
+                            position.coords.longitude
+
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                alert('Ubicación actualizada correctamente');
+
+                location.reload();
+
+            }
+
+        },
+
+        function(error) {
+
+            alert(
+                'Debes permitir acceso a la ubicación.'
+            );
+
+        }
+
+    );
+
+}
+
+</script>
 @endsection
 
 

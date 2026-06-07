@@ -374,13 +374,15 @@ if (notificationsOpen) {
                     </button>
 
                     <!-- Dropdown menu -->
-                    <div x-show="open"
-                        @click.away="open = false"
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 z-50">
+<div x-show="open"
 
+    x-cloak
+
+    @click.outside="open = false"
+
+    x-transition
+
+    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 z-50">
                         <div class="px-4 py-3 border-b border-gray-100">
                             <p class="text-sm font-semibold text-gray-900">{{ Auth::user()->nom_us ?? Auth::user()->name ?? 'Usuario' }}</p>
                             <p class="text-xs text-gray-500">{{ Auth::user()->ema_us ?? Auth::user()->email ?? '' }}</p>

@@ -57,8 +57,20 @@
         {{-- ================= FORMULARIO ================= --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:p-8">
 
-            <form action="{{ route('adopciones.store') }}" method="POST">
-                @csrf
+            <form action="/adopciones"
+      method="POST"
+      onsubmit="console.log('ENVIANDO');">
+    @csrf
+
+    @if ($errors->any())
+        <div class="bg-red-100 border border-red-300 text-red-700 p-4 rounded-xl mb-4">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>• {{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
                 {{-- SELECCIONAR MASCOTA --}}
                 <div class="mb-6">
@@ -71,7 +83,21 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             @foreach($mascotas as $mascota)
                                 <label class="pet-option flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-[#0d9488]/30">
-                                    <input type="radio" name="mas_id" value="{{ $mascota->id }}" class="accent-[#0d9488]" required>
+                                    <input
+
+    type="radio"
+
+    name="mas_id"
+
+    value="{{ $mascota->id }}"
+
+    class="accent-[#0d9488]"
+
+    {{ old('mas_id') == $mascota->id ? 'checked' : '' }}
+
+    required
+
+>
                                     <img src="{{ $mascota->fot_mas ? asset('storage/' . $mascota->fot_mas) : 'https://ui-avatars.com/api/?name='.urlencode($mascota->nom_mas).'&background=0d9488&color=fff&size=100' }}" 
                                          class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
                                          alt="{{ $mascota->nom_mas }}">
@@ -104,7 +130,7 @@
                         class="w-full border border-gray-200 rounded-xl p-4 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition resize-none bg-gray-50/50"
                         placeholder="Ejemplo: Luna es una perrita muy cariñosa de 2 años. Busca una familia con patio donde pueda jugar. Está vacunada y esterilizada. Se lleva bien con niños y otros perros. 🐕💚"
                         required
-                    ></textarea>
+                    >{{ old('des_ado') }}</textarea>
                     <p class="text-xs text-gray-400 mt-2">Sé honesto y detallado. Menciona edad, temperamento, cuidados especiales, etc.</p>
                 </div>
 

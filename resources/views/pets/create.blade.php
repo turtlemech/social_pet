@@ -28,6 +28,15 @@
         >
 
             @csrf
+            @if ($errors->any())
+    <div class="bg-red-100 border border-red-300 text-red-700 p-4 rounded-xl mb-4">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>• {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
             <!-- FOTO -->
             <div>
@@ -52,10 +61,15 @@
                 </label>
 
                 <input
-                    type="text"
-                    name="nom_mas"
-                    placeholder="Ej: Max"
-                    class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+
+    type="text"
+
+    name="nom_mas"
+
+    value="{{ old('nom_mas') }}"
+
+    placeholder="Ej: Max"
+        class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
 
             </div>
@@ -76,18 +90,26 @@
                         Selecciona una especie
                     </option>
 
-                    <option value="1">
-                        Perro
-                    </option>
+                    <option value="1" {{ old('especie_id') == 1 ? 'selected' : '' }}>
 
-                    <option value="2">
-                        Gato
-                    </option>
+    Perro
 
-                    <option value="3">
-                        Ave
-                    </option>
+</option>
 
+<option value="2" {{ old('especie_id') == 2 ? 'selected' : '' }}>
+
+    Gato
+
+</option>
+
+<option value="3" {{ old('especie_id') == 3 ? 'selected' : '' }}>
+
+    Ave
+
+</option>
+<option value="4" {{ old('especie_id') == 4 ? 'selected' : '' }}>
+    Reptil
+</option>
                 </select>
 
             </div>
@@ -104,17 +126,60 @@
                     class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
 
-                    <option value="macho">
-                        Macho
-                    </option>
+                    <option value="macho" {{ old('sex_mas') == 'macho' ? 'selected' : '' }}>
 
-                    <option value="hembra">
-                        Hembra
-                    </option>
+    Macho
+
+</option>
+
+<option value="hembra" {{ old('sex_mas') == 'hembra' ? 'selected' : '' }}>
+
+    Hembra
+
+</option>
 
                 </select>
 
             </div>
+            <!-- PERSONALIDAD -->
+<div>
+
+    <label class="block text-sm font-semibold text-gray-700 mb-3">
+        Personalidad
+    </label>
+
+    <select
+        name="per_mas"
+        class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+    >
+
+        <option value="">
+            Selecciona una personalidad
+        </option>
+
+        <option value="Sociable" {{ old('per_mas') == 'Sociable' ? 'selected' : '' }}>
+            Sociable
+        </option>
+
+        <option value="Juguetón" {{ old('per_mas') == 'Juguetón' ? 'selected' : '' }}>
+            Juguetón
+        </option>
+
+        <option value="Tranquilo" {{ old('per_mas') == 'Tranquilo' ? 'selected' : '' }}>
+            Tranquilo
+        </option>
+
+        <option value="Protector" {{ old('per_mas') == 'Protector' ? 'selected' : '' }}>
+            Protector
+        </option>
+
+        <option value="Activo" {{ old('per_mas') == 'Activo' ? 'selected' : '' }}>
+            Activo
+        </option>
+
+    </select>
+
+</div>
 
             <!-- DESCRIPCIÓN -->
             <div>
@@ -124,11 +189,11 @@
                 </label>
 
                 <textarea
-                    name="des_mas"
-                    rows="5"
-                    placeholder="Cuéntanos sobre tu mascota..."
-                    class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
-                ></textarea>
+    name="des_mas"
+    rows="5"
+    placeholder="Cuéntanos sobre tu mascota..."
+    class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+>{{ old('des_mas') }}</textarea>
 
             </div>
 

@@ -36,6 +36,7 @@ class ComunidadController extends Controller
             'des_com' => 'nullable|string',
             'fot_com' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'pri_com' => 'required|string',
+            'cat_com' => 'nullable|string|max:50',
         ]);
 
         $foto = null;
@@ -59,6 +60,8 @@ class ComunidadController extends Controller
     'fot_com' => $foto,
 
     'pri_com' => $request->pri_com,
+
+    'cat_com' => $request->cat_com,
 
     'est_com' => 1,
 
@@ -127,10 +130,47 @@ $esMiembro = DB::table('miembro_comunidad')
     ->where('id', auth()->id())
     ->exists();
 
+$publicaciones = DB::table('publicaciones_comunidad')
+
+    ->leftJoin(
+
+        'usuarios',
+
+        'publicaciones_comunidad.id_usuario',
+
+        '=',
+
+        'usuarios.id'
+
+    )
+
+    ->select(
+
+        'publicaciones_comunidad.*',
+
+        'usuarios.nom_us',
+
+        'usuarios.ava_us'
+
+    )
+
+    ->where('publicaciones_comunidad.cod_com', $cod_com)
+
+    ->orderBy('publicaciones_comunidad.created_at', 'desc')
+
+    ->get();
+
+$comentarios = DB::table('comentarios_comunidad')
+    ->orderBy('created_at', 'asc')
+    ->get()
+    ->groupBy('publicacion_id');
+
 return view('comunidades.show', compact(
     'comunidad',
     'miembros',
-    'esMiembro'
+    'esMiembro',
+    'publicaciones',
+    'comentarios'
 ));
 
 }
@@ -144,6 +184,110 @@ public function salir($cod_com)
     return back()->with(
         'success',
         'Saliste de la comunidad'
+    );
+}
+public function publicar(Request $request, $cod_com)
+{
+    $request->validate([
+        'contenido' => 'nullable|string',
+        'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+        'tipo' => 'nullable|string',
+    ]);
+
+    $imagen = null;
+
+    if ($request->hasFile('imagen')) {
+        $imagen = $request->file('imagen')
+            ->store('publicaciones_comunidad', 'public');
+    }
+
+    DB::table('publicaciones_comunidad')->insert([
+        'cod_com' => $cod_com,
+        'id_usuario' => auth()->id(),
+        'contenido' => $request->contenido,
+        'imagen' => $imagen,
+        'tipo' => $request->tipo ?? 'texto',
+        'likes' => 0,
+        'created_at' => now(),
+        'updated_at' => now(),
+        'anonima' => $request->anonima ?? 0,
+    ]);
+
+    return back()->with(
+        'success',
+        'Publicación creada correctamente.'
+    );
+}
+public function like($id)
+{
+    $publicacion = DB::table('publicaciones_comunidad')
+        ->where('id', $id)
+        ->first();
+
+    if (!$publicacion) {
+        return back();
+    }
+
+    DB::table('publicaciones_comunidad')
+        ->where('id', $id)
+        ->increment('likes');
+
+    if ($publicacion->id_usuario != auth()->id()) {
+
+    $existeNotificacion = \App\Models\Notificacion::where(
+        'usuario_id',
+        $publicacion->id_usuario
+    )
+    ->where('tip_not', 'like_comunidad')
+    ->where(
+        'men_not',
+        auth()->user()->nom_us .
+        ' le dio like a tu publicación en una comunidad'
+    )
+    ->exists();
+
+    if (!$existeNotificacion) {
+
+        \App\Models\Notificacion::create([
+
+            'tit_not' => 'Nuevo like en comunidad',
+
+            'men_not' => auth()->user()->nom_us .
+                ' le dio like a tu publicación en una comunidad',
+
+            'tip_not' => 'like_comunidad',
+
+            'lei_not' => false,
+
+            'usuario_id' => $publicacion->id_usuario,
+
+            'url_not' => route(
+                'usuario.profile',
+                auth()->user()
+            ),
+        ]);
+    }
+}
+
+    return back();
+}
+public function comentar(Request $request, $id)
+{
+    $request->validate([
+        'comentario' => 'required|string|max:500',
+    ]);
+
+    DB::table('comentarios_comunidad')->insert([
+        'publicacion_id' => $id,
+        'id_usuario' => auth()->id(),
+        'comentario' => $request->comentario,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return back()->with(
+        'success',
+        'Comentario agregado.'
     );
 }
 }

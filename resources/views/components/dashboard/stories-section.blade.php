@@ -9,12 +9,25 @@
     <div class="overflow-x-auto pb-2 -mx-2 px-2 stories-scroll">
         <div class="flex space-x-4">
             <x-posts.story-circle isAdd="true" />
-            @foreach($stories as $story)
-                <x-posts.story-circle 
-                    name="{{ $story }}" 
-                    avatar="https://ui-avatars.com/api/?name={{ $story }}&background=0d9488&color=fff&bold=true" 
-                />
-            @endforeach
+            @foreach($stories as $usuario)
+
+    <x-posts.story-circle
+
+    name="{{ $usuario->nom_us }}"
+
+    avatar="{{ $usuario->ava_us
+
+        ? asset('storage/'.$usuario->ava_us)
+
+        : 'https://ui-avatars.com/api/?name='.urlencode($usuario->nom_us)
+
+    }}"
+
+    :historia="$usuario->historias->first()"
+
+/>
+
+@endforeach
         </div>
     </div>
 </x-ui.card>

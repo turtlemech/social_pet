@@ -1,393 +1,459 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            {{-- Logo personalizado --}}
-            <a href="/" class="flex justify-center items-center space-x-2">
-                <img src="{{ asset('storage/imgages/social_petpng.png') }}" 
-                     alt="Social Pet" 
-                     class="h-12 w-auto">
-                <span class="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
-                    SocialPet
-                </span>
-            </a>
-        </x-slot>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - MiMascota</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .transition-all-200 {
+            transition: all 0.2s ease;
+        }
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        input.border-red-400 {
+            border-color: #f87171;
+        }
+        .error-message {
+            display: none;
+            font-size: 0.75rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+        }
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 min-h-screen flex items-center justify-center p-4 font-sans">
 
-        <x-validation-errors class="mb-4" />
-
-        @if (session('success'))
-            <div class="mb-4 font-medium text-sm text-green-600 bg-green-100 p-3 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('register') }}" id="registerForm">
-            @csrf
-
-            {{-- Nombre (nom_us) --}}
-            <div>
-                <x-label for="nom_us" value="{{ __('Nombre') }}" />
-                <x-input id="nom_us" 
-                    class="block mt-1 w-full" 
-                    type="text" 
-                    name="nom_us" 
-                    :value="old('nom_us')" 
-                    required 
-                    autofocus 
-                    maxlength="100" 
-                    placeholder="Ej: Juan"
-                    oninput="validateField(this)" />
-                <div class="text-xs mt-1 flex items-center gap-2">
-                    <span id="nom_us_error" class="text-red-500 hidden">❌ Mínimo 2 caracteres</span>
-                    <span id="nom_us_valid" class="text-green-500 hidden">✅ Válido</span>
-                    <span class="text-gray-400 ml-auto"><span id="nom_us_count">0</span>/100</span>
-                </div>
-            </div>
-
-            {{-- Apellido (ape_us) --}}
-            <div class="mt-4">
-                <x-label for="ape_us" value="{{ __('Apellido') }}" />
-                <x-input id="ape_us" 
-                    class="block mt-1 w-full" 
-                    type="text" 
-                    name="ape_us" 
-                    :value="old('ape_us')" 
-                    required 
-                    maxlength="100" 
-                    placeholder="Ej: Pérez"
-                    oninput="validateField(this)" />
-                <div class="text-xs mt-1 flex items-center gap-2">
-                    <span id="ape_us_error" class="text-red-500 hidden">❌ Mínimo 2 caracteres</span>
-                    <span id="ape_us_valid" class="text-green-500 hidden">✅ Válido</span>
-                    <span class="text-gray-400 ml-auto"><span id="ape_us_count">0</span>/100</span>
-                </div>
-            </div>
-
-            {{-- Email (ema_us) --}}
-            <div class="mt-4">
-                <x-label for="ema_us" value="{{ __('Correo electrónico') }}" />
-                <x-input id="ema_us" 
-                    class="block mt-1 w-full" 
-                    type="email" 
-                    name="ema_us" 
-                    :value="old('ema_us')" 
-                    required 
-                    maxlength="150" 
-                    autocomplete="username" 
-                    placeholder="ejemplo@correo.com"
-                    oninput="validateField(this)" />
-                <div class="text-xs mt-1 flex items-center gap-2">
-                    <span id="ema_us_error" class="text-red-500 hidden">❌ Email inválido</span>
-                    <span id="ema_us_valid" class="text-green-500 hidden">✅ Válido</span>
-                </div>
-            </div>
-
-            {{-- Teléfono (tel_us) - Solo números --}}
-            <div class="mt-4">
-                <x-label for="tel_us" value="{{ __('Teléfono (opcional)') }}" />
-                <x-input id="tel_us" 
-                    class="block mt-1 w-full" 
-                    type="tel" 
-                    name="tel_us" 
-                    :value="old('tel_us')" 
-                    maxlength="20" 
-                    placeholder="Ej: 77777777"
-                    oninput="validatePhone(this)" />
-                <div class="text-xs mt-1 flex items-center gap-2">
-                    <span id="tel_us_error" class="text-red-500 hidden">❌ Solo números (8-15 dígitos)</span>
-                    <span id="tel_us_valid" class="text-green-500 hidden">✅ Válido</span>
-                    <span class="text-gray-400 ml-auto"><span id="tel_us_count">0</span>/20</span>
-                </div>
-            </div>
-
-            {{-- Ciudad (ciu_us) --}}
-            <div class="mt-4">
-                <x-label for="ciu_us" value="{{ __('Ciudad (opcional)') }}" />
-                <x-input id="ciu_us" 
-                    class="block mt-1 w-full" 
-                    type="text" 
-                    name="ciu_us" 
-                    :value="old('ciu_us')" 
-                    maxlength="100" 
-                    placeholder="Ej: Lima"
-                    oninput="validateField(this)" />
-                <div class="text-xs mt-1 flex items-center gap-2">
-                    <span id="ciu_us_error" class="text-red-500 hidden">❌ Mínimo 2 caracteres</span>
-                    <span id="ciu_us_valid" class="text-green-500 hidden">✅ Válido</span>
-                    <span class="text-gray-400 ml-auto"><span id="ciu_us_count">0</span>/100</span>
-                </div>
-            </div>
-
-            {{-- Contraseña (pas_us) --}}
-            <div class="mt-4">
-                <x-label for="pas_us" value="{{ __('Contraseña') }}" />
-                <x-input id="pas_us" 
-                    class="block mt-1 w-full" 
-                    type="password" 
-                    name="pas_us" 
-                    required
-                    oninput="validatePassword()" />
-                <div class="text-xs mt-2 space-y-1">
-                    <div class="flex items-center gap-2">
-                        <span id="pass_length" class="text-gray-400">🔘</span>
-                        <span class="text-gray-500">Mínimo 8 caracteres</span>
+    <div class="w-full max-w-2xl animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            
+            <div class="relative bg-gradient-to-r from-indigo-600 to-purple-600 px-8 pt-12 pb-10 text-center">
+                <div class="relative">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl backdrop-blur-sm mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span id="pass_number" class="text-gray-400">🔘</span>
-                        <span class="text-gray-500">Al menos un número</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="pass_letter" class="text-gray-400">🔘</span>
-                        <span class="text-gray-500">Al menos una letra</span>
-                    </div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Crear Cuenta</h1>
+                    <p class="text-indigo-100">Regístrate para acceder a todos los servicios de MiMascota</p>
                 </div>
             </div>
 
-            {{-- Confirmar contraseña --}}
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirmar contraseña') }}" />
-                <x-input id="password_confirmation" 
-                    class="block mt-1 w-full" 
-                    type="password" 
-                    name="password_confirmation" 
-                    required
-                    oninput="validatePasswordMatch()" />
-                <div class="text-xs mt-1">
-                    <span id="pass_match_error" class="text-red-500 hidden">❌ Las contraseñas no coinciden</span>
-                    <span id="pass_match_valid" class="text-green-500 hidden">✅ Las contraseñas coinciden</span>
-                </div>
+            <div class="px-8 py-8">
+                
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg animate-slide-up">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-green-800">{{ session('success') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg animate-slide-up">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-red-800">{{ session('error') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('register.submit') }}">
+                    @csrf
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label for="nom_us" class="block text-sm font-semibold text-gray-700">
+                                Nombre <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="nom_us" 
+                                   name="nom_us" 
+                                   value="{{ old('nom_us') }}"
+                                   class="w-full px-4 py-3 border-2 {{ $errors->has('nom_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Tu nombre"
+                                   required>
+                            <div class="error-message" id="nom_us_error"></div>
+                            @error('nom_us')
+                                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="app_us" class="block text-sm font-semibold text-gray-700">
+                                Apellido Paterno <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="app_us" 
+                                   name="app_us" 
+                                   value="{{ old('app_us') }}"
+                                   class="w-full px-4 py-3 border-2 {{ $errors->has('app_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Apellido paterno"
+                                   required>
+                            <div class="error-message" id="app_us_error"></div>
+                            @error('app_us')
+                                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label for="apm_us" class="block text-sm font-semibold text-gray-700">
+                                Apellido Materno
+                            </label>
+                            <input type="text" 
+                                   id="apm_us" 
+                                   name="apm_us" 
+                                   value="{{ old('apm_us') }}"
+                                   class="w-full px-4 py-3 border-2 {{ $errors->has('apm_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Apellido materno">
+                            <div class="error-message" id="apm_us_error"></div>
+                            @error('apm_us')
+                                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="tel_us" class="block text-sm font-semibold text-gray-700">
+                                Teléfono <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" 
+                                   id="tel_us" 
+                                   name="tel_us" 
+                                   value="{{ old('tel_us') }}"
+                                   class="w-full px-4 py-3 border-2 {{ $errors->has('tel_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Ej: 71234567"
+                                   required>
+                            <div class="error-message" id="tel_us_error"></div>
+                            <p class="text-xs text-gray-500 mt-1">Formato: 7XXXXXXXX o 6XXXXXXXX (8 dígitos)</p>
+                            @error('tel_us')
+                                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="ema_us" class="block text-sm font-semibold text-gray-700">
+                            Correo electrónico <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" 
+                               id="ema_us" 
+                               name="ema_us" 
+                               value="{{ old('ema_us') }}"
+                               class="w-full px-4 py-3 border-2 {{ $errors->has('ema_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                               placeholder="tu@email.com"
+                               required>
+                        <div class="error-message" id="ema_us_error"></div>
+                        @error('ema_us')
+                            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="ubi_us" class="block text-sm font-semibold text-gray-700">
+                            Ubicación / Dirección
+                        </label>
+                        <input type="text" 
+                               id="ubi_us" 
+                               name="ubi_us" 
+                               value="{{ old('ubi_us') }}"
+                               class="w-full px-4 py-3 border-2 {{ $errors->has('ubi_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                               placeholder="Ciudad, estado o dirección">
+                        <div class="error-message" id="ubi_us_error"></div>
+                        @error('ubi_us')
+                            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label for="pas_us" class="block text-sm font-semibold text-gray-700">
+                                Contraseña <span class="text-red-500">*</span>
+                            </label>
+                            <input type="password" 
+                                   id="pas_us" 
+                                   name="pas_us"
+                                   class="w-full px-4 py-3 border-2 {{ $errors->has('pas_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Mínimo 6 caracteres"
+                                   required>
+                            <div class="text-xs text-gray-600 mt-2 space-y-1">
+                                <p id="length-check" class="flex items-center text-gray-400"><span class="mr-1">○</span> Mínimo 6 caracteres</p>
+                                <p id="uppercase-check" class="flex items-center text-gray-400"><span class="mr-1">○</span> Al menos una mayúscula</p>
+                                <p id="lowercase-check" class="flex items-center text-gray-400"><span class="mr-1">○</span> Al menos una minúscula</p>
+                                <p id="number-check" class="flex items-center text-gray-400"><span class="mr-1">○</span> Al menos un número</p>
+                                <p id="special-check" class="flex items-center text-gray-400"><span class="mr-1">○</span> Al menos un carácter especial (@$!%*#?&)</p>
+                            </div>
+                            <div class="error-message" id="pas_us_error"></div>
+                            @error('pas_us')
+                                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="pas_us_confirmation" class="block text-sm font-semibold text-gray-700">
+                                Confirmar contraseña <span class="text-red-500">*</span>
+                            </label>
+                            <input type="password" 
+                                   id="pas_us_confirmation" 
+                                   name="pas_us_confirmation"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
+                                   placeholder="Repite tu contraseña"
+                                   required>
+                            <div class="error-message" id="pas_us_confirmation_error"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" 
+                                   id="terms" 
+                                   name="terms" 
+                                   value="1"
+                                   {{ old('terms') ? 'checked' : '' }}
+                                   class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                   required>
+                            <label for="terms" class="text-sm text-gray-700 leading-relaxed">
+                                Acepto los <a href="#" class="text-indigo-600 hover:text-indigo-700 font-semibold underline">términos y condiciones</a> y la 
+                                <a href="#" class="text-indigo-600 hover:text-indigo-700 font-semibold underline">política de privacidad</a>
+                            </label>
+                        </div>
+                        <div class="error-message" id="terms_error"></div>
+                        @error('terms')
+                            <p class="text-sm text-red-500 mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all-200 transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-indigo-300 shadow-lg">
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            Registrarse
+                        </span>
+                    </button>
+
+                    <div class="text-center pt-6 border-t border-gray-200">
+                        <p class="text-gray-600">
+                            ¿Ya tienes cuenta? 
+                            <a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-all-200">
+                                Inicia sesión aquí
+                            </a>
+                        </p>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500" href="{{ route('login') }}">
-                    {{ __('¿Ya tienes cuenta?') }}
-                </a>
+        <div class="text-center mt-6 text-indigo-200 text-sm">
+            <p>© 2024 MiMascota. Todos los derechos reservados.</p>
+        </div>
+    </div>
 
-                <x-button id="submitBtn" class="ms-4 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 opacity-50 cursor-not-allowed" disabled>
-                    {{ __('Registrarse') }}
-                </x-button>
-            </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout>
-
-<script>
-// Contadores de caracteres
-function updateCounter(input, counterId) {
-    const counter = document.getElementById(counterId);
-    if (counter) {
-        counter.textContent = input.value.length;
+    <script>
+    // Solo validaciones VISUALES, NO impiden el envío del formulario
+    function soloLetras(texto) {
+        return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(texto);
     }
-}
 
-// Validación de teléfono (solo números)
-function validatePhone(input) {
-    // Solo permitir números
-    input.value = input.value.replace(/[^0-9]/g, '');
-    
-    const errorSpan = document.getElementById('tel_us_error');
-    const validSpan = document.getElementById('tel_us_valid');
-    const value = input.value;
-    
-    if (value.length > 0 && (value.length < 8 || value.length > 15)) {
-        errorSpan.classList.remove('hidden');
-        validSpan.classList.add('hidden');
-        input.classList.add('border-red-500');
-        input.classList.remove('border-green-500');
-        return false;
-    } else if (value.length >= 8 && value.length <= 15) {
-        errorSpan.classList.add('hidden');
-        validSpan.classList.remove('hidden');
-        input.classList.add('border-green-500');
-        input.classList.remove('border-red-500');
-        return true;
-    } else {
-        errorSpan.classList.add('hidden');
-        validSpan.classList.add('hidden');
-        input.classList.remove('border-green-500', 'border-red-500');
-        return true;
+    function validarTelefonoBoliviano(telefono) {
+        return /^[67]\d{7}$/.test(telefono);
     }
-    
-    updateCounter(input, 'tel_us_count');
-    validateForm();
-}
 
-// Validación general de campos
-function validateField(input) {
-    const id = input.id;
-    const value = input.value.trim();
-    const errorSpan = document.getElementById(`${id}_error`);
-    const validSpan = document.getElementById(`${id}_valid`);
-    let isValid = false;
-    
-    // Actualizar contador
-    if (document.getElementById(`${id}_count`)) {
-        updateCounter(input, `${id}_count`);
+    function validarPassword(password) {
+        return {
+            valida: /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password) && /[@$!%*#?&]/.test(password) && password.length >= 6,
+            mayuscula: /[A-Z]/.test(password),
+            minuscula: /[a-z]/.test(password),
+            numero: /\d/.test(password),
+            especial: /[@$!%*#?&]/.test(password),
+            longitud: password.length >= 6
+        };
     }
-    
-    switch(id) {
-        case 'nom_us':
-        case 'ape_us':
-            isValid = value.length >= 2;
-            break;
-        case 'ema_us':
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            isValid = emailRegex.test(value);
-            break;
-        case 'ciu_us':
-            isValid = value.length === 0 || value.length >= 2;
-            break;
-        default:
-            isValid = true;
-    }
-    
-    if (isValid && value.length > 0) {
-        if (errorSpan) errorSpan.classList.add('hidden');
-        if (validSpan) validSpan.classList.remove('hidden');
-        input.classList.add('border-green-500');
-        input.classList.remove('border-red-500');
-    } else if (!isValid && value.length > 0) {
-        if (errorSpan) errorSpan.classList.remove('hidden');
-        if (validSpan) validSpan.classList.add('hidden');
-        input.classList.add('border-red-500');
-        input.classList.remove('border-green-500');
-    } else {
-        if (errorSpan) errorSpan.classList.add('hidden');
-        if (validSpan) validSpan.classList.add('hidden');
-        input.classList.remove('border-green-500', 'border-red-500');
-    }
-    
-    validateForm();
-    return isValid;
-}
 
-// Validación de contraseña con requisitos
-function validatePassword() {
-    const password = document.getElementById('pas_us').value;
-    const lengthValid = password.length >= 8;
-    const numberValid = /[0-9]/.test(password);
-    const letterValid = /[a-zA-Z]/.test(password);
-    
-    updateRequirement('pass_length', lengthValid);
-    updateRequirement('pass_number', numberValid);
-    updateRequirement('pass_letter', letterValid);
-    
-    validatePasswordMatch();
-    validateForm();
-    
-    return lengthValid && numberValid && letterValid;
-}
-
-function updateRequirement(elementId, isValid) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        if (isValid) {
-            element.innerHTML = '✅';
-            element.classList.remove('text-gray-400');
-            element.classList.add('text-green-500');
-        } else {
-            element.innerHTML = '🔘';
-            element.classList.remove('text-green-500');
-            element.classList.add('text-gray-400');
+    // Actualizar indicadores visuales de contraseña (solo feedback visual)
+    function actualizarIndicadoresPassword() {
+        const password = document.getElementById('pas_us').value;
+        const validacion = validarPassword(password);
+        
+        const checks = {
+            'length-check': validacion.longitud,
+            'uppercase-check': validacion.mayuscula,
+            'lowercase-check': validacion.minuscula,
+            'number-check': validacion.numero,
+            'special-check': validacion.especial
+        };
+        
+        for (const [id, isValid] of Object.entries(checks)) {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                if (isValid) {
+                    elemento.style.color = '#10b981';
+                    elemento.innerHTML = '<span class="mr-1 text-green-500">✓</span> ' + elemento.innerText.substring(2);
+                } else {
+                    elemento.style.color = '#9ca3af';
+                    elemento.innerHTML = '<span class="mr-1 text-gray-400">○</span> ' + elemento.innerText.substring(2);
+                }
+            }
         }
     }
-}
 
-function validatePasswordMatch() {
-    const password = document.getElementById('pas_us').value;
-    const confirm = document.getElementById('password_confirmation').value;
-    const errorSpan = document.getElementById('pass_match_error');
-    const validSpan = document.getElementById('pass_match_valid');
-    const confirmInput = document.getElementById('password_confirmation');
-    
-    if (confirm.length > 0) {
-        if (password === confirm) {
-            if (errorSpan) errorSpan.classList.add('hidden');
-            if (validSpan) validSpan.classList.remove('hidden');
-            confirmInput.classList.add('border-green-500');
-            confirmInput.classList.remove('border-red-500');
-            return true;
-        } else {
-            if (errorSpan) errorSpan.classList.remove('hidden');
-            if (validSpan) validSpan.classList.add('hidden');
-            confirmInput.classList.add('border-red-500');
-            confirmInput.classList.remove('border-green-500');
+    // Validación VISUAL (no bloquea el envío)
+    function mostrarErrorVisual(campo, mensaje) {
+        const errorDiv = document.getElementById(`${campo.id}_error`);
+        if (errorDiv) {
+            if (mensaje) {
+                errorDiv.textContent = mensaje;
+                errorDiv.classList.add('show');
+                campo.classList.add('border-red-400');
+            } else {
+                errorDiv.classList.remove('show');
+                campo.classList.remove('border-red-400');
+            }
+        }
+    }
+
+    // Validar campos individualmente (solo feedback visual)
+    function validarCampoVisual(campo) {
+        const id = campo.id;
+        const valor = campo.value.trim();
+        let error = '';
+        
+        switch(id) {
+            case 'nom_us':
+                if (!valor) error = 'El nombre es obligatorio';
+                else if (!soloLetras(valor)) error = 'El nombre solo debe contener letras';
+                else if (valor.length < 2) error = 'El nombre debe tener al menos 2 caracteres';
+                break;
+            case 'app_us':
+                if (!valor) error = 'El apellido paterno es obligatorio';
+                else if (!soloLetras(valor)) error = 'El apellido solo debe contener letras';
+                else if (valor.length < 2) error = 'El apellido debe tener al menos 2 caracteres';
+                break;
+            case 'apm_us':
+                if (valor && !soloLetras(valor)) error = 'El apellido materno solo debe contener letras';
+                break;
+            case 'tel_us':
+                if (!valor) error = 'El teléfono es obligatorio';
+                else if (!validarTelefonoBoliviano(valor)) error = 'Ingrese un número de teléfono boliviano válido (8 dígitos, comenzando con 6 o 7)';
+                break;
+            case 'ema_us':
+                if (!valor) error = 'El correo electrónico es obligatorio';
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) error = 'Ingrese un correo electrónico válido';
+                break;
+            case 'pas_us':
+                const validacion = validarPassword(valor);
+                if (!valor) error = 'La contraseña es obligatoria';
+                else if (!validacion.valida) error = 'La contraseña debe cumplir con todos los requisitos de seguridad';
+                break;
+        }
+        
+        mostrarErrorVisual(campo, error);
+        return !error;
+    }
+
+    function validarConfirmacionVisual() {
+        const password = document.getElementById('pas_us').value;
+        const confirmacion = document.getElementById('pas_us_confirmation').value;
+        const confirmacionField = document.getElementById('pas_us_confirmation');
+        
+        if (!confirmacion) {
+            mostrarErrorVisual(confirmacionField, 'Debe confirmar su contraseña');
             return false;
-        }
-    } else {
-        if (errorSpan) errorSpan.classList.add('hidden');
-        if (validSpan) validSpan.classList.add('hidden');
-        confirmInput.classList.remove('border-green-500', 'border-red-500');
-        return false;
-    }
-}
-
-// Validar todo el formulario antes de habilitar botón
-function validateForm() {
-    const nom_us = document.getElementById('nom_us').value.trim();
-    const ape_us = document.getElementById('ape_us').value.trim();
-    const ema_us = document.getElementById('ema_us').value.trim();
-    const password = document.getElementById('pas_us').value;
-    const confirm = document.getElementById('password_confirmation').value;
-    const tel_us = document.getElementById('tel_us').value;
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    let isTelValid = true;
-    if (tel_us.length > 0) {
-        isTelValid = tel_us.length >= 8 && tel_us.length <= 15;
-    }
-    
-    const isNomValid = nom_us.length >= 2;
-    const isApeValid = ape_us.length >= 2;
-    const isEmailValid = emailRegex.test(ema_us);
-    const isPasswordValid = password.length >= 8 && /[0-9]/.test(password) && /[a-zA-Z]/.test(password);
-    const isConfirmValid = password === confirm && confirm.length > 0;
-    
-    const isFormValid = isNomValid && isApeValid && isEmailValid && isPasswordValid && isConfirmValid && isTelValid;
-    
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-        if (isFormValid) {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            submitBtn.classList.add('opacity-100', 'cursor-pointer');
+        } else if (password !== confirmacion) {
+            mostrarErrorVisual(confirmacionField, 'Las contraseñas no coinciden');
+            return false;
         } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            submitBtn.classList.remove('opacity-100', 'cursor-pointer');
+            mostrarErrorVisual(confirmacionField, '');
+            return true;
         }
     }
-}
 
-// Event listeners para validación en tiempo real
-document.addEventListener('DOMContentLoaded', function() {
-    const fields = ['nom_us', 'ape_us', 'tel_us', 'ciu_us'];
-    fields.forEach(field => {
-        const input = document.getElementById(field);
-        if (input) {
-            updateCounter(input, `${field}_count`);
+    function validarTerminosVisual() {
+        const terms = document.getElementById('terms');
+        const errorDiv = document.getElementById('terms_error');
+        
+        if (!terms.checked) {
+            errorDiv.textContent = 'Debe aceptar los términos y condiciones';
+            errorDiv.classList.add('show');
+            return false;
+        } else {
+            errorDiv.classList.remove('show');
+            return true;
         }
-    });
-    
-    const emailInput = document.getElementById('ema_us');
-    if (emailInput) {
-        emailInput.addEventListener('blur', function() {
-            validateField(this);
+    }
+
+    // Event Listeners - SOLO para feedback visual
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación visual en tiempo real
+        const campos = ['nom_us', 'app_us', 'apm_us', 'tel_us', 'ema_us', 'ubi_us', 'pas_us'];
+        campos.forEach(id => {
+            const campo = document.getElementById(id);
+            if (campo) {
+                campo.addEventListener('input', () => validarCampoVisual(campo));
+                campo.addEventListener('blur', () => validarCampoVisual(campo));
+            }
         });
-    }
-});
-</script>
-
-<style>
-    input:focus {
-        outline: none;
-        ring: 2px solid #0d9488;
-    }
-    
-    .transition-all {
-        transition: all 0.3s ease;
-    }
-</style>
-
-
-
+        
+        const passwordInput = document.getElementById('pas_us');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => {
+                actualizarIndicadoresPassword();
+                validarCampoVisual(passwordInput);
+                if (document.getElementById('pas_us_confirmation').value) {
+                    validarConfirmacionVisual();
+                }
+            });
+        }
+        
+        const confirmacionInput = document.getElementById('pas_us_confirmation');
+        if (confirmacionInput) {
+            confirmacionInput.addEventListener('input', validarConfirmacionVisual);
+            confirmacionInput.addEventListener('blur', validarConfirmacionVisual);
+        }
+        
+        const termsCheckbox = document.getElementById('terms');
+        if (termsCheckbox) {
+            termsCheckbox.addEventListener('change', validarTerminosVisual);
+        }
+        
+        actualizarIndicadoresPassword();
+    });
+    </script>
+</body>
+</html>

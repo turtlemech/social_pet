@@ -57,19 +57,18 @@ class RegisterController extends Controller
             'pas_us.min' => 'La contraseña debe tener al menos 8 caracteres',
             'pas_us.confirmed' => 'Las contraseñas no coinciden',
         ]);
-$user = User::create([
-    'cod_us' => $codigoAutomatico,
-    'nom_us' => $request->nom_us,
-    'app_us' => $request->ape_us,
-    'apm_us' => '',
-    'ema_us' => $request->ema_us,
-    'tel_us' => $request->tel_us,
-    'ubi_us' => $request->ciu_us,
-    'pas_us' => Hash::make($request->pas_us),
-    'tip_us' => 'usuario',
-    'est_us' => 'activo',
-    'is_admin' => false,
-]);
+
+        $user = User::create([
+            'cod_us' => $codigoAutomatico,
+            'nom_us' => $request->nom_us,
+            'ape_us' => $request->ape_us,
+            'ema_us' => $request->ema_us,
+            'tel_us' => $request->tel_us,  // El mutator limpiará automáticamente
+            'ciu_us' => $request->ciu_us,  // El mutator capitalizará automáticamente
+            'pas_us' => Hash::make($request->pas_us),
+            'estado' => 'activo',
+            'is_admin' => false,
+        ]);
 
         Auth::login($user);
 

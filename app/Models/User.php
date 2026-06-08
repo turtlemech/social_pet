@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Historia;
-use App\Models\HistoriaDestacada;
 
 class User extends Authenticatable
 {
@@ -16,29 +14,18 @@ class User extends Authenticatable
     protected $table = 'usuarios';
     protected $primaryKey = 'id';
 
-protected $fillable = [
-    'cod_us',
-    'nom_us',
-    'app_us',
-    'apm_us',
-    'ape_us',
-    'ema_us',
-    'pas_us',
-    'tel_us',
-    'ubi_us',
-    'ciu_us',
+    protected $fillable = [
+        'cod_us',
+        'nom_us',
+        'app_us',        // Cambiado de ape_us a app_us para coincidir con tu formulario
+        'apm_us',        // Agregado apellido materno
+        'ema_us',
+        'pas_us',
+        'tel_us',
+        'estado',
+        'is_admin',
+    ];
 
-    'latitud',
-    'longitud',
-    'ubicacion_activa',
-    'ubicacion_actualizada',
-
-    'ava_us',
-    'tip_us',
-    'est_us',
-    'estado',
-    'is_admin',
-];
     protected $hidden = [
         'pas_us',
         'remember_token',
@@ -46,21 +33,49 @@ protected $fillable = [
 
     protected $casts = [
         'is_admin' => 'boolean',
+        'ubicacion_activa' => 'boolean',
     ];
+
+    // Accessor para nombre completo (usado en RegisterController)
+    public function getFullNameAttribute()
+    {
+        return trim($this->nom_us . ' ' . $this->app_us);
+    }
+
+    // Mutators para limpiar datos
+    public function setTelUsAttribute($value)
+    {
+        $this->attributes['tel_us'] = $value ? preg_replace('/[^0-9]/', '', $value) : null;
+    }
+
+    public function setCiuUsAttribute($value)
+    {
+        $this->attributes['ciu_us'] = $value ? ucwords(strtolower($value)) : null;
+    }
 
     public function getAuthPassword()
     {
         return $this->pas_us;
     }
 
-    // ================= MASCOTAS =================
+    // ================= MÉTODOS ÚTILES =================
 
+    public function isAdmin()
+    {
+        return $this->is_admin === true;
+    }
+
+    public function isActive()
+    {
+        return $this->estado === 'activo';
+    }
+
+    // ================= RELACIONES =================
+    
     public function mascotas()
     {
         return $this->hasMany(Mascota::class, 'usuario_id');
     }
-
-    // ================= PUBLICACIONES =================
 
     public function publicaciones()
     {
@@ -77,62 +92,35 @@ protected $fillable = [
         return $this->hasMany(Like::class, 'id_usuario');
     }
 
-    // ================= AMISTADES =================
-
-    public function amistadesEnviadas()
-    {
-        return $this->hasMany(Amistad::class, 'us_sol');
-    }
-
-    public function amistadesRecibidas()
-    {
-        return $this->hasMany(Amistad::class, 'us_rec');
-    }
-
-    // ================= MENSAJES =================
-
     public function conversaciones()
-{
-    return $this->belongsToMany(
-        Conversacion::class,
-        'conversacion_usuario',
-        'us_id',
-        'con_id'
-    )->withTimestamps();
-}
+    {
+        return $this->belongsToMany(
+            Conversacion::class,
+            'conversacion_usuario',
+            'us_id',
+            'con_id'
+        )->withTimestamps();
+    }
 
     public function mensajes()
     {
         return $this->hasMany(Mensaje::class, 'us_rem');
     }
 
-    // ================= NOTIFICACIONES =================
-
     public function notificaciones()
     {
         return $this->hasMany(Notificacion::class, 'usuario_id');
     }
-
-    // ================= PRODUCTOS =================
 
     public function productos()
     {
         return $this->hasMany(Producto::class, 'us_ven');
     }
 
-    // ================= ADOPCIONES =================
-
     public function adopcionesActivas()
     {
         return $this->hasMany(Adopcion::class, 'us_act');
     }
-
-    public function adopcionesSolicitadas()
-    {
-        return $this->hasMany(Adopcion::class, 'us_sol');
-    }
-
-    // ================= EVENTOS =================
 
     public function eventosCreados()
     {
@@ -149,34 +137,10 @@ protected $fillable = [
         )->withPivot('est_par');
     }
 
-    // ================= SOPORTE =================
-
     public function ticketsSoporte()
     {
-        return $this->hasMany(
-            Soporte::class,
-            'cod_us',
-            'cod_us'
-        );
+        return $this->hasMany(Soporte::class, 'cod_us', 'cod_us');
     }
-
-    public function reportesHechos()
-    {
-        return $this->hasMany(
-            Soporte::class,
-            'usu_reporta_id'
-        );
-    }
-
-    public function reportesRecibidos()
-    {
-        return $this->hasMany(
-            Soporte::class,
-            'usu_reportado_id'
-        );
-    }
-
-    // ================= SEGUIDORES =================
 
     public function seguidores()
     {
@@ -200,12 +164,8 @@ protected $fillable = [
 
     public function sigueA($userId)
     {
-        return $this->siguiendo()
-            ->where('us_sig', $userId)
-            ->exists();
+        return $this->siguiendo()->where('us_sig', $userId)->exists();
     }
-
-    // ================= MASCOTAS SEGUIDAS =================
 
     public function mascotasSeguidas()
     {
@@ -216,52 +176,29 @@ protected $fillable = [
             'mas_seg'
         )->withTimestamps();
     }
-    // ================= HISTORIAS =================
 
-public function historias()
-{
-    return $this->hasMany(
-        Historia::class,
-        'usuario_id'
-    );
-}
-
-public function historiasActivas()
-{
-    return $this->hasMany(
-        Historia::class,
-        'usuario_id'
-    )->where(
-        'fecha_expiracion',
-        '>',
-        now()
-    );
-}
-public function historiasDestacadas()
-{
-    return $this->hasMany(
-        HistoriaDestacada::class,
-        'usuario_id'
-    );
-}
-
-public function tieneHistoriasActivas()
-{
-    return $this->historiasActivas()
-        ->exists();
-}
-
-    // ================= MÉTODOS ÚTILES =================
-
-    public function isAdmin()
+    public function historias()
     {
-        return $this->is_admin === true
-            || $this->tip_us === 'admin';
+        return $this->hasMany(Historia::class, 'usuario_id');
     }
 
-    public function isActive()
+    public function historiasActivas()
     {
-        return $this->est_us === 'activo'
-            || $this->estado === 'activo';
+        return $this->hasMany(Historia::class, 'usuario_id')
+            ->where('fecha_expiracion', '>', now());
     }
+
+    public function historiasDestacadas()
+    {
+        return $this->hasMany(HistoriaDestacada::class, 'usuario_id');
+    }
+
+    public function tieneHistoriasActivas()
+    {
+        return $this->historiasActivas()->exists();
+    }
+
+    
+    
 }
+

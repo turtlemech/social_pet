@@ -93,7 +93,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('register.submit') }}">
+                <form method="POST" action="{{ route('user.register.submit') }}" class="space-y-5" id="registerForm">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -185,21 +185,7 @@
                         @enderror
                     </div>
 
-                    <div class="space-y-2">
-                        <label for="ubi_us" class="block text-sm font-semibold text-gray-700">
-                            Ubicación / Dirección
-                        </label>
-                        <input type="text" 
-                               id="ubi_us" 
-                               name="ubi_us" 
-                               value="{{ old('ubi_us') }}"
-                               class="w-full px-4 py-3 border-2 {{ $errors->has('ubi_us') ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300' }} rounded-xl focus:outline-none focus:border-indigo-500 transition-all-200"
-                               placeholder="Ciudad, estado o dirección">
-                        <div class="error-message" id="ubi_us_error"></div>
-                        @error('ubi_us')
-                            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-2">

@@ -35,15 +35,20 @@ Route::get('/', function () {
 })->name('home');
 
 // ========== LOGIN Y REGISTRO ==========
+// Registro separado (sin middleware)
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+Route::get('/registro-usuario', [RegisterController::class, 'showRegistrationForm'])->name('user.register');
+Route::post('/registro-usuario', [RegisterController::class, 'register'])->name('user.register.submit');
+Route::get('/registro', function () {
+    return redirect()->route('register');
+});
+
+// Login con middleware guest
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 });
-
-// Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ========== RUTAS PROTEGIDAS ==========
 Route::middleware(['auth'])->group(function () {

@@ -807,5 +807,601 @@ class AdminController extends Controller
             'users_by_month' => $usersByMonth,
         ]);
     }
+
+    /**
+     * Listado de publicaciones con filtros
+     */
+    public function publicaciones(Request $request)
+    {
+        $query = Publicacion::with(['usuario', 'mascota', 'comentarios', 'likes']);
+        
+        // Búsqueda por contenido o código
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('cod_pub', 'LIKE', "%{$search}%")
+                  ->orWhere('com_pub', 'LIKE', "%{$search}%")
+                  ->orWhere('ubicacion', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Filtro por estado
+        if ($request->filled('estado') && $request->estado != '') {
+            $query->where('est_pub', $request->estado);
+        }
+        
+        // Filtro por usuario
+        if ($request->filled('usuario_id') && $request->usuario_id != '') {
+            $query->where('us_id', $request->usuario_id);
+        }
+        
+        // Filtro por mascota
+        if ($request->filled('mascota_id') && $request->mascota_id != '') {
+            $query->where('mascota_id', $request->mascota_id);
+        }
+        
+        // Filtro por tipo (con música o no)
+        if ($request->filled('con_musica')) {
+            if ($request->con_musica == 'si') {
+                $query->whereNotNull('musica');
+            } elseif ($request->con_musica == 'no') {
+                $query->whereNull('musica');
+            }
+        }
+        
+        // Filtro por fecha
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+        
+        // Ordenamiento
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        $sortableFields = [
+            'codigo' => 'cod_pub',
+            'contenido' => 'com_pub',
+            'estado' => 'est_pub',
+            'fecha' => 'created_at',
+            'usuario' => 'us_id',
+            'likes' => 'likes_count',
+            'comentarios' => 'comentarios_count'
+        ];
+        
+        $sortColumn = $sortableFields[$sortField] ?? 'created_at';
+        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'desc';
+        
+        // Para ordenar por cantidad de likes o comentarios
+        if ($sortField == 'likes') {
+            $query->withCount('likes')->orderBy('likes_count', $sortDirection);
+        } elseif ($sortField == 'comentarios') {
+            $query->withCount('comentarios')->orderBy('comentarios_count', $sortDirection);
+        } else {
+            $query->orderBy($sortColumn, $sortDirection);
+        }
+        
+        $publicaciones = $query->paginate(15)->appends(request()->query());
+        
+        // Estadísticas
+        $stats = [
+            'total' => Publicacion::count(),
+            'activas' => Publicacion::where('est_pub', 'activo')->count(),
+            'inactivas' => Publicacion::where('est_pub', 'inactivo')->count(),
+            'hoy' => Publicacion::whereDate('created_at', today())->count(),
+            'esta_semana' => Publicacion::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'este_mes' => Publicacion::whereMonth('created_at', now()->month)->count(),
+            'con_musica' => Publicacion::whereNotNull('musica')->count(),
+            'con_ubicacion' => Publicacion::whereNotNull('ubicacion')->count(),
+        ];
+        
+        // Usuarios para filtro
+        $usuarios = User::orderBy('nom_us')->get(['id', 'nom_us', 'app_us', 'apm_us', 'cod_us']);
+        
+        // Mascotas para filtro
+        $mascotas = Mascota::with('usuario')
+            ->orderBy('nom_mas')
+            ->get(['id', 'nom_mas', 'usuario_id']);
+        
+        return view('admin.publicaciones', compact('publicaciones', 'stats', 'usuarios', 'mascotas'));
+    }
+
+    /**
+     * Ver detalle de publicación (AJAX)
+     */
+    public function showPublicacion($id)
+    {
+        $publicacion = Publicacion::with(['usuario', 'mascota', 'comentarios.usuario', 'likes.usuario'])->findOrFail($id);
+        
+        // Recolectar todas las imágenes
+        $imagenes = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $imgField = 'img_pub' . ($i == 1 ? '' : '_' . $i);
+            if ($publicacion->$imgField) {
+                $imagenes[] = asset('storage/' . $publicacion->$imgField);
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'publicacion' => [
+                'id' => $publicacion->id,
+                'codigo' => $publicacion->cod_pub,
+                'contenido' => $publicacion->com_pub,
+                'imagenes' => $imagenes,
+                'cantidad_imagenes' => count($imagenes),
+                'estado' => $publicacion->est_pub,
+                'musica' => $publicacion->musica,
+                'musica_artista' => $publicacion->musica_artista,
+                'musica_preview' => $publicacion->musica_preview,
+                'ubicacion' => $publicacion->ubicacion,
+                'latitud' => $publicacion->latitud,
+                'longitud' => $publicacion->longitud,
+                'usuario' => [
+                    'id' => $publicacion->usuario->id,
+                    'nombre_completo' => "{$publicacion->usuario->nom_us} {$publicacion->usuario->app_us} {$publicacion->usuario->apm_us}",
+                    'email' => $publicacion->usuario->ema_us,
+                    'codigo' => $publicacion->usuario->cod_us,
+                    'foto' => $publicacion->usuario->fot_usu ? asset('storage/' . $publicacion->usuario->fot_usu) : null,
+                ],
+                'mascota' => $publicacion->mascota ? [
+                    'id' => $publicacion->mascota->id,
+                    'nombre' => $publicacion->mascota->nom_mas,
+                    'especie' => $publicacion->mascota->especie->nom_esp ?? null,
+                ] : null,
+                'comentarios_count' => $publicacion->comentarios->count(),
+                'likes_count' => $publicacion->likes->count(),
+                'comentarios' => $publicacion->comentarios->take(10)->map(function($comentario) {
+                    return [
+                        'id' => $comentario->id,
+                        'contenido' => $comentario->contenido,
+                        'usuario' => $comentario->usuario ? "{$comentario->usuario->nom_us} {$comentario->usuario->app_us}" : 'Usuario eliminado',
+                        'created_at' => $comentario->created_at ? $comentario->created_at->diffForHumans() : 'N/A',
+                    ];
+                }),
+                'fecha_creacion' => $publicacion->created_at ? $publicacion->created_at->format('d/m/Y H:i:s') : 'N/A',
+                'fecha_humana' => $publicacion->created_at ? $publicacion->created_at->diffForHumans() : 'N/A',
+            ]
+        ]);
+    }
+
+    /**
+     * Cambiar estado de publicación (activar/inactivar)
+     */
+    public function cambiarEstadoPublicacion(Request $request, $id)
+    {
+        $publicacion = Publicacion::findOrFail($id);
+        
+        $nuevoEstado = $request->estado;
+        
+        if (!in_array($nuevoEstado, ['activo', 'inactivo'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Estado no válido'
+            ], 400);
+        }
+        
+        $publicacion->est_pub = $nuevoEstado;
+        $publicacion->save();
+        
+        $mensaje = $nuevoEstado === 'activo' ? 'Publicación activada correctamente' : 'Publicación desactivada correctamente';
+        
+        return response()->json([
+            'success' => true,
+            'message' => $mensaje
+        ]);
+    }
+
+    /**
+     * Eliminar publicación (AJAX)
+     */
+    public function deletePublicacion($id)
+    {
+        $publicacion = Publicacion::findOrFail($id);
+        
+        // Eliminar todas las imágenes asociadas
+        for ($i = 1; $i <= 5; $i++) {
+            $imgField = 'img_pub' . ($i == 1 ? '' : '_' . $i);
+            if ($publicacion->$imgField && Storage::disk('public')->exists($publicacion->$imgField)) {
+                Storage::disk('public')->delete($publicacion->$imgField);
+            }
+        }
+        
+        // Eliminar comentarios asociados
+        $publicacion->comentarios()->delete();
+        
+        // Eliminar likes asociados
+        $publicacion->likes()->delete();
+        
+        $publicacion->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Publicación eliminada correctamente'
+        ]);
+    }
+
+    /**
+     * Exportar publicaciones a CSV
+     */
+    public function exportPublicaciones()
+    {
+        $publicaciones = Publicacion::with(['usuario', 'mascota'])
+            ->withCount(['likes', 'comentarios'])
+            ->get();
+        
+        $csvFileName = 'publicaciones_' . now()->format('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename={$csvFileName}",
+        ];
+        
+        $callback = function() use ($publicaciones) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, [
+                'Código', 
+                'Contenido', 
+                'Usuario', 
+                'Mascota',
+                'Imágenes', 
+                'Música', 
+                'Artista',
+                'Ubicación',
+                'Likes', 
+                'Comentarios',
+                'Estado', 
+                'Fecha Creación'
+            ]);
+            
+            foreach ($publicaciones as $pub) {
+                // Contar imágenes
+                $imagenesCount = 0;
+                for ($i = 1; $i <= 5; $i++) {
+                    $imgField = 'img_pub' . ($i == 1 ? '' : '_' . $i);
+                    if ($pub->$imgField) $imagenesCount++;
+                }
+                
+                fputcsv($file, [
+                    $pub->cod_pub,
+                    strip_tags($pub->com_pub),
+                    $pub->usuario ? "{$pub->usuario->nom_us} {$pub->usuario->app_us}" : 'N/A',
+                    $pub->mascota ? $pub->mascota->nom_mas : 'Sin mascota',
+                    $imagenesCount,
+                    $pub->musica ?? 'Sin música',
+                    $pub->musica_artista ?? 'N/A',
+                    $pub->ubicacion ?? 'Sin ubicación',
+                    $pub->likes_count,
+                    $pub->comentarios_count,
+                    $pub->est_pub,
+                    $pub->created_at ? $pub->created_at->format('d/m/Y H:i:s') : 'N/A',
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Obtener estadísticas de publicaciones para gráficos (AJAX)
+     */
+    public function getPublicacionesChartData()
+    {
+        // Publicaciones por día (últimos 7 días)
+        $publicacionesPorDia = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $publicacionesPorDia[] = [
+                'fecha' => $date->format('d/m'),
+                'count' => Publicacion::whereDate('created_at', $date)->count()
+            ];
+        }
+        
+        // Publicaciones por hora del día
+        $publicacionesPorHora = [];
+        for ($h = 0; $h < 24; $h++) {
+            $publicacionesPorHora[] = [
+                'hora' => $h,
+                'count' => Publicacion::whereHour('created_at', $h)->count()
+            ];
+        }
+        
+        // Top 5 usuarios con más publicaciones
+        $topUsuarios = Publicacion::select('us_id')
+            ->with('usuario')
+            ->selectRaw('count(*) as total')
+            ->groupBy('us_id')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'usuario' => $item->usuario ? "{$item->usuario->nom_us} {$item->usuario->app_us}" : 'N/A',
+                    'total' => $item->total
+                ];
+            });
+        
+        return response()->json([
+            'success' => true,
+            'por_dia' => $publicacionesPorDia,
+            'por_hora' => $publicacionesPorHora,
+            'top_usuarios' => $topUsuarios
+        ]);
+    }
+
+    // ==================== MÉTODOS PARA SOPORTE/TICKETS ====================
+
+    /**
+     * Dashboard de tickets de soporte
+     */
+    public function soporteDashboard()
+    {
+        $estadisticas = [
+            'total' => Soporte::count(),
+            'abiertos' => Soporte::where('est_sop', 'abierto')->count(),
+            'en_proceso' => Soporte::where('est_sop', 'en_proceso')->count(),
+            'resueltos' => Soporte::where('est_sop', 'resuelto')->count(),
+            'cerrados' => Soporte::where('est_sop', 'cerrado')->count(),
+            'urgentes' => Soporte::where('pri_sop', 'urgente')->count(),
+            'alta_prioridad' => Soporte::where('pri_sop', 'alta')->count(),
+            'tiempo_promedio' => $this->calcularTiempoPromedioRespuesta(),
+        ];
+        
+        $tickets = Soporte::with(['usuario', 'administrador'])
+            ->latest()
+            ->paginate(15);
+        
+        return view('admin.soporte', compact('tickets', 'estadisticas'));
+    }
+
+    /**
+     * Listado de tickets con filtros
+     */
+    public function soporteIndex(Request $request)
+    {
+        $query = Soporte::with(['usuario', 'administrador']);
+        
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('cod_sop', 'LIKE', "%{$search}%")
+                  ->orWhere('asu_sop', 'LIKE', "%{$search}%")
+                  ->orWhere('men_sop', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Filtros
+        if ($request->filled('categoria')) {
+            $query->where('cat_sop', $request->categoria);
+        }
+        
+        if ($request->filled('estado')) {
+            $query->where('est_sop', $request->estado);
+        }
+        
+        if ($request->filled('prioridad')) {
+            $query->where('pri_sop', $request->prioridad);
+        }
+        
+        // Ordenamiento
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        $sortableFields = [
+            'codigo' => 'cod_sop',
+            'fecha' => 'created_at',
+            'prioridad' => 'pri_sop',
+            'estado' => 'est_sop'
+        ];
+        
+        $sortColumn = $sortableFields[$sortField] ?? 'created_at';
+        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'desc';
+        $query->orderBy($sortColumn, $sortDirection);
+        
+        $tickets = $query->paginate(15)->appends(request()->query());
+        
+        $estadisticas = [
+            'total' => Soporte::count(),
+            'abiertos' => Soporte::where('est_sop', 'abierto')->count(),
+            'en_proceso' => Soporte::where('est_sop', 'en_proceso')->count(),
+            'resueltos' => Soporte::where('est_sop', 'resuelto')->count(),
+            'cerrados' => Soporte::where('est_sop', 'cerrado')->count(),
+            'urgentes' => Soporte::where('pri_sop', 'urgente')->count(),
+        ];
+        
+        return view('admin.soporte', compact('tickets', 'estadisticas'));
+    }
+
+    /**
+     * Ver detalle de un ticket (AJAX)
+     */
+    public function showTicket($id)
+    {
+        $ticket = Soporte::with(['usuario', 'administrador'])->findOrFail($id);
+        
+        // Tickets relacionados del mismo usuario
+        $ticketsRelacionados = Soporte::where('us_id', $ticket->us_id)
+            ->where('id', '!=', $id)
+            ->latest()
+            ->take(5)
+            ->get(['id', 'cod_sop', 'asu_sop', 'est_sop', 'created_at']);
+        
+        return response()->json([
+            'success' => true,
+            'ticket' => [
+                'id' => $ticket->id,
+                'cod_sop' => $ticket->cod_sop,
+                'asu_sop' => $ticket->asu_sop,
+                'men_sop' => $ticket->men_sop,
+                'res_sop' => $ticket->res_sop,
+                'cat_sop' => $ticket->cat_sop,
+                'pri_sop' => $ticket->pri_sop,
+                'est_sop' => $ticket->est_sop,
+                'created_at' => $ticket->created_at,
+                'fec_resuelto' => $ticket->fec_resuelto,
+                'usuario' => $ticket->usuario ? [
+                    'id' => $ticket->usuario->id,
+                    'nom_us' => $ticket->usuario->nom_us,
+                    'app_us' => $ticket->usuario->app_us,
+                    'cod_us' => $ticket->usuario->cod_us,
+                    'ema_us' => $ticket->usuario->ema_us,
+                ] : null,
+                'administrador' => $ticket->administrador ? [
+                    'nom_us' => $ticket->administrador->nom_us,
+                    'app_us' => $ticket->administrador->app_us,
+                ] : null,
+            ],
+            'tickets_relacionados' => $ticketsRelacionados
+        ]);
+    }
+
+    /**
+     * Responder a un ticket
+     */
+    public function responderTicket(Request $request, $id)
+    {
+        $request->validate([
+            'respuesta' => 'required|string|min:3',
+            'estado' => 'required|in:abierto,en_proceso,resuelto,cerrado'
+        ]);
+        
+        $ticket = Soporte::findOrFail($id);
+        $ticket->res_sop = $request->respuesta;
+        $ticket->est_sop = $request->estado;
+        $ticket->admin_id = auth()->id();
+        
+        if ($request->estado == 'resuelto' && !$ticket->fec_resuelto) {
+            $ticket->fec_resuelto = now();
+        }
+        
+        // Actualizar prioridad si se envía
+        if ($request->filled('prioridad')) {
+            $ticket->pri_sop = $request->prioridad;
+        }
+        
+        $ticket->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Respuesta enviada correctamente'
+        ]);
+    }
+
+    /**
+     * Cambiar estado de un ticket
+     */
+    public function cambiarEstadoTicket(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:abierto,en_proceso,resuelto,cerrado'
+        ]);
+        
+        $ticket = Soporte::findOrFail($id);
+        $ticket->est_sop = $request->estado;
+        
+        if ($request->estado == 'resuelto' && !$ticket->fec_resuelto) {
+            $ticket->fec_resuelto = now();
+        }
+        
+        $ticket->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado actualizado correctamente'
+        ]);
+    }
+
+    /**
+     * Eliminar un ticket
+     */
+    public function deleteTicket($id)
+    {
+        $ticket = Soporte::findOrFail($id);
+        $ticket->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Ticket eliminado correctamente'
+        ]);
+    }
+
+    /**
+     * Exportar tickets a CSV
+     */
+    public function exportarTickets()
+    {
+        $tickets = Soporte::with(['usuario'])->get();
+        
+        $csvFileName = 'tickets_' . now()->format('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename={$csvFileName}",
+        ];
+        
+        $callback = function() use ($tickets) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, [
+                'Código', 'Usuario', 'Asunto', 'Categoría', 'Prioridad', 
+                'Estado', 'Fecha Creación', 'Fecha Resolución', 'Tiempo Respuesta'
+            ]);
+            
+            foreach ($tickets as $ticket) {
+                $tiempoRespuesta = '';
+                if ($ticket->created_at && $ticket->fec_resuelto) {
+                    $diff = $ticket->created_at->diffInHours($ticket->fec_resuelto);
+                    $tiempoRespuesta = $diff . ' horas';
+                }
+                
+                fputcsv($file, [
+                    $ticket->cod_sop,
+                    $ticket->usuario ? "{$ticket->usuario->nom_us} {$ticket->usuario->app_us}" : 'N/A',
+                    $ticket->asu_sop,
+                    $ticket->cat_sop,
+                    $ticket->pri_sop,
+                    $ticket->est_sop,
+                    $ticket->created_at ? $ticket->created_at->format('d/m/Y H:i:s') : 'N/A',
+                    $ticket->fec_resuelto ? $ticket->fec_resuelto->format('d/m/Y H:i:s') : 'N/A',
+                    $tiempoRespuesta,
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Calcular tiempo promedio de respuesta
+     */
+    private function calcularTiempoPromedioRespuesta()
+    {
+        $ticketsResueltos = Soporte::whereNotNull('fec_resuelto')
+            ->whereNotNull('created_at')
+            ->get();
+        
+        if ($ticketsResueltos->isEmpty()) {
+            return 'N/A';
+        }
+        
+        $totalHoras = 0;
+        foreach ($ticketsResueltos as $ticket) {
+            $totalHoras += $ticket->created_at->diffInHours($ticket->fec_resuelto);
+        }
+        
+        $promedioHoras = round($totalHoras / $ticketsResueltos->count());
+        
+        if ($promedioHoras < 24) {
+            return $promedioHoras . ' horas';
+        } else {
+            $dias = floor($promedioHoras / 24);
+            $horas = $promedioHoras % 24;
+            return $dias . 'd ' . $horas . 'h';
+        }
+    }
 }
 

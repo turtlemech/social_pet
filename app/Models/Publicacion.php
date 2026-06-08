@@ -93,4 +93,6 @@ protected $fillable = [
             'id_publicacion'
         )->where('tip_rea', 'like');
     }
+
+    
 }

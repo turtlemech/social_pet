@@ -1,4 +1,4 @@
-    <?php
+<?php
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -234,10 +234,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [AdminController::class, 'usuarios'])->name('index');
             Route::get('/{id}/edit', [AdminController::class, 'editUser'])->name('edit');
             Route::put('/{id}', [AdminController::class, 'updateUser'])->name('update');
-            Route::delete('/user/{id}', [AdminController::class, 'deleteUser'])->middleware('auth');
-            Route::post('/{id}/toggle-block', [AdminController::class, 'toggleBlockUser'])->name('toggle-block');
+            Route::delete('/{id}', [AdminController::class, 'deleteUser'])->name('delete');
+            Route::post('/{id}/cambiar-estado', [AdminController::class, 'cambiarEstado'])->name('cambiar-estado');
             Route::post('/{id}/restablecer-contrasena', [AdminController::class, 'restablecerContrasena'])->name('restablecer-contrasena');
             Route::get('/{id}/generar-contrasena', [AdminController::class, 'generarContrasenaSugerida'])->name('generar-contrasena');
+            Route::get('/exportar/csv', [AdminController::class, 'exportUsers'])->name('exportar');
         });
 
         // ========== MASCOTAS ==========
@@ -252,8 +253,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========== PUBLICACIONES ==========
         Route::prefix('publicaciones')->name('publicaciones.')->group(function () {
             Route::get('/', [AdminController::class, 'publicaciones'])->name('index');
-            Route::post('/{id}/toggle', [AdminController::class, 'togglePublicacion'])->name('toggle');
-            Route::delete('/{id}', [AdminController::class, 'deletePublicacion'])->name('destroy');
+            Route::get('/{id}', [AdminController::class, 'showPublicacion'])->name('show');
+            Route::post('/{id}/cambiar-estado', [AdminController::class, 'cambiarEstadoPublicacion'])->name('cambiar-estado');
+            Route::delete('/{id}', [AdminController::class, 'deletePublicacion'])->name('delete');
+            Route::get('/exportar/csv', [AdminController::class, 'exportPublicaciones'])->name('exportar');
         });
 
         // ========== REPORTES ==========
@@ -263,13 +266,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::view('/posts', 'admin.reports.posts')->name('posts');
         });
 
-        // ========== SOPORTE ADMIN ==========
+        // ========== SOPORTE / TICKETS ADMIN (CORREGIDO) ==========
         Route::prefix('soporte')->name('soporte.')->group(function () {
-            Route::get('/', [SoporteController::class, 'index'])->name('index');
-            Route::get('/dashboard', [SoporteController::class, 'adminDashboard'])->name('dashboard');
-            Route::get('/estadisticas', [SoporteController::class, 'estadisticas'])->name('estadisticas');
-            Route::put('/ticket/{id}', [SoporteController::class, 'updateTicket'])->name('update');
-            Route::post('/asignar/{id}', [SoporteController::class, 'asignarTicket'])->name('asignar');
+            Route::get('/', [AdminController::class, 'soporteIndex'])->name('index');
+            Route::get('/dashboard', [AdminController::class, 'soporteDashboard'])->name('dashboard');
+            Route::get('/estadisticas', [AdminController::class, 'getChartData'])->name('estadisticas');
+            Route::get('/{id}', [AdminController::class, 'showTicket'])->name('show');
+            Route::post('/{id}/responder', [AdminController::class, 'responderTicket'])->name('responder');
+            Route::post('/{id}/cambiar-estado', [AdminController::class, 'cambiarEstadoTicket'])->name('cambiar-estado');
+            Route::delete('/{id}', [AdminController::class, 'deleteTicket'])->name('destroy');
+            Route::get('/exportar/csv', [AdminController::class, 'exportarTickets'])->name('exportar');
         });
     });
 });

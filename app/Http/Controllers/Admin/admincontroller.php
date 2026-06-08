@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/Admin/AdminController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -367,7 +366,7 @@ class AdminController extends Controller
     
     /**
      * Restablecer contraseña de usuario
-     * Genera una nueva contraseña basada en nombre, apellido y teléfono
+     * Genera una nueva contraseña automáticamente
      */
     public function restablecerContrasena(Request $request, $id)
     {
@@ -381,12 +380,12 @@ class AdminController extends Controller
             ], 403);
         }
         
-        // Validar que se reciba la nueva contraseña
-        $request->validate([
-            'nueva_contrasena' => 'required|string|min:6'
-        ]);
-        
-        $nuevaContrasena = $request->nueva_contrasena;
+        // Generar nueva contraseña automáticamente
+        $nuevaContrasena = $this->generarPassword(
+            $usuario->nom_us,
+            $usuario->app_us,
+            $usuario->tel_us
+        );
         
         // Hashear y guardar la nueva contraseña
         $usuario->pas_us = Hash::make($nuevaContrasena);
@@ -399,7 +398,7 @@ class AdminController extends Controller
         if ($emailEnviado) {
             $mensaje .= ' y enviada al correo del usuario';
         } else {
-            $mensaje .= ' pero no se pudo enviar el email (revise la configuración de correo)';
+            $mensaje .= '. No se pudo enviar el email, pero la contraseña ha sido cambiada.';
         }
         
         return response()->json([

@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeUserMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 class RegisterController extends Controller
@@ -17,25 +20,22 @@ class RegisterController extends Controller
     }
 
     private function generateUserCode()
-{
-    // Obtener el último código generado ordenando por cod_us DESC
-    $lastUser = User::orderBy('cod_us', 'desc')->first();
-    
-    if (!$lastUser) {
+    {
+        $lastUser = User::orderBy('cod_us', 'desc')->first();
+        
+        if (!$lastUser) {
+            return 'USR001';
+        }
+        
+        $lastCode = $lastUser->cod_us;
+        if (preg_match('/USR(\d+)/', $lastCode, $matches)) {
+            $number = (int) $matches[1];
+            $newNumber = $number + 1;
+            return 'USR' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+        }
+        
         return 'USR001';
     }
-    
-    $lastCode = $lastUser->cod_us;
-    // Extraer el número usando expresión regular más robusta
-    if (preg_match('/USR(\d+)/', $lastCode, $matches)) {
-        $number = (int) $matches[1];
-        $newNumber = $number + 1;
-        return 'USR' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-    }
-    
-    // Fallback seguro
-    return 'USR001';
-}
 
     public function register(Request $request)
     {
@@ -43,11 +43,11 @@ class RegisterController extends Controller
         
         $request->validate([
             'nom_us' => ['required', 'string', 'min:2', 'max:100'],
-            'app_us' => ['required', 'string', 'min:2', 'max:100'],  // Apellido paterno
-            'apm_us' => ['required', 'string', 'min:2', 'max:100'],  // Apellido materno (¡NUEVO!)
+            'app_us' => ['required', 'string', 'min:2', 'max:100'],
+            'apm_us' => ['required', 'string', 'min:2', 'max:100'],
             'ema_us' => ['required', 'string', 'email', 'max:150', 'unique:usuarios,ema_us'],
             'tel_us' => ['nullable', 'string', 'regex:/^[0-9]{8,15}$/', 'max:20'],
-            'ubi_us' => ['nullable', 'string', 'min:2', 'max:100'],  // Cambiado de ciu_us a ubi_us
+            'ubi_us' => ['nullable', 'string', 'min:2', 'max:100'],
             'pas_us' => ['required', 'confirmed', Rules\Password::min(8)
                 ->letters()
                 ->numbers()],
@@ -64,26 +64,51 @@ class RegisterController extends Controller
             'tel_us.regex' => 'El teléfono debe contener solo números (8-15 dígitos)',
             'ubi_us.min' => 'La ubicación debe tener al menos 2 caracteres',
             'pas_us.required' => 'La contraseña es obligatoria',
-            'pas_us.min' => 'La contraseña debe tener al menos 8 caracteres',
             'pas_us.confirmed' => 'Las contraseñas no coinciden',
         ]);
 
-        $user = User::create([
-            'cod_us' => $codigoAutomatico,
-            'nom_us' => $request->nom_us,
-            'app_us' => $request->app_us,    // Apellido paterno
-            'apm_us' => $request->apm_us,    // Apellido materno (¡NUEVO!)
-            'ema_us' => $request->ema_us,
-            'tel_us' => $request->tel_us,
-            'ubi_us' => $request->ubi_us,     // Cambiado de ciu_us a ubi_us
-            'pas_us' => Hash::make($request->pas_us),
-            'tip_us' => 'usuario',            // Por defecto: usuario normal
-            'est_us' => 'activo',             // Estado activo por defecto
-            'is_admin' => false,
-        ]);
+        $user = null; // Declarar $user fuera del try
 
-        Auth::login($user);
+        try {
+            // Crear el usuario
+            $user = User::create([
+                'cod_us' => $codigoAutomatico,
+                'nom_us' => $request->nom_us,
+                'app_us' => $request->app_us,
+                'apm_us' => $request->apm_us,
+                'ema_us' => $request->ema_us,
+                'tel_us' => $request->tel_us,
+                'ubi_us' => $request->ubi_us,
+                'pas_us' => Hash::make($request->pas_us),
+                'tip_us' => 'usuario',
+                'est_us' => 'activo',
+                'is_admin' => false,
+            ]);
 
-        return redirect()->intended(route('dashboard'))->with('success', '¡Bienvenido ' . $user->nom_us . ' ' . $user->app_us . '!');
+            // Enviar correo de bienvenida (enviar en segundo plano para no bloquear)
+            Mail::to($user->ema_us)->send(new WelcomeUserMail($user));// Usar queue() en lugar de send()
+
+            // Iniciar sesión automáticamente
+            Auth::login($user);
+
+            return redirect()->intended(route('dashboard'))
+                ->with('success', '¡Bienvenido ' . $user->nom_us . ' ' . $user->app_us . '! Te hemos enviado un correo de bienvenida a ' . $user->ema_us);
+
+        } catch (\Exception $e) {
+            // Registrar el error
+            Log::error('Error en registro de usuario: ' . $e->getMessage());
+            
+            // Si el usuario se creó pero falló el correo
+            if ($user) {
+                Auth::login($user);
+                return redirect()->intended(route('dashboard'))
+                    ->with('warning', '¡Bienvenido ' . $user->nom_us . '! Tu cuenta está activa, pero no pudimos enviarte el correo de bienvenida. Por favor, contacta a soporte si no recibes nuestros emails.');
+            }
+            
+            // Si el usuario no se creó, mostrar error general
+            return back()
+                ->withInput()
+                ->with('error', 'Ocurrió un error al crear tu cuenta. Por favor, intenta nuevamente.');
+        }
     }
 }

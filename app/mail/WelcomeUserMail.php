@@ -17,10 +17,10 @@ class WelcomeUserMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, $cod_us)
+    public function __construct(User $user)
     {
         $this->user = $user;
-        $this->cod_us = $cod_us;
+        $this->cod_us = $user->cod_us; // El código viene del usuario
     }
 
     /**

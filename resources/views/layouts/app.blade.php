@@ -1,474 +1,277 @@
-    <!DOCTYPE html>
-    <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'SocialPet') }}</title>
+    <title>{{ config('app.name', 'SocialPet') }}</title>
 
-        <!-- FAVICON -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/logo/social_pet.jpg') }}">
-        <link rel="icon" type="image/png" href="{{ asset('storage/img/logo/social_pet.jpg') }}">
-        <link rel="shortcut icon" href="{{ asset('storage/img/logo/social_et.jpg') }}">
+    <!-- FAVICON -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/logo/social_pet.jpg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('storage/img/logo/social_pet.jpg') }}">
+    <link rel="shortcut icon" href="{{ asset('storage/img/logo/social_et.jpg') }}">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Styles -->
-        @livewireStyles
+    <!-- Styles -->
+    @livewireStyles
+    
+    <!-- Alpine.js - Cargar antes que cualquier script que lo use -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
         
-        <!-- SweetAlert2 -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        /* Burbuja de soporte/admins */
+        .support-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
         
-        <!-- Estilos de la burbuja -->
-        <style>
-            /* Burbuja de soporte/admins */
+        .bubble-button {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0d9488, #115e59);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .bubble-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .bubble-button span {
+            font-size: 28px;
+        }
+        
+        .support-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .support-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .support-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+        
+        .support-menu a:first-child {
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .support-menu a:last-child {
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .support-menu a:hover {
+            background: #f0fdf4;
+            color: #0d9488;
+        }
+        
+        .support-menu span {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .support-menu .admin-link {
+            border-top: 1px solid #e5e7eb;
+            color: #0d9488;
+        }
+        
+        .support-menu .admin-link:hover {
+            background: #f0fdf4;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(13, 148, 136, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 148, 136, 0);
+            }
+        }
+        
+        @media (max-width: 480px) {
             .support-bubble {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                z-index: 1000;
+                bottom: 20px;
+                right: 20px;
             }
             
             .bubble-button {
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(135deg, #0d9488, #115e59);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                transition: all 0.3s ease;
-                animation: pulse 2s infinite;
-            }
-            
-            .bubble-button:hover {
-                transform: scale(1.1);
-                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                width: 50px;
+                height: 50px;
             }
             
             .bubble-button span {
-                font-size: 28px;
+                font-size: 24px;
             }
-            
-            .support-menu {
-                position: absolute;
-                bottom: 70px;
-                right: 0;
-                background: white;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-                min-width: 220px;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(20px);
-                transition: all 0.3s ease;
-            }
-            
-            .support-menu.active {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-            
-            .support-menu a {
-                display: flex;
-                align-items: center;
-                padding: 12px 20px;
-                color: #333;
-                text-decoration: none;
-                transition: background 0.2s ease;
-                border-radius: 15px;
-                cursor: pointer;
-            }
-            
-            .support-menu a:first-child {
-                border-radius: 15px 15px 0 0;
-            }
-            
-            .support-menu a:last-child {
-                border-radius: 0 0 15px 15px;
-            }
-            
-            .support-menu a:hover {
-                background: #f0fdf4;
-                color: #0d9488;
-            }
-            
-            .support-menu span {
-                margin-right: 10px;
-                font-size: 18px;
-            }
-            
-            .support-menu .admin-link {
-                border-top: 1px solid #e5e7eb;
-                color: #0d9488;
-            }
-            
-            .support-menu .admin-link:hover {
-                background: #f0fdf4;
-            }
-            
-            @keyframes pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7);
-                }
-                70% {
-                    box-shadow: 0 0 0 10px rgba(13, 148, 136, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(13, 148, 136, 0);
-                }
-            }
-            
-            @media (max-width: 480px) {
-                .support-bubble {
-                    bottom: 20px;
-                    right: 20px;
-                }
-                
-                .bubble-button {
-                    width: 50px;
-                    height: 50px;
-                }
-                
-                .bubble-button span {
-                    font-size: 24px;
-                }
-            }
-        </style>
-        <style>
-[x-cloak] {
-    display: none !important;
-}
-</style>
-        <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
-<script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
-    </head>
-   <body class="font-sans antialiased overflow-x-hidden bg-gray-100">
+        }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden bg-gray-100">
 
     @livewire('navigation-menu')
 
     <main class="pt-16">
-
         @yield('content')
-
     </main>
 
-        <!-- Burbuja de soporte/administradores -->
-        <div class="support-bubble">
-            <div class="bubble-button" onclick="toggleSupportMenu()">
-                <span>💬</span>
-            </div>
-            <div class="support-menu" id="supportMenu">
-                <a onclick="openSupport()">
-                    <span>❓</span> Ayuda/Soporte
-                </a>
-                <a onclick="openContact()">
-                    <span>📧</span> Contacto
-                </a>
-                @auth
-                    @if(Auth::user()->is_admin)
-                    <a href="{{ route('admin.soporte.dashboard') }}" class="admin-link">
-                        <span>🛠️</span> Panel de Soporte
-                    </a>
-                    @endif
-                @endauth
-            </div>
+    <!-- Burbuja de soporte/administradores -->
+    <div class="support-bubble">
+        <div class="bubble-button" onclick="toggleSupportMenu()">
+            <span>💬</span>
         </div>
+        <div class="support-menu" id="supportMenu">
+            <a onclick="openSupport()">
+                <span>❓</span> Ayuda/Soporte
+            </a>
+            <a onclick="openContact()">
+                <span>📧</span> Contacto
+            </a>
+            @auth
+                @if(Auth::user()->is_admin)
+                <a href="{{ route('admin.soporte.dashboard') }}" class="admin-link">
+                    <span>🛠️</span> Panel de Soporte
+                </a>
+                @endif
+            @endauth
+        </div>
+    </div>
 
-        @livewireScripts
+    @livewireScripts
 
-        <!-- Script de la burbuja con SweetAlert -->
-        <script>
-            // Horario de atención (Lunes a Viernes, 9:00 - 18:00)
-            function isWithinBusinessHours() {
-                const now = new Date();
-                const day = now.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
-                const hour = now.getHours();
-                const minutes = now.getMinutes();
-                const currentTime = hour + minutes / 60;
-                
-                // Verificar si es día hábil (Lunes a Viernes)
-                if (day === 0 || day === 6) {
-                    return false;
-                }
-                
-                // Verificar si está dentro del horario (9:00 - 18:00)
-                return currentTime >= 9 && currentTime < 18;
-            }
+    <script>
+        // Horario de atención (Lunes a Viernes, 9:00 - 18:00)
+        function isWithinBusinessHours() {
+            const now = new Date();
+            const day = now.getDay();
+            const hour = now.getHours();
             
-            function toggleSupportMenu() {
-                const menu = document.getElementById('supportMenu');
-                menu.classList.toggle('active');
-            }
+            if (day === 0 || day === 6) return false;
+            return hour >= 9 && hour < 18;
+        }
+        
+        function toggleSupportMenu() {
+            const menu = document.getElementById('supportMenu');
+            menu.classList.toggle('active');
+        }
+        
+        function openSupport() {
+            const menu = document.getElementById('supportMenu');
+            menu.classList.remove('active');
             
-            function openSupport() {
-                const menu = document.getElementById('supportMenu');
-                menu.classList.remove('active');
-                
-                if (isWithinBusinessHours()) {
-                    // Horario de atención: redirigir a soporte
-                    window.location.href = "{{ route('soporte.index') }}";
-                } else {
-                    // Fuera de horario: mostrar mensaje y dejar ticket en cola
-                    Swal.fire({
-                        icon: 'info',
-                        title: '📌 Fuera de Horario de Atención',
-                        html: `
-                            <div class="text-left">
-                                <p class="mb-2"><strong>Horario de atención:</strong></p>
-                                <p>📅 Lunes a Viernes</p>
-                                <p>⏰ 9:00 AM - 6:00 PM</p>
-                                <hr class="my-3">
-                                <p class="text-sm text-gray-600">Tu consulta será atendida en el siguiente horario laboral.</p>
-                                <p class="text-sm text-teal-600 mt-2">Mientras tanto, puedes dejar tu ticket y te responderemos pronto.</p>
-                            </div>
-                        `,
-                        confirmButtonText: '📝 Dejar Ticket',
-                        confirmButtonColor: '#0d9488',
-                        showCancelButton: true,
-                        cancelButtonText: 'Cancelar',
-                        cancelButtonColor: '#6b7280',
-                        allowOutsideClick: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Redirigir a la página de soporte para dejar ticket
-                            window.location.href = "{{ route('soporte.index') }}";
-                        }
-                    });
-                }
-            }
-            
-            function openContact() {
-                const menu = document.getElementById('supportMenu');
-                menu.classList.remove('active');
-                
+            if (isWithinBusinessHours()) {
+                window.location.href = "{{ route('soporte.index') }}";
+            } else {
                 Swal.fire({
                     icon: 'info',
-                    title: '📧 Contacto',
+                    title: '📌 Fuera de Horario de Atención',
                     html: `
                         <div class="text-left">
-                            <p class="mb-2"><strong>Canales de contacto:</strong></p>
-                            <div class="space-y-2">
-                                <div class="flex items-center space-x-2 p-2 bg-teal-50 rounded">
-                                    <span>📧</span>
-                                    <span><strong>Email:</strong> soporte@socialpet.com</span>
-                                </div>
-                                <div class="flex items-center space-x-2 p-2 bg-teal-50 rounded">
-                                    <span>📞</span>
-                                    <span><strong>Teléfono:</strong> +54 11 1234-5678</span>
-                                </div>
-                                <div class="flex items-center space-x-2 p-2 bg-teal-50 rounded">
-                                    <span>💬</span>
-                                    <span><strong>WhatsApp:</strong> +54 9 11 1234-5678</span>
-                                </div>
-                            </div>
+                            <p class="mb-2"><strong>Horario de atención:</strong></p>
+                            <p>📅 Lunes a Viernes</p>
+                            <p>⏰ 9:00 AM - 6:00 PM</p>
                             <hr class="my-3">
-                            <p class="text-sm text-gray-500 text-center">Horario: Lun a Vie 9:00 - 18:00</p>
+                            <p class="text-sm text-gray-600">Tu consulta será atendida en el siguiente horario laboral.</p>
                         </div>
                     `,
-                    confirmButtonText: 'Cerrar',
+                    confirmButtonText: '📝 Dejar Ticket',
                     confirmButtonColor: '#0d9488',
                     showCancelButton: true,
-                    cancelButtonText: '📝 Crear Ticket',
-                    cancelButtonColor: '#f59e0b'
+                    cancelButtonText: 'Cancelar'
                 }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.cancel) {
+                    if (result.isConfirmed) {
                         window.location.href = "{{ route('soporte.index') }}";
                     }
                 });
             }
+        }
+        
+        function openContact() {
+            const menu = document.getElementById('supportMenu');
+            menu.classList.remove('active');
             
-            // Cerrar el menú al hacer clic fuera
-            document.addEventListener('click', function(event) {
-                const bubble = document.querySelector('.support-bubble');
-                const menu = document.getElementById('supportMenu');
-                
-                if (bubble && !bubble.contains(event.target) && menu && menu.classList.contains('active')) {
-                    menu.classList.remove('active');
-                }
+            Swal.fire({
+                icon: 'info',
+                title: '📧 Contacto',
+                html: `
+                    <div class="text-left">
+                        <p class="mb-2"><strong>Canales de contacto:</strong></p>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2 p-2 bg-teal-50 rounded">
+                                <span>📧</span>
+                                <span><strong>Email:</strong> soporte@socialpet.com</span>
+                            </div>
+                            <div class="flex items-center space-x-2 p-2 bg-teal-50 rounded">
+                                <span>📞</span>
+                                <span><strong>Teléfono:</strong> +54 11 1234-5678</span>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: '#0d9488'
             });
+        }
+        
+        // Cerrar el menú al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            const bubble = document.querySelector('.support-bubble');
+            const menu = document.getElementById('supportMenu');
             
-            
-        </script>
-        <script>
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll('.like-btn').forEach(btn => {
-
-        btn.addEventListener('click', async function(e) {
-
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-
-            this.blur();
-
-            const id = this.dataset.id;
-
-            const icon = this.querySelector('.like-icon');
-
-            try {
-
-                const res = await fetch(`/like/${id}`, {
-
-    method: 'POST',
-
-    headers: {
-
-        'X-CSRF-TOKEN': document
-
-            .querySelector('meta[name="csrf-token"]')
-
-            .content,
-
-        'Accept': 'application/json',
-
-        'X-Requested-With': 'XMLHttpRequest'
-
-    }
-
-});
-
-const data = await res.json();
-
-console.log(data);
-
-                // CONTADOR
-
-                const counter = document.getElementById(`likes-${id}`);
-
-                if (counter) {
-
-                    counter.innerText =
-                        data.likes + (data.likes == 1 ? ' like' : ' likes');
-
-                }
-
-                // TEXTO "LES GUSTA A"
-
-                const likesText = document.getElementById(`likes-text-${id}`);
-
-                if (likesText) {
-
-                    if (data.liked) {
-
-                        likesText.innerHTML = `
-                            Les gusta a
-                            <span class="font-semibold">
-                                ti
-                            </span>
-                        `;
-
-                    } else {
-
-                        if (data.likes > 0) {
-
-                            likesText.innerHTML = `
-                                Les gusta a
-                                <span class="font-semibold">
-                                    alguien
-                                </span>
-                            `;
-
-                        } else {
-
-                            likesText.innerHTML = '';
-
-                        }
-                    }
-                }
-
-                // ICONO
-
-                if (data.liked) {
-
-                    icon.setAttribute('fill', 'currentColor');
-                    icon.classList.add('fill-red-500');
-
-                } else {
-
-                    icon.setAttribute('fill', 'none');
-                    icon.classList.remove('fill-red-500');
-
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
+            if (bubble && !bubble.contains(event.target) && menu && menu.classList.contains('active')) {
+                menu.classList.remove('active');
             }
-
         });
+    </script>
 
-    });
-
-});
-
-</script>
-<script>
-
-function openCommentsModal(id) {
-
-    event?.preventDefault();
-
-    const modal = document.getElementById(`comments-modal-${id}`);
-
-    if (!modal) return;
-
-    modal.classList.remove('hidden');
-
-    document.body.classList.add('overflow-hidden');
-
-}
-
-function closeCommentsModal(id) {
-
-    const modal = document.getElementById(`comments-modal-${id}`);
-
-    if (!modal) return;
-
-    modal.classList.add('hidden');
-
-    document.body.style.overflow = 'auto';
-}
-
-document.addEventListener('keydown', function(e) {
-
-    if (e.key === 'Escape') {
-
-        document.querySelectorAll('[id^="comments-modal-"]')
-            .forEach(modal => modal.classList.add('hidden'));
-
-        document.body.style.overflow = 'auto';
-    }
-});
-
-</script>
-<script>
-
-document.addEventListener('submit', function(e){
-
-    console.log('FORM SUBMIT DETECTADO');
-
-});
-
-</script>
-        @stack('scripts')
-    </body>
-    </html>
+    @stack('scripts')
+</body>
+</html>
